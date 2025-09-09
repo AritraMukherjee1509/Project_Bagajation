@@ -1,0 +1,200 @@
+/* ---------- Base reset ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html {
+  -webkit-text-size-adjust: 100%;
+}
+html,
+body {
+  padding: 0;
+  margin: 0;
+  height: 100%;
+}
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+/* ---------- Typography ---------- */
+body {
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+    Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  background: var(--bg);
+  color: var(--text-strong);
+  line-height: 1.45;
+}
+
+/* ---------- Color tokens ---------- */
+:root {
+  color-scheme: light dark;
+
+  /* light */
+  --bg: #ffffff;
+  --text-strong: #0f172a; /* slate-900 */
+  --text-muted: #475569; /* slate-600 */
+  --nav-bg: #ffffffee;
+  --border: #e2e8f0; /* slate-200 */
+  --chip-bg: #f8fafc; /* slate-50 */
+  --chip-bg-hover: #f1f5f9; /* slate-100 */
+  --surface: #ffffff; /* cards */
+  --surface-2: #f8fafc; /* subtle blocks */
+  --shadow: 0 10px 30px rgba(2, 6, 23, 0.08);
+
+  --cta-start: #22d3ee; /* cyan-400 */
+  --cta-end: #0ea5ff; /* sky-500 */
+  --danger: #ff6b6b;
+  --success: #22c55e;
+  --info: #0ea5ff;
+}
+
+/* dark */
+:root[data-theme="dark"] {
+  --bg: #0b1536; /* deep navy */
+  --text-strong: #e9efff; /* light ink */
+  --text-muted: #b8c3e6; /* muted ink */
+  --nav-bg: #0e1b4cee; /* dark translucent */
+  --border: rgba(255, 255, 255, 0.12);
+  --chip-bg: rgba(255, 255, 255, 0.04);
+  --chip-bg-hover: rgba(255, 255, 255, 0.08);
+  --surface: #0f1f54; /* card navy */
+  --surface-2: #0c1a46; /* section navy */
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+
+  --cta-start: #23d2ee;
+  --cta-end: #16b2ff;
+  --danger: #ff5d73;
+}
+
+/* First paint align to system if theme undefined */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --bg: #0b1536;
+    --text-strong: #e9efff;
+    --text-muted: #b8c3e6;
+    --nav-bg: #0e1b4cee;
+    --border: rgba(255, 255, 255, 0.12);
+    --chip-bg: rgba(255, 255, 255, 0.04);
+    --chip-bg-hover: rgba(255, 255, 255, 0.08);
+    --surface: #0f1f54;
+    --surface-2: #0c1a46;
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+
+    --cta-start: #23d2ee;
+    --cta-end: #16b2ff;
+    --danger: #ff5d73;
+  }
+}
+
+/* ---------- Utilities ---------- */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+.section {
+  padding: clamp(40px, 6vw, 80px) 0;
+}
+.grid {
+  display: grid;
+  gap: 20px;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--chip-bg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 10px;
+}
+.h1 {
+  font-size: clamp(28px, 3.6vw, 44px);
+  line-height: 1.15;
+  margin: 0 0 12px;
+}
+.h2 {
+  font-size: clamp(24px, 3vw, 36px);
+  line-height: 1.2;
+  margin: 0 0 10px;
+}
+.h3 {
+  font-size: clamp(18px, 2vw, 22px);
+  margin: 0 0 8px;
+}
+.muted {
+  color: var(--text-muted);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  border-radius: 999px;
+  padding: 12px 18px;
+  border: 0;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
+}
+.btn-primary {
+  color: #fff;
+  background: linear-gradient(90deg, var(--cta-start), var(--cta-end));
+  box-shadow: 0 10px 24px color-mix(in oklab, var(--cta-end) 40%, transparent);
+}
+.btn-primary:hover {
+  transform: translateY(-1px);
+}
+.btn-outline {
+  background: var(--chip-bg);
+  color: var(--text-strong);
+  border: 1px solid var(--border);
+}
+.input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-strong);
+  border-radius: 12px;
+  padding: 12px 14px;
+  outline: none;
+}
+.input::placeholder {
+  color: color-mix(in oklab, var(--text-muted) 70%, transparent);
+}
+.hr {
+  height: 1px;
+  background: var(--border);
+  border: 0;
+  margin: 20px 0;
+}
+.tagRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+/* Smooth accordion transitions */
+.details summary {
+  list-style: none;
+  cursor: pointer;
+}
+details > summary::marker,
+details > summary::-webkit-details-marker {
+  display: none;
+}

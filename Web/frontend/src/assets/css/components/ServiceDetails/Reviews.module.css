@@ -1,0 +1,41 @@
+.list {
+  display: grid;
+  gap: 12px;
+}
+.item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px;
+}
+.top {
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  gap: 12px;
+  align-items: center;
+}
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--chip-bg);
+  font-weight: 800;
+}
+.info {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.name {
+  font-weight: 800;
+}
+.stars {
+  display: flex;
+  gap: 3px;
+  color: #f59e0b;
+}
+.star {
+  color: #fbbf24;
+}

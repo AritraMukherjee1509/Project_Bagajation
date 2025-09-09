@@ -1,0 +1,74 @@
+.inner {
+  text-align: center;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.slider {
+  display: grid;
+  grid-template-columns: 50px 1fr 50px;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+}
+.nav {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--chip-bg);
+  color: var(--text-strong);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.slide {
+  display: flex;
+  gap: 14px;
+  margin: 10px auto;
+  justify-content: center;
+  align-items: center;
+  background: var(--surface);
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  max-width: 640px;
+  text-align: left;
+}
+.avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--cta-end) 24%, var(--surface-2));
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+}
+.name {
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.stars {
+  color: #fbbf24;
+  display: flex;
+  gap: 4px;
+  margin: 6px 0 8px;
+}
+.filled {
+  color: #f59e0b;
+}
+.dots {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 10px;
+}
+.dot {
+  width: 34px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--border);
+}
+.active {
+  background: color-mix(in oklab, var(--cta-end) 50%, var(--border));
+}

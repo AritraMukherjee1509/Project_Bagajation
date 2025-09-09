@@ -1,0 +1,55 @@
+.row {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 28px;
+  align-items: center;
+}
+.left {
+  padding-right: 10px;
+}
+.list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 22px;
+  margin: 16px 0;
+}
+.list span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  color: color-mix(in oklab, var(--text-strong) 90%, transparent);
+}
+.note {
+  margin-top: 14px;
+  padding: 14px 18px;
+  background: var(--chip-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  color: var(--text-strong);
+}
+.right {
+  display: flex;
+  justify-content: center;
+}
+.image {
+  width: 100%;
+  aspect-ratio: 16/11;
+  border-radius: 22px;
+  background-image: url("https://images.unsplash.com/photo-1599110908976-07c5d6e29c59?q=80&w=1400&auto=format&fit=crop");
+  background-size: cover;
+  background-position: center;
+  /* house-like shape */
+  -webkit-clip-path: polygon(10% 0, 90% 0, 100% 16%, 100% 100%, 0 100%, 0 16%);
+  clip-path: polygon(10% 0, 90% 0, 100% 16%, 100% 100%, 0 100%, 0 16%);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+@media (max-width: 920px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+  .left {
+    order: 2;
+  }
+}

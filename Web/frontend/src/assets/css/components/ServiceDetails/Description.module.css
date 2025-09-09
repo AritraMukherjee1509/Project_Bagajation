@@ -1,0 +1,35 @@
+.wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px;
+}
+.rating {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: #fbbf24;
+}
+.star {
+  color: #f59e0b;
+}
+.priceRow {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin: 6px 0 10px;
+}
+.price {
+  font-weight: 800;
+  color: #16a34a;
+}
+.old {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+.quick {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 12px;
+}

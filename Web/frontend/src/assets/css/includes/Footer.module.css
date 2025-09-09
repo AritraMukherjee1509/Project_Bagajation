@@ -1,0 +1,138 @@
+.wrapper {
+  margin-top: 60px;
+}
+.newsletter {
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--cta-start) 78%, #fff) 0%,
+    var(--cta-end) 100%
+  );
+  color: #fff;
+  padding: 26px 0;
+  border-radius: 0;
+}
+.newsInner {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  align-items: center;
+  gap: 20px;
+}
+.form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 8px;
+  border-radius: 999px;
+}
+.form .input {
+  background: #fff;
+  color: #0f172a;
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 16px;
+}
+.footerMain {
+  background: color-mix(in oklab, var(--cta-end) 32%, var(--surface-2));
+  padding: 34px 0 18px;
+  color: #fff;
+}
+.cols {
+  display: grid;
+  grid-template-columns: 1.2fr repeat(3, 1fr);
+  gap: clamp(16px, 2vw, 28px);
+}
+.brandRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.logoBadge {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #fff;
+  background: radial-gradient(
+    60% 60% at 30% 30%,
+    #ff5a7a 0%,
+    #ff3066 30%,
+    #c21049 80%
+  );
+  box-shadow: 0 4px 14px rgba(255, 64, 100, 0.4);
+}
+.brandText {
+  font-weight: 700;
+}
+.colTitle {
+  margin: 0 0 10px;
+  font-weight: 700;
+}
+.links {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+.links a {
+  color: #f0f8ff;
+  opacity: 0.9;
+}
+.links a:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+.socials {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+}
+.socials a {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+.socials a:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+.bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  margin-top: 22px;
+  padding-top: 14px;
+  display: flex;
+  justify-content: center;
+}
+
+@media (max-width: 900px) {
+  .newsInner {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .form {
+    grid-template-columns: 1fr;
+    border-radius: 16px;
+    background: transparent;
+    padding: 0;
+  }
+  .form .input {
+    border-radius: 12px;
+  }
+  .cols {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 640px) {
+  .cols {
+    grid-template-columns: 1fr;
+  }
+}

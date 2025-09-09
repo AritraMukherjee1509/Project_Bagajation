@@ -1,0 +1,17 @@
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.cat {
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--chip-bg);
+  color: var(--text-strong);
+  font-weight: 700;
+  cursor: pointer;
+}
+.cat:hover {
+  background: var(--chip-bg-hover);
+}

@@ -1,0 +1,103 @@
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.seeAll {
+  color: var(--cta-end);
+  font-weight: 700;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+.card {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+}
+.photo {
+  width: 100%;
+  aspect-ratio: 16/11;
+  background-size: cover;
+  background-position: center;
+}
+.body {
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+}
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #f59e0b;
+}
+.starFill {
+  color: #fbbf24;
+}
+.title {
+  font-weight: 800;
+}
+.pricing {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+}
+.price {
+  color: #16a34a;
+  font-weight: 800;
+}
+.old {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+.meta {
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  gap: 10px;
+  align-items: center;
+}
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--chip-bg);
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+}
+.name {
+  font-weight: 700;
+}
+.add {
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 0;
+  color: #fff;
+  background: linear-gradient(90deg, var(--cta-start), var(--cta-end));
+  font-weight: 800;
+  cursor: pointer;
+}
+@media (max-width: 1100px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (max-width: 800px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 560px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
