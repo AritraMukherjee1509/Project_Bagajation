@@ -1,51 +1,145 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from '../assets/css/includes/Navbar.module.css';
 
 const LINKS = [
-  { href: '#about', label: 'About Us' },
-  { href: '#services', label: 'Services' },
-  { href: '#faq', label: 'Faq' },
-  { href: '#contact', label: 'Contact' },
+  { href: '/about', label: 'About Us' },
+  { href: '/listing', label: 'Services' },
+  { href: '/faq', label: 'FAQ' },
+  { href: '/contact', label: 'Contact' },
 ];
 
-export default function Navbar({ theme, toggleTheme }) {
+const ThemeIcon = ({ theme, resolvedTheme }) => {
+  if (theme === 'system') {
+    return (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+        <line x1="8" y1="21" x2="16" y2="21"/>
+        <line x1="12" y1="17" x2="12" y2="21"/>
+      </svg>
+    );
+  }
+  
+  if (resolvedTheme === 'dark') {
+    return (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <circle cx="12" cy="12" r="5"/>
+        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+      </svg>
+    );
+  }
+  
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+    </svg>
+  );
+};
+
+export default function Navbar({ theme, resolvedTheme, toggleTheme }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  // Handle scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Close menu on escape key
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        setMenuOpen(false);
+      }
+    };
+
+    if (menuOpen) {
+      document.addEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.body.style.overflow = '';
+    };
+  }, [menuOpen]);
+
+  const getThemeLabel = () => {
+    if (theme === 'system') return 'System theme';
+    return theme === 'dark' ? 'Dark theme' : 'Light theme';
+  };
 
   return (
-    <header className={styles.wrapper}>
-      <nav className={styles.nav}>
+    <header className={`${styles.wrapper} ${scrolled ? styles.scrolled : ''}`}>
+      <nav className={styles.nav} role="navigation" aria-label="Main navigation">
         {/* Brand */}
-        <a className={styles.brand} href="/" aria-label="Go to homepage">
-          <span className={styles.logoBadge}>LG</span>
+        <a 
+          className={styles.brand} 
+          href="/" 
+          aria-label="LG - Go to homepage"
+        >
+          <span className={styles.logoBadge} aria-hidden="true">LG</span>
           <span className={styles.brandText}>LG</span>
         </a>
 
         {/* Mobile burger */}
         <button
           className={styles.burger}
-          aria-label="Toggle menu"
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={menuOpen}
-          onClick={() => setMenuOpen((o) => !o)}
+          aria-controls="main-menu"
+          onClick={() => setMenuOpen(!menuOpen)}
         >
-          <span />
-          <span />
-          <span />
+          <span className={menuOpen ? styles.active : ''} />
+          <span className={menuOpen ? styles.active : ''} />
+          <span className={menuOpen ? styles.active : ''} />
         </button>
 
         {/* Links */}
-        <div className={`${styles.links} ${menuOpen ? styles.open : ''}`}>
-          {LINKS.map((l) => (
-            <a key={l.href} href={l.href} className={styles.link} onClick={() => setMenuOpen(false)}>
-              {l.label}
+        <div 
+          id="main-menu"
+          className={`${styles.links} ${menuOpen ? styles.open : ''}`}
+          role="menu"
+        >
+          {LINKS.map((link) => (
+            <a 
+              key={link.href} 
+              href={link.href} 
+              className={styles.link}
+              role="menuitem"
+              onClick={() => setMenuOpen(false)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  setMenuOpen(false);
+                }
+              }}
+            >
+              {link.label}
             </a>
           ))}
 
-          <span className={styles.serviceTag}>
+          <div className={styles.serviceTag} role="status" aria-label="24 hour services available">
             <span className={styles.dot} aria-hidden="true" />
-            24 Hour Services
-          </span>
+            <span className={styles.serviceText}>24 Hour Services</span>
+          </div>
 
-          <a href="#get-started" className={styles.cta} onClick={() => setMenuOpen(false)}>
+                    <a 
+            href="#get-started"
+            className={styles.cta}
+            role="menuitem"
+            onClick={() => setMenuOpen(false)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                setMenuOpen(false);
+              }
+            }}
+          >
             Get Started
             <span className={styles.arrowCircle} aria-hidden="true">
               <svg
@@ -67,12 +161,22 @@ export default function Navbar({ theme, toggleTheme }) {
           <button
             className={styles.themeBtn}
             onClick={toggleTheme}
-            title="Toggle theme"
-            aria-label="Toggle theme"
+            title={getThemeLabel()}
+            aria-label={getThemeLabel()}
+            type="button"
           >
-            {theme === 'dark' ? '☀️' : '🌙'}
+            <ThemeIcon theme={theme} resolvedTheme={resolvedTheme} />
           </button>
         </div>
+
+        {/* Mobile menu overlay */}
+        {menuOpen && (
+          <div 
+            className={styles.overlay}
+            onClick={() => setMenuOpen(false)}
+            aria-hidden="true"
+          />
+        )}
       </nav>
     </header>
   );

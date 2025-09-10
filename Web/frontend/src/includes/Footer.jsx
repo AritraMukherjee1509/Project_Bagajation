@@ -1,76 +1,282 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styles from '../assets/css/includes/Footer.module.css';
-import { FiYoutube, FiInstagram, FiFacebook, FiTwitter, FiMail } from 'react-icons/fi';
+import { 
+  FiYoutube, 
+  FiInstagram, 
+  FiFacebook, 
+  FiTwitter, 
+  FiMail, 
+  FiPhone, 
+  FiMapPin, 
+  FiClock,
+  FiArrowUp,
+  FiCheck,
+  FiAlertCircle
+} from 'react-icons/fi';
 
 export default function Footer() {
+  const [email, setEmail] = useState('');
+  const [subscriptionStatus, setSubscriptionStatus] = useState('idle'); // 'idle', 'loading', 'success', 'error'
+
+  const handleNewsletterSubmit = async (e) => {
+    e.preventDefault();
+    if (!email) return;
+
+    setSubscriptionStatus('loading');
+    
+    // Simulate API call
+    setTimeout(() => {
+      if (email.includes('@')) {
+        setSubscriptionStatus('success');
+        setEmail('');
+        setTimeout(() => setSubscriptionStatus('idle'), 3000);
+      } else {
+        setSubscriptionStatus('error');
+        setTimeout(() => setSubscriptionStatus('idle'), 3000);
+      }
+    }, 1000);
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const currentYear = new Date().getFullYear();
+
+  const socialLinks = [
+    { icon: FiYoutube, href: '#', label: 'YouTube', color: '#FF0000' },
+    { icon: FiInstagram, href: '#', label: 'Instagram', color: '#E4405F' },
+    { icon: FiFacebook, href: '#', label: 'Facebook', color: '#1877F2' },
+    { icon: FiTwitter, href: '#', label: 'Twitter', color: '#1DA1F2' },
+    { icon: FiMail, href: 'mailto:hello@lg.com', label: 'Email', color: '#EA4335' },
+  ];
+
+  const companyLinks = [
+    { href: '/about', label: 'About Us' },
+    { href: '/listing', label: 'Our Services' },
+    { href: '/careers', label: 'Careers' },
+    { href: '/blog', label: 'Blog' },
+    { href: '/contact', label: 'Contact Us' },
+  ];
+
+  const legalLinks = [
+    { href: '/terms', label: 'Terms of Service' },
+    { href: '/privacy', label: 'Privacy Policy' },
+    { href: '/cookies', label: 'Cookie Policy' },
+    { href: '/licenses', label: 'Licenses' },
+  ];
+
+  const supportLinks = [
+    { href: '/faq', label: 'FAQ' },
+    { href: '/help', label: 'Help Center' },
+    { href: '/status', label: 'Service Status' },
+    { href: '/community', label: 'Community' },
+    { href: '/warranty', label: 'Warranty' },
+  ];
+
   return (
-    <footer className={styles.wrapper}>
-      <section className={styles.newsletter}>
+    <footer className={styles.wrapper} role="contentinfo">
+      {/* Newsletter Section */}
+      <section className={styles.newsletter} aria-labelledby="newsletter-title">
         <div className="container">
           <div className={styles.newsInner}>
-            <div>
-              <h3 className="h3">Stay Connected with Our Newsletter</h3>
-              <p className="muted">Subscribe to get updates, promos, and new services.</p>
+            <div className={styles.newsContent}>
+              <h3 id="newsletter-title" className={styles.newsTitle}>
+                Stay Connected with Our Newsletter
+              </h3>
+              <p className={styles.newsDescription}>
+                Get the latest updates, exclusive offers, and smart home tips delivered to your inbox.
+              </p>
+              <div className={styles.newsFeatures}>
+                <span className={styles.feature}>
+                  <FiCheck size={16} />
+                  Weekly tips & tricks
+                </span>
+                <span className={styles.feature}>
+                  <FiCheck size={16} />
+                  Exclusive discounts
+                </span>
+                <span className={styles.feature}>
+                  <FiCheck size={16} />
+                  New service alerts
+                </span>
+              </div>
             </div>
-            <form className={styles.form} onSubmit={(e)=>e.preventDefault()}>
-              <input className="input" type="email" placeholder="Enter email address" aria-label="Email" />
-              <button className="btn btn-primary" type="submit">Subscribe</button>
+            
+            <form 
+              className={styles.form} 
+              onSubmit={handleNewsletterSubmit}
+              aria-label="Newsletter subscription"
+            >
+              <div className={styles.inputWrapper}>
+                <input 
+                  className={`${styles.emailInput} ${subscriptionStatus === 'error' ? styles.error : ''}`}
+                  type="email" 
+                  placeholder="Enter your email address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  aria-label="Email address"
+                  required
+                  disabled={subscriptionStatus === 'loading'}
+                />
+                {subscriptionStatus === 'error' && (
+                  <FiAlertCircle className={styles.inputIcon} />
+                )}
+                {subscriptionStatus === 'success' && (
+                  <FiCheck className={styles.inputIcon} />
+                )}
+              </div>
+              
+              <button 
+                className={`${styles.subscribeBtn} ${subscriptionStatus === 'loading' ? styles.loading : ''}`}
+                type="submit"
+                disabled={subscriptionStatus === 'loading' || !email}
+                aria-label="Subscribe to newsletter"
+              >
+                {subscriptionStatus === 'loading' ? (
+                  <span className={styles.spinner} />
+                ) : subscriptionStatus === 'success' ? (
+                  <>
+                    <FiCheck size={18} />
+                    Subscribed!
+                  </>
+                ) : (
+                  'Subscribe'
+                )}
+              </button>
+              
+              {subscriptionStatus === 'error' && (
+                <p className={styles.errorMessage} role="alert">
+                  Please enter a valid email address
+                </p>
+              )}
+              {subscriptionStatus === 'success' && (
+                <p className={styles.successMessage} role="status">
+                  Thank you for subscribing!
+                </p>
+              )}
             </form>
           </div>
         </div>
       </section>
 
-      <section className={`${styles.footerMain}`}>
+      {/* Main Footer Content */}
+      <section className={styles.footerMain}>
         <div className="container">
           <div className={styles.cols}>
+            {/* Brand Column */}
             <div className={styles.brandCol}>
               <div className={styles.brandRow}>
-                <span className={styles.logoBadge}>LG</span>
-                <span className={styles.brandText}>LG</span>
+                <span className={styles.logoBadge} aria-hidden="true">LG</span>
+                <span className={styles.brandText}>LG Smart Services</span>
               </div>
-              <p className="muted">LG is your destination for top‑notch smart home service and repair.</p>
+              
+              <p className={styles.brandDescription}>
+                Your trusted partner for premium smart home services and repairs. 
+                We bring innovation and reliability to your doorstep.
+              </p>
+              
+              {/* Contact Info */}
+              <div className={styles.contactInfo}>
+                <div className={styles.contactItem}>
+                  <FiPhone size={16} />
+                  <span>+1 (555) 123-4567</span>
+                </div>
+                <div className={styles.contactItem}>
+                  <FiMapPin size={16} />
+                  <span>123 Tech Street, Smart City, SC 12345</span>
+                </div>
+                <div className={styles.contactItem}>
+                  <FiClock size={16} />
+                  <span>24/7 Emergency Service</span>
+                </div>
+              </div>
+              
+              {/* Social Links */}
               <div className={styles.socials}>
-                <a href="#" aria-label="YouTube"><FiYoutube /></a>
-                <a href="#" aria-label="Instagram"><FiInstagram /></a>
-                <a href="#" aria-label="Facebook"><FiFacebook /></a>
-                <a href="#" aria-label="Twitter"><FiTwitter /></a>
-                <a href="mailto:hello@example.com" aria-label="Email"><FiMail /></a>
+                {socialLinks.map((social, index) => {
+                  const IconComponent = social.icon;
+                  return (
+                    <a 
+                      key={index}
+                      href={social.href} 
+                      className={styles.socialLink}
+                      aria-label={`Follow us on ${social.label}`}
+                      style={{ '--social-color': social.color }}
+                    >
+                      <IconComponent size={18} />
+                    </a>
+                  );
+                })}
               </div>
             </div>
 
-            <div>
+            {/* Company Links */}
+            <div className={styles.linkCol}>
               <h4 className={styles.colTitle}>Company</h4>
               <ul className={styles.links}>
-                <li><a href="/about">About us</a></li>
-                <li><a href="/listing">Services</a></li>
-                <li><a href="#">Our Blog</a></li>
-                <li><a href="/contact">Contact</a></li>
+                {companyLinks.map((link, index) => (
+                  <li key={index}>
+                    <a href={link.href} className={styles.footerLink}>
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
               </ul>
             </div>
 
-            <div>
+            {/* Legal Links */}
+            <div className={styles.linkCol}>
               <h4 className={styles.colTitle}>Legal</h4>
               <ul className={styles.links}>
-                <li><a href="#">Terms</a></li>
-                <li><a href="#">Privacy</a></li>
-                <li><a href="#">Cookies</a></li>
-                <li><a href="#">License</a></li>
+                {legalLinks.map((link, index) => (
+                  <li key={index}>
+                    <a href={link.href} className={styles.footerLink}>
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
               </ul>
             </div>
 
-            <div>
+            {/* Support Links */}
+            <div className={styles.linkCol}>
               <h4 className={styles.colTitle}>Support</h4>
               <ul className={styles.links}>
-                <li><a href="/faq">FAQ</a></li>
-                <li><a href="/contact">Help Center</a></li>
-                <li><a href="#">Status</a></li>
-                <li><a href="#">Community</a></li>
+                {supportLinks.map((link, index) => (
+                  <li key={index}>
+                    <a href={link.href} className={styles.footerLink}>
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
               </ul>
             </div>
           </div>
 
+          {/* Footer Bottom */}
           <div className={styles.bottom}>
-            <p className="muted">©2025 LG. All rights reserved.</p>
+            <div className={styles.bottomContent}>
+              <p className={styles.copyright}>
+                © {currentYear} LG Smart Services. All rights reserved.
+              </p>
+              
+              <div className={styles.bottomLinks}>
+                <a href="/sitemap" className={styles.bottomLink}>Sitemap</a>
+                <a href="/accessibility" className={styles.bottomLink}>Accessibility</a>
+                <a href="/security" className={styles.bottomLink}>Security</a>
+              </div>
+            </div>
+            
+            {/* Back to Top Button */}
+            <button 
+              className={styles.backToTop}
+              onClick={scrollToTop}
+              aria-label="Back to top"
+              title="Back to top"
+            >
+              <FiArrowUp size={20} />
+            </button>
           </div>
         </div>
       </section>
