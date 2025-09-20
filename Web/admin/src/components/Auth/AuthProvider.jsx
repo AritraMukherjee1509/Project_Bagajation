@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { authAPI } from '../../utils/api';
 
 const AuthContext = createContext();
 
@@ -15,65 +16,98 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is logged in
-    const token = localStorage.getItem('admin_token');
-    const userData = localStorage.getItem('admin_user');
-    
-    if (token && userData) {
-      setUser(JSON.parse(userData));
-    }
-    setLoading(false);
+    checkAuthStatus();
   }, []);
 
-  const login = async (email, password) => {
+  const checkAuthStatus = async () => {
     try {
-      // TODO: Replace with actual API call
-      const response = await fetch('/api/admin/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        localStorage.setItem('admin_token', data.token);
-        localStorage.setItem('admin_user', JSON.stringify(data.user));
-        setUser(data.user);
-        return { success: true };
-      } else if (email === 'admin@bagajatin.com' && password === 'admin123') {
-        // Mock login for demo
-        const mockUser = {
-          id: 1,
-          name: 'Admin User',
-          email: 'admin@bagajatin.com',
-          role: 'admin'
-        };
-        localStorage.setItem('admin_token', 'mock_token');
-        localStorage.setItem('admin_user', JSON.stringify(mockUser));
-        setUser(mockUser);
-        return { success: true };
-      } else {
-        return { success: false, error: 'Invalid credentials' };
+      const token = localStorage.getItem('admin_token');
+      const userData = localStorage.getItem('admin_user');
+      
+      if (token && userData) {
+        // Verify token with backend
+        const response = await authAPI.getProfile();
+        if (response.success) {
+          setUser(response.data);
+        } else {
+          // Token invalid, clear storage
+          localStorage.removeItem('admin_token');
+          localStorage.removeItem('admin_user');
+        }
       }
     } catch (error) {
-      console.error('Login error:', error);
-      return { success: false, error: 'Invalid credentials' };
+      console.error('Auth check failed:', error);
+      localStorage.removeItem('admin_token');
+      localStorage.removeItem('admin_user');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('admin_token');
-    localStorage.removeItem('admin_user');
-    setUser(null);
+  const login = async (email, password) => {
+    try {
+      setLoading(true);
+      const response = await authAPI.login({ email, password });
+      
+      if (response.success) {
+        localStorage.setItem('admin_token', response.token);
+        localStorage.setItem('admin_user', JSON.stringify(response.data));
+        setUser(response.data);
+        return { success: true };
+      } else {
+        return { success: false, error: response.error || 'Login failed' };
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      return { success: false, error: error.message || 'Login failed' };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await authAPI.logout();
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      localStorage.removeItem('admin_token');
+      localStorage.removeItem('admin_user');
+      setUser(null);
+    }
+  };
+
+  const updateProfile = async (profileData) => {
+    try {
+      const response = await authAPI.updateProfile(profileData);
+      if (response.success) {
+        setUser(response.data);
+        localStorage.setItem('admin_user', JSON.stringify(response.data));
+        return { success: true };
+      }
+      return { success: false, error: response.error };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  };
+
+  const changePassword = async (passwordData) => {
+    try {
+      const response = await authAPI.changePassword(passwordData);
+      return { success: response.success, error: response.error };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
   };
 
   const value = {
     user,
     login,
     logout,
-    loading
+    updateProfile,
+    changePassword,
+    loading,
+    isAuthenticated: !!user
   };
 
   return (

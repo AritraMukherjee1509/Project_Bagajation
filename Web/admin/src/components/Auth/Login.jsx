@@ -23,13 +23,24 @@ export default function Login() {
     setLoading(true);
     setError('');
 
-    const result = await login(formData.email, formData.password);
-    
-    if (!result.success) {
-      setError(result.error);
+    // Basic validation
+    if (!formData.email || !formData.password) {
+      setError('Please fill in all fields');
+      setLoading(false);
+      return;
     }
-    
-    setLoading(false);
+
+    try {
+      const result = await login(formData.email, formData.password);
+      
+      if (!result.success) {
+        setError(result.error || 'Login failed');
+      }
+    } catch (error) {
+      setError('An unexpected error occurred');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -37,6 +48,8 @@ export default function Login() {
       ...prev,
       [e.target.name]: e.target.value
     }));
+    // Clear error when user starts typing
+    if (error) setError('');
   };
 
   return (
@@ -71,6 +84,7 @@ export default function Login() {
                   value={formData.email}
                   onChange={handleChange}
                   required
+                  disabled={loading}
                 />
               </div>
             </div>
@@ -87,11 +101,13 @@ export default function Login() {
                   value={formData.password}
                   onChange={handleChange}
                   required
+                  disabled={loading}
                 />
                 <button
                   type="button"
                   className="password-toggle"
                   onClick={() => setShowPassword(!showPassword)}
+                  disabled={loading}
                 >
                   {showPassword ? <FiEyeOff /> : <FiEye />}
                 </button>
@@ -118,7 +134,7 @@ export default function Login() {
             <p className="demo-credentials">
               <strong>Demo Credentials:</strong><br />
               Email: admin@bagajatin.com<br />
-              Password: admin123
+              Password: admin123456
             </p>
           </div>
         </div>

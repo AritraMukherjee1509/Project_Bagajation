@@ -1,14 +1,63 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ServicesList from '../components/Services/ServicesList';
 import ServiceForm from '../components/Services/ServiceForm';
 import ServiceDetails from '../components/Services/ServiceDetails';
-import { FiDownload, FiUpload, FiFilter } from 'react-icons/fi';
+import { FiDownload, FiUpload, FiFilter, FiRefreshCw } from 'react-icons/fi';
+import { servicesAPI } from '../utils/api';
 
 export default function Services() {
   const [showForm, setShowForm] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
-  const [formMode, setFormMode] = useState('create'); // 'create' or 'edit'
+  const [formMode, setFormMode] = useState('create');
+  
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [filters, setFilters] = useState({
+    page: 1,
+    limit: 10,
+    status: 'all',
+    category: 'all',
+    search: ''
+  });
+  const [pagination, setPagination] = useState({});
+
+  useEffect(() => {
+    loadServices();
+  }, [filters]);
+
+  const loadServices = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const params = {
+        ...filters,
+        ...(filters.status !== 'all' && { status: filters.status }),
+        ...(filters.category !== 'all' && { category: filters.category }),
+        ...(filters.search && { search: filters.search })
+      };
+
+      const response = await servicesAPI.getServices(params);
+      
+      if (response.success) {
+        setServices(response.data);
+        setPagination({
+          total: response.total,
+          page: response.page || 1,
+          pages: response.pages || 1,
+          hasNext: response.pagination?.next,
+          hasPrev: response.pagination?.prev
+        });
+      }
+    } catch (error) {
+      console.error('Failed to load services:', error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleCreateService = () => {
     setSelectedService(null);
@@ -27,20 +76,40 @@ export default function Services() {
     setShowDetails(true);
   };
 
-  const handleDeleteService = (service) => {
+  const handleDeleteService = async (service) => {
     if (window.confirm(`Are you sure you want to delete "${service.name}"?`)) {
-      // Implementation for deleting service
-      console.log('Delete service:', service);
+      try {
+        const response = await servicesAPI.deleteService(service._id);
+        if (response.success) {
+          await loadServices(); // Refresh the list
+        }
+      } catch (error) {
+        console.error('Delete failed:', error);
+        alert('Failed to delete service: ' + error.message);
+      }
     }
   };
 
-  const handleSaveService = (serviceData) => {
-    if (formMode === 'create') {
-      // Implementation for creating new service
-      console.log('Create service:', serviceData);
-    } else {
-      // Implementation for updating service
-      console.log('Update service:', serviceData);
+  const handleSaveService = async (serviceData) => {
+    try {
+      let response;
+      
+      if (formMode === 'create') {
+        response = await servicesAPI.createService(serviceData);
+      } else {
+                response = await servicesAPI.updateService(selectedService._id, serviceData);
+      }
+      
+      if (response.success) {
+        await loadServices(); // Refresh the list
+        setShowForm(false);
+        setSelectedService(null);
+      } else {
+        throw new Error(response.error || 'Save failed');
+      }
+    } catch (error) {
+      console.error('Save failed:', error);
+      alert('Failed to save service: ' + error.message);
     }
   };
 
@@ -54,6 +123,50 @@ export default function Services() {
     setSelectedService(null);
   };
 
+  const handleExport = async () => {
+    try {
+      const response = await servicesAPI.getServices({ 
+        ...filters, 
+        limit: 1000,
+        export: true 
+      });
+      
+      if (response.success) {
+        const csvContent = convertServicesToCSV(response.data);
+        downloadCSV(csvContent, `services-${Date.now()}.csv`);
+      }
+    } catch (error) {
+      console.error('Export failed:', error);
+    }
+  };
+
+  const convertServicesToCSV = (data) => {
+    const headers = ['Name', 'Category', 'Provider', 'Price', 'Rating', 'Status', 'Created'];
+    const rows = data.map(service => [
+      service.name,
+      service.category,
+      service.provider?.name || 'N/A',
+      `₹${service.pricing?.basePrice || 0}`,
+      service.ratings?.averageRating || 0,
+      service.status,
+      new Date(service.createdAt).toLocaleDateString()
+    ]);
+    
+    return [headers, ...rows].map(row => row.join(',')).join('\n');
+  };
+
+  const downloadCSV = (content, filename) => {
+    const blob = new Blob([content], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="services-page">
       <div className="page-header">
@@ -63,7 +176,11 @@ export default function Services() {
         </div>
         
         <div className="header-actions">
-          <button className="btn btn-outline">
+          <button className="btn btn-outline" onClick={loadServices}>
+            <FiRefreshCw />
+            Refresh
+          </button>
+          <button className="btn btn-outline" onClick={handleExport}>
             <FiDownload />
             Export Services
           </button>
@@ -80,10 +197,17 @@ export default function Services() {
 
       <div className="services-content">
         <ServicesList
+          services={services}
+          loading={loading}
+          error={error}
+          pagination={pagination}
+          filters={filters}
+          setFilters={setFilters}
           onEdit={handleEditService}
           onDelete={handleDeleteService}
           onView={handleViewService}
           onCreate={handleCreateService}
+          onRefresh={loadServices}
         />
       </div>
 
@@ -91,6 +215,7 @@ export default function Services() {
       {showForm && (
         <ServiceForm
           service={selectedService}
+          mode={formMode}
           onClose={handleCloseForm}
           onSave={handleSaveService}
         />

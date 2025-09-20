@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   FiTrendingUp, 
   FiTrendingDown, 
@@ -10,57 +10,123 @@ import {
   FiBarChart,
   FiPieChart
 } from 'react-icons/fi';
-
-const analyticsData = {
-  overview: {
-    totalRevenue: 2456700,
-    revenueGrowth: 12.5,
-    totalBookings: 1234,
-    bookingsGrowth: 8.3,
-    totalUsers: 5678,
-    usersGrowth: 15.2,
-    avgOrderValue: 1890,
-    avgOrderGrowth: -2.1
-  },
-  revenueChart: {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-    data: [185000, 220000, 195000, 280000, 315000, 245000]
-  },
-  bookingsChart: {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-    data: [142, 168, 156, 201, 234, 189]
-  },
-  serviceBreakdown: [
-    { name: 'AC Services', value: 35, count: 432, revenue: 453600 },
-    { name: 'Electrical', value: 25, count: 309, revenue: 324500 },
-    { name: 'Plumbing', value: 20, count: 247, revenue: 259300 },
-    { name: 'Cleaning', value: 15, count: 185, revenue: 194250 },
-    { name: 'Other', value: 5, count: 61, revenue: 64050 }
-  ],
-  topPerformers: [
-    { name: 'Subhajit Dey', bookings: 89, revenue: 93450, rating: 4.9 },
-    { name: 'Ravi Kumar', bookings: 76, revenue: 79800, rating: 4.8 },
-    { name: 'Priya Sharma', bookings: 65, revenue: 68250, rating: 4.7 },
-    { name: 'Amit Singh', bookings: 58, revenue: 60900, rating: 4.6 }
-  ]
-};
+import { analyticsAPI } from '../utils/api';
 
 export default function Analytics() {
   const [timeRange, setTimeRange] = useState('6m');
   const [chartType, setChartType] = useState('revenue');
+  const [analyticsData, setAnalyticsData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    loadAnalyticsData();
+  }, [timeRange]);
+
+  const loadAnalyticsData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const params = { timeRange };
+      const [dashboardData, revenueData, bookingsData, usersData, servicesData] = await Promise.all([
+        analyticsAPI.getDashboard(params),
+        analyticsAPI.getRevenue(params),
+        analyticsAPI.getBookings(params),
+        analyticsAPI.getUsers(params),
+        analyticsAPI.getServices(params)
+      ]);
+
+      setAnalyticsData({
+        overview: dashboardData.success ? dashboardData.data.overview : {},
+        revenue: revenueData.success ? revenueData.data : {},
+        bookings: bookingsData.success ? bookingsData.data : {},
+        users: usersData.success ? usersData.data : {},
+        services: servicesData.success ? servicesData.data : {}
+      });
+    } catch (error) {
+      console.error('Analytics data loading failed:', error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRefresh = () => {
+    loadAnalyticsData();
+  };
+
+  const handleExport = async () => {
+    try {
+      // Implementation for exporting analytics data
+      const dataToExport = {
+        timeRange,
+        generatedAt: new Date().toISOString(),
+        data: analyticsData
+      };
+      
+      const blob = new Blob([JSON.stringify(dataToExport, null, 2)], {
+        type: 'application/json'
+      });
+      
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `analytics-report-${timeRange}-${Date.now()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Export failed:', error);
+    }
+  };
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
       minimumFractionDigits: 0
-    }).format(amount);
+    }).format(amount || 0);
   };
 
   const formatPercentage = (value) => {
     const sign = value > 0 ? '+' : '';
-    return `${sign}${value.toFixed(1)}%`;
+    return `${sign}${(value || 0).toFixed(1)}%`;
   };
+
+  if (loading) {
+    return (
+      <div className="analytics-page">
+        <div className="loading-container">
+          <div className="loading-spinner">
+            <FiRefreshCw className="spinning" />
+            <p>Loading analytics...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="analytics-page">
+        <div className="error-container">
+          <p>Error loading analytics: {error}</p>
+          <button className="btn btn-primary" onClick={handleRefresh}>
+            <FiRefreshCw />
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const overview = analyticsData?.overview || {};
+  const revenueChart = analyticsData?.revenue?.revenueByPeriod || [];
+  const bookingsChart = analyticsData?.bookings?.bookingsByTimeOfDay || [];
+  const serviceBreakdown = analyticsData?.services?.categoryPerformance || [];
+  const topPerformers = analyticsData?.services?.topRatedServices || [];
 
   return (
     <div className="analytics-page">
@@ -82,11 +148,11 @@ export default function Analytics() {
             <option value="6m">Last 6 months</option>
             <option value="1y">Last year</option>
           </select>
-          <button className="btn btn-outline">
+          <button className="btn btn-outline" onClick={handleRefresh}>
             <FiRefreshCw />
             Refresh
           </button>
-          <button className="btn btn-primary">
+          <button className="btn btn-primary" onClick={handleExport}>
             <FiDownload />
             Export Report
           </button>
@@ -101,13 +167,13 @@ export default function Analytics() {
               <div className="stat-icon">
                 <FiDollarSign />
               </div>
-              <div className={`stat-trend ${analyticsData.overview.revenueGrowth > 0 ? 'positive' : 'negative'}`}>
-                {analyticsData.overview.revenueGrowth > 0 ? <FiTrendingUp /> : <FiTrendingDown />}
-                {formatPercentage(analyticsData.overview.revenueGrowth)}
+              <div className={`stat-trend ${(overview.revenueGrowth || 0) > 0 ? 'positive' : 'negative'}`}>
+                {(overview.revenueGrowth || 0) > 0 ? <FiTrendingUp /> : <FiTrendingDown />}
+                {formatPercentage(overview.revenueGrowth)}
               </div>
             </div>
             <div className="stat-content">
-              <h3 className="stat-value">{formatCurrency(analyticsData.overview.totalRevenue)}</h3>
+              <h3 className="stat-value">{formatCurrency(overview.totalRevenue)}</h3>
               <p className="stat-title">Total Revenue</p>
               <span className="stat-subtitle">vs previous period</span>
             </div>
@@ -118,13 +184,13 @@ export default function Analytics() {
               <div className="stat-icon">
                 <FiCalendar />
               </div>
-              <div className={`stat-trend ${analyticsData.overview.bookingsGrowth > 0 ? 'positive' : 'negative'}`}>
-                {analyticsData.overview.bookingsGrowth > 0 ? <FiTrendingUp /> : <FiTrendingDown />}
-                {formatPercentage(analyticsData.overview.bookingsGrowth)}
+              <div className={`stat-trend ${(overview.bookingsGrowth || 0) > 0 ? 'positive' : 'negative'}`}>
+                {(overview.bookingsGrowth || 0) > 0 ? <FiTrendingUp /> : <FiTrendingDown />}
+                {formatPercentage(overview.bookingsGrowth)}
               </div>
             </div>
             <div className="stat-content">
-              <h3 className="stat-value">{analyticsData.overview.totalBookings.toLocaleString()}</h3>
+              <h3 className="stat-value">{(overview.totalBookings || 0).toLocaleString()}</h3>
               <p className="stat-title">Total Bookings</p>
               <span className="stat-subtitle">vs previous period</span>
             </div>
@@ -135,13 +201,13 @@ export default function Analytics() {
               <div className="stat-icon">
                 <FiUsers />
               </div>
-              <div className={`stat-trend ${analyticsData.overview.usersGrowth > 0 ? 'positive' : 'negative'}`}>
-                {analyticsData.overview.usersGrowth > 0 ? <FiTrendingUp /> : <FiTrendingDown />}
-                {formatPercentage(analyticsData.overview.usersGrowth)}
+              <div className={`stat-trend ${(overview.usersGrowth || 0) > 0 ? 'positive' : 'negative'}`}>
+                                {(overview.usersGrowth || 0) > 0 ? <FiTrendingUp /> : <FiTrendingDown />}
+                {formatPercentage(overview.usersGrowth)}
               </div>
             </div>
             <div className="stat-content">
-              <h3 className="stat-value">{analyticsData.overview.totalUsers.toLocaleString()}</h3>
+              <h3 className="stat-value">{(overview.totalUsers || 0).toLocaleString()}</h3>
               <p className="stat-title">Total Users</p>
               <span className="stat-subtitle">vs previous period</span>
             </div>
@@ -152,13 +218,13 @@ export default function Analytics() {
               <div className="stat-icon">
                 <FiBarChart />
               </div>
-              <div className={`stat-trend ${analyticsData.overview.avgOrderGrowth > 0 ? 'positive' : 'negative'}`}>
-                {analyticsData.overview.avgOrderGrowth > 0 ? <FiTrendingUp /> : <FiTrendingDown />}
-                {formatPercentage(analyticsData.overview.avgOrderGrowth)}
+              <div className={`stat-trend ${(overview.avgOrderGrowth || 0) > 0 ? 'positive' : 'negative'}`}>
+                {(overview.avgOrderGrowth || 0) > 0 ? <FiTrendingUp /> : <FiTrendingDown />}
+                {formatPercentage(overview.avgOrderGrowth)}
               </div>
             </div>
             <div className="stat-content">
-              <h3 className="stat-value">{formatCurrency(analyticsData.overview.avgOrderValue)}</h3>
+              <h3 className="stat-value">{formatCurrency(overview.avgOrderValue)}</h3>
               <p className="stat-title">Avg Order Value</p>
               <span className="stat-subtitle">vs previous period</span>
             </div>
@@ -190,9 +256,11 @@ export default function Analytics() {
             
             <div className="chart-content">
               <div className="chart-bars">
-                {(chartType === 'revenue' ? analyticsData.revenueChart : analyticsData.bookingsChart).data.map((value, index) => {
-                  const maxValue = Math.max(...(chartType === 'revenue' ? analyticsData.revenueChart : analyticsData.bookingsChart).data);
-                  const percentage = (value / maxValue) * 100;
+                {(chartType === 'revenue' ? revenueChart : bookingsChart).map((item, index) => {
+                  const data = chartType === 'revenue' ? revenueChart : bookingsChart;
+                  const maxValue = Math.max(...data.map(d => chartType === 'revenue' ? d.revenue : d.bookings));
+                  const value = chartType === 'revenue' ? item.revenue : item.bookings;
+                  const percentage = maxValue > 0 ? (value / maxValue) * 100 : 0;
                   
                   return (
                     <div key={index} className="chart-bar-wrapper">
@@ -202,15 +270,15 @@ export default function Analytics() {
                           style={{ height: `${percentage}%` }}
                         >
                           <div className="bar-tooltip">
-                            {chartType === 'revenue' ? formatCurrency(value) : value.toLocaleString()}
+                            {chartType === 'revenue' ? formatCurrency(value) : value?.toLocaleString()}
                           </div>
                         </div>
                         <span className="chart-value">
-                          {chartType === 'revenue' ? `₹${(value / 1000).toFixed(0)}k` : value}
+                          {chartType === 'revenue' ? `₹${((value || 0) / 1000).toFixed(0)}k` : (value || 0)}
                         </span>
                       </div>
                       <span className="chart-label">
-                        {(chartType === 'revenue' ? analyticsData.revenueChart : analyticsData.bookingsChart).labels[index]}
+                        {item._id?.month || item._id || `Period ${index + 1}`}
                       </span>
                     </div>
                   );
@@ -229,17 +297,19 @@ export default function Analytics() {
             </div>
             
             <div className="breakdown-list">
-              {analyticsData.serviceBreakdown.map((service, index) => (
+              {serviceBreakdown.map((service, index) => (
                 <div key={index} className="breakdown-item">
                   <div className="breakdown-info">
                     <div className="breakdown-color" style={{ backgroundColor: `hsl(${index * 60}, 70%, 50%)` }}></div>
                     <div className="breakdown-details">
-                      <span className="breakdown-name">{service.name}</span>
-                      <span className="breakdown-stats">{service.count} bookings</span>
+                      <span className="breakdown-name">{service._id || service.name}</span>
+                      <span className="breakdown-stats">{service.bookings || service.count} bookings</span>
                     </div>
                   </div>
                   <div className="breakdown-values">
-                    <span className="breakdown-percentage">{service.value}%</span>
+                    <span className="breakdown-percentage">
+                      {((service.revenue / (serviceBreakdown.reduce((sum, s) => sum + s.revenue, 0))) * 100).toFixed(1)}%
+                    </span>
                     <span className="breakdown-revenue">{formatCurrency(service.revenue)}</span>
                   </div>
                 </div>
@@ -251,35 +321,37 @@ export default function Analytics() {
         {/* Top Performers */}
         <div className="top-performers-section">
           <div className="section-header">
-            <h3 className="section-title">Top Performing Providers</h3>
-            <a href="/providers" className="view-all-link">View All</a>
+            <h3 className="section-title">Top Performing Services</h3>
+            <a href="/services" className="view-all-link">View All</a>
           </div>
           
           <div className="performers-grid">
-            {analyticsData.topPerformers.map((performer, index) => (
+            {topPerformers.map((performer, index) => (
               <div key={index} className="performer-card">
                 <div className="performer-rank">#{index + 1}</div>
                 <div className="performer-info">
                   <div className="performer-avatar">
-                    {performer.name.charAt(0)}
+                    {(performer.name || performer.serviceName || 'S').charAt(0)}
                   </div>
                   <div className="performer-details">
-                    <h4 className="performer-name">{performer.name}</h4>
+                    <h4 className="performer-name">{performer.name || performer.serviceName}</h4>
                     <div className="performer-stats">
                       <span className="stat-item">
                         <FiCalendar size={12} />
-                        {performer.bookings} bookings
+                        {performer.bookings || performer.stats?.totalBookings || 0} bookings
                       </span>
                       <span className="stat-item">
                         <FiDollarSign size={12} />
-                        {formatCurrency(performer.revenue)}
+                        {formatCurrency(performer.revenue || performer.stats?.totalRevenue || 0)}
                       </span>
                     </div>
                   </div>
                 </div>
                 <div className="performer-rating">
                   <FiTrendingUp className="rating-icon" />
-                  <span className="rating-value">{performer.rating}</span>
+                  <span className="rating-value">
+                    {(performer.rating || performer.ratings?.averageRating || 0).toFixed(1)}
+                  </span>
                 </div>
               </div>
             ))}
