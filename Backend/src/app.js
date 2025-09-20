@@ -30,8 +30,8 @@ const corsOptions = {
     const allowedOrigins = [
       process.env.CLIENT_URL,
       process.env.ADMIN_URL,
-      'http://localhost:3000',
-      'http://localhost:3001'
+      'http://localhost:5173',
+      'http://localhost:5174'
     ];
     
     if (!origin || allowedOrigins.includes(origin)) {
