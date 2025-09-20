@@ -19,7 +19,7 @@ import './styles/admin.css';
 function AdminApp() {
   return (
     <AuthProvider>
-      <BrowserRouter basename="/">
+      <BrowserRouter basename="/admin">
         <div className="admin-app">
           <Routes>
             <Route path="/login" element={<Login />} />
