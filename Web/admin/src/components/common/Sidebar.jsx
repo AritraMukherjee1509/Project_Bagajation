@@ -21,7 +21,7 @@ const menuItems = [
     path: '/bookings',
     icon: FiCalendar,
     label: 'Bookings',
-    badge: '12'
+    badge: null
   },
   {
     path: '/services',
