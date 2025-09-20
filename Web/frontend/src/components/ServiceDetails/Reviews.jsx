@@ -1,67 +1,151 @@
-import React, { useState } from 'react';
+// src/components/ServiceDetails/Reviews.jsx
+import React, { useState, useEffect } from 'react';
 import s from '../../assets/css/components/ServiceDetails/Reviews.module.css';
-import { FiStar, FiThumbsUp, FiMessageCircle, FiFilter } from 'react-icons/fi';
+import { FiStar, FiThumbsUp, FiMessageCircle, FiFilter, FiUser } from 'react-icons/fi';
+import { reviewsAPI, apiUtils } from '../../config/api';
+import { useAuth } from '../../context/AuthContext';
 
-const reviews = [
-  {
-    id: 1,
-    name: 'Rajesh Kumar',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face',
-    date: '2 days ago',
-    rating: 5,
-    text: 'Excellent service! Subhajit was very professional and completed the AC installation perfectly. The unit is working great and he explained everything clearly.',
-    helpful: 12,
-    verified: true
-  },
-  {
-    id: 2,
-    name: 'Priya Sharma',
-    avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face',
-    date: '1 week ago',
-    rating: 5,
-    text: 'Very satisfied with the installation service. Quick, clean, and professional work. Highly recommend!',
-    helpful: 8,
-    verified: true
-  },
-  {
-    id: 3,
-    name: 'Amit Singh',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face',
-    date: '2 weeks ago',
-    rating: 4,
-    text: 'Good service overall. The technician was knowledgeable and the installation was done properly. Minor delay in arrival but otherwise great experience.',
-    helpful: 5,
-    verified: false
-  }
-];
-
-const ratingBreakdown = [
-  { stars: 5, count: 89, percentage: 74 },
-  { stars: 4, count: 23, percentage: 19 },
-  { stars: 3, count: 6, percentage: 5 },
-  { stars: 2, count: 2, percentage: 2 },
-  { stars: 1, count: 0, percentage: 0 }
-];
-
-export default function Reviews() {
+export default function Reviews({ serviceId, reviews: initialReviews = [], onReviewsUpdate }) {
+  const { user, isAuthenticated } = useAuth();
+  const [reviews, setReviews] = useState(initialReviews);
+  const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState('all');
   const [helpfulReviews, setHelpfulReviews] = useState(new Set());
+  const [ratingBreakdown, setRatingBreakdown] = useState({});
+  const [averageRating, setAverageRating] = useState(0);
+  const [totalReviews, setTotalReviews] = useState(0);
 
-  const toggleHelpful = (reviewId) => {
-    setHelpfulReviews(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(reviewId)) {
-        newSet.delete(reviewId);
-      } else {
-        newSet.add(reviewId);
+  useEffect(() => {
+    if (serviceId) {
+      fetchReviews();
+    }
+  }, [serviceId, filter]);
+
+  useEffect(() => {
+    calculateRatingStats();
+  }, [reviews]);
+
+  const fetchReviews = async () => {
+    try {
+      setLoading(true);
+      const params = {
+        service: serviceId,
+        limit: 50
+      };
+
+      if (filter !== 'all') {
+        params.rating = parseInt(filter);
       }
-      return newSet;
+
+      const response = await reviewsAPI.getReviews(params);
+      const result = apiUtils.formatResponse(response);
+      
+      if (result.success) {
+        setReviews(result.data);
+        
+        // Update helpful reviews based on user's previous actions
+        if (isAuthenticated && user) {
+          const userHelpfulReviews = new Set();
+          result.data.forEach(review => {
+            if (review.helpful?.users?.includes(user._id)) {
+              userHelpfulReviews.add(review._id);
+            }
+          });
+          setHelpfulReviews(userHelpfulReviews);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch reviews:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const calculateRatingStats = () => {
+    if (!reviews || reviews.length === 0) {
+      setRatingBreakdown({ 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 });
+      setAverageRating(0);
+      setTotalReviews(0);
+      return;
+    }
+
+    const breakdown = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+    let totalRating = 0;
+
+    reviews.forEach(review => {
+      const rating = Math.round(review.rating);
+      breakdown[rating] = (breakdown[rating] || 0) + 1;
+      totalRating += review.rating;
     });
+
+    setRatingBreakdown(breakdown);
+    setAverageRating(totalRating / reviews.length);
+    setTotalReviews(reviews.length);
+  };
+
+  const toggleHelpful = async (reviewId) => {
+    if (!isAuthenticated) {
+      alert('Please login to mark reviews as helpful');
+      return;
+    }
+
+    try {
+      await reviewsAPI.markReviewHelpful(reviewId);
+      
+      // Update local state
+      setHelpfulReviews(prev => {
+        const newSet = new Set(prev);
+        if (newSet.has(reviewId)) {
+          newSet.delete(reviewId);
+        } else {
+          newSet.add(reviewId);
+        }
+        return newSet;
+      });
+
+      // Update review's helpful count
+      setReviews(prev => prev.map(review => {
+        if (review._id === reviewId) {
+          const wasHelpful = helpfulReviews.has(reviewId);
+          return {
+            ...review,
+            helpful: {
+              ...review.helpful,
+              count: review.helpful.count + (wasHelpful ? -1 : 1)
+            }
+          };
+        }
+        return review;
+      }));
+
+    } catch (error) {
+      console.error('Failed to toggle helpful:', error);
+    }
+  };
+
+  const getReviewerAvatar = (reviewer) => {
+    if (reviewer?.avatar?.url) {
+      return reviewer.avatar.url;
+    }
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(reviewer?.name || 'User')}&background=6366f1&color=ffffff&size=50`;
+  };
+
+  const formatReviewDate = (date) => {
+    const now = new Date();
+    const reviewDate = new Date(date);
+    const diffTime = Math.abs(now - reviewDate);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 1) return '1 day ago';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+    if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
+    return `${Math.floor(diffDays / 365)} years ago`;
   };
 
   const filteredReviews = filter === 'all' 
     ? reviews 
-    : reviews.filter(review => review.rating === parseInt(filter));
+    : reviews.filter(review => Math.round(review.rating) === parseInt(filter));
 
   return (
     <section className={s.wrap}>
@@ -87,89 +171,213 @@ export default function Reviews() {
       <div className={s.overview}>
         <div className={s.ratingOverview}>
           <div className={s.averageRating}>
-            <span className={s.ratingNumber}>4.8</span>
+            <span className={s.ratingNumber}>{averageRating.toFixed(1)}</span>
             <div className={s.ratingStars}>
               {Array.from({ length: 5 }).map((_, i) => (
-                <FiStar key={i} className={s.star} />
+                <FiStar key={i} className={i < Math.round(averageRating) ? s.star : s.starEmpty} />
               ))}
             </div>
-            <span className={s.totalReviews}>Based on 120 reviews</span>
+            <span className={s.totalReviews}>Based on {totalReviews} reviews</span>
           </div>
         </div>
 
         <div className={s.ratingBreakdown}>
-          {ratingBreakdown.map((item) => (
-            <div key={item.stars} className={s.ratingRow}>
-              <span className={s.ratingLabel}>{item.stars} star</span>
+          {[5, 4, 3, 2, 1].map((stars) => (
+            <div key={stars} className={s.ratingRow}>
+              <span className={s.ratingLabel}>{stars} star</span>
               <div className={s.ratingBar}>
                 <div 
                   className={s.ratingFill}
-                  style={{ width: `${item.percentage}%` }}
+                  style={{ 
+                    width: `${totalReviews > 0 ? (ratingBreakdown[stars] / totalReviews) * 100 : 0}%` 
+                  }}
                 />
               </div>
-              <span className={s.ratingCount}>{item.count}</span>
+              <span className={s.ratingCount}>{ratingBreakdown[stars] || 0}</span>
             </div>
           ))}
         </div>
       </div>
 
-      <div className={s.reviewsList}>
-        {filteredReviews.map((review) => (
-          <div key={review.id} className={s.reviewItem}>
-            <div className={s.reviewHeader}>
-              <div className={s.reviewerInfo}>
-                <img 
-                  src={review.avatar} 
-                  alt={review.name}
-                  className={s.reviewerAvatar}
-                />
-                <div className={s.reviewerDetails}>
-                  <div className={s.reviewerName}>
-                    {review.name}
-                    {review.verified && (
-                      <span className={s.verifiedBadge}>Verified</span>
+      {loading ? (
+        <div className={s.loading}>Loading reviews...</div>
+      ) : (
+        <div className={s.reviewsList}>
+          {filteredReviews.length === 0 ? (
+            <div className={s.noReviews}>
+              <p>No reviews found for this filter.</p>
+            </div>
+          ) : (
+            filteredReviews.map((review) => (
+              <div key={review._id} className={s.reviewItem}>
+                <div className={s.reviewHeader}>
+                  <div className={s.reviewerInfo}>
+                    <img 
+                      src={getReviewerAvatar(review.user)}
+                      alt={review.user?.name || 'Reviewer'}
+                      className={s.reviewerAvatar}
+                      onError={(e) => {
+                        e.target.src = `https://ui-avatars.com/api/?name=User&background=6366f1&color=ffffff&size=50`;
+                      }}
+                    />
+                    <div className={s.reviewerDetails}>
+                      <div className={s.reviewerName}>
+                        {review.user?.name || 'Anonymous User'}
+                        {review.verified && (
+                          <span className={s.verifiedBadge}>Verified</span>
+                        )}
+                      </div>
+                      <div className={s.reviewDate}>{formatReviewDate(review.createdAt)}</div>
+                    </div>
+                  </div>
+                  
+                  <div className={s.reviewRating}>
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <FiStar 
+                        key={i} 
+                        className={i < Math.round(review.rating) ? s.starFilled : s.starEmpty} 
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {review.title && (
+                  <h4 className={s.reviewTitle}>{review.title}</h4>
+                )}
+
+                <p className={s.reviewText}>{review.comment}</p>
+
+                {/* Rating Breakdown */}
+                {review.breakdown && (
+                  <div className={s.breakdown}>
+                    <div className={s.breakdownItem}>
+                      <span>Quality:</span>
+                      <div className={s.breakdownStars}>
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <FiStar 
+                            key={i} 
+                            className={i < review.breakdown.quality ? s.starMini : s.starMiniEmpty} 
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    <div className={s.breakdownItem}>
+                      <span>Punctuality:</span>
+                      <div className={s.breakdownStars}>
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <FiStar 
+                            key={i} 
+                            className={i < review.breakdown.punctuality ? s.starMini : s.starMiniEmpty} 
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    <div className={s.breakdownItem}>
+                      <span>Behavior:</span>
+                      <div className={s.breakdownStars}>
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <FiStar 
+                            key={i} 
+                            className={i < review.breakdown.behavior ? s.starMini : s.starMiniEmpty} 
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Pros and Cons */}
+                {(review.pros && review.pros.length > 0) || (review.cons && review.cons.length > 0) && (
+                  <div className={s.prosAndCons}>
+                    {review.pros && review.pros.length > 0 && (
+                      <div className={s.pros}>
+                        <strong>Pros:</strong>
+                        <ul>
+                          {review.pros.map((pro, index) => (
+                            <li key={index}>+ {pro}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {review.cons && review.cons.length > 0 && (
+                      <div className={s.cons}>
+                        <strong>Cons:</strong>
+                        <ul>
+                          {review.cons.map((con, index) => (
+                            <li key={index}>- {con}</li>
+                          ))}
+                        </ul>
+                      </div>
                     )}
                   </div>
-                  <div className={s.reviewDate}>{review.date}</div>
+                )}
+
+                {/* Review Images */}
+                {review.images && review.images.length > 0 && (
+                  <div className={s.reviewImages}>
+                    {review.images.map((image, index) => (
+                      <img 
+                        key={index}
+                        src={image.url}
+                        alt={image.caption || 'Review image'}
+                        className={s.reviewImage}
+                      />
+                    ))}
+                  </div>
+                )}
+
+                {/* Provider Response */}
+                {review.response && (
+                  <div className={s.providerResponse}>
+                    <div className={s.responseHeader}>
+                      <FiUser className={s.responseIcon} />
+                      <span>Response from provider</span>
+                      <span className={s.responseDate}>
+                        {formatReviewDate(review.response.respondedAt)}
+                      </span>
+                    </div>
+                    <p className={s.responseText}>{review.response.message}</p>
+                  </div>
+                )}
+
+                <div className={s.reviewActions}>
+                  <button 
+                    className={`${s.helpfulBtn} ${helpfulReviews.has(review._id) ? s.helpful : ''}`}
+                    onClick={() => toggleHelpful(review._id)}
+                    disabled={!isAuthenticated}
+                  >
+                    <FiThumbsUp />
+                    Helpful ({review.helpful?.count || 0})
+                  </button>
+                  
+                  {review.wouldRecommend !== undefined && (
+                    <div className={s.recommendation}>
+                      {review.wouldRecommend ? '👍 Recommends' : '👎 Doesn\'t recommend'}
+                    </div>
+                  )}
                 </div>
               </div>
-              
-              <div className={s.reviewRating}>
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <FiStar 
-                    key={i} 
-                    className={i < review.rating ? s.starFilled : s.starEmpty} 
-                  />
-                ))}
-              </div>
-            </div>
-
-            <p className={s.reviewText}>{review.text}</p>
-
-            <div className={s.reviewActions}>
-              <button 
-                className={`${s.helpfulBtn} ${helpfulReviews.has(review.id) ? s.helpful : ''}`}
-                onClick={() => toggleHelpful(review.id)}
-              >
-                <FiThumbsUp />
-                Helpful ({review.helpful + (helpfulReviews.has(review.id) ? 1 : 0)})
-              </button>
-              
-              <button className={s.replyBtn}>
-                <FiMessageCircle />
-                Reply
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+            ))
+          )}
+        </div>
+      )}
 
       <div className={s.writeReview}>
         <h4 className={s.writeReviewTitle}>Write a Review</h4>
-                <p className={s.writeReviewText}>
+        <p className={s.writeReviewText}>
           Share your experience to help others make informed decisions
         </p>
-        <button className={s.writeReviewBtn}>
+        <button 
+          className={s.writeReviewBtn}
+          onClick={() => {
+            if (!isAuthenticated) {
+              alert('Please login to write a review');
+              return;
+            }
+            // Navigate to review form or open modal
+            window.location.href = `/review/${serviceId}`;
+          }}
+        >
           Write Review
         </button>
       </div>

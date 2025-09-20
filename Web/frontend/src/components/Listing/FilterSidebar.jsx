@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+// src/components/Listing/FilterSidebar.jsx
+import React, { useState, useEffect } from 'react';
 import s from '../../assets/css/components/Listing/FilterSidebar.module.css';
 import { 
   FiFilter, 
@@ -9,6 +10,7 @@ import {
   FiClock,
   FiShield
 } from 'react-icons/fi';
+import { servicesAPI, apiUtils } from '../../config/api';
 
 const priceRanges = [
   { label: 'Under ₹500', min: 0, max: 500 },
@@ -19,36 +21,80 @@ const priceRanges = [
 ];
 
 const ratings = [4, 3, 2, 1];
-const locations = ['Kolkata', 'Mumbai', 'Delhi', 'Bangalore', 'Chennai', 'Pune'];
 
-export default function FilterSidebar() {
+export default function FilterSidebar({ filters, onFilterChange }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [filters, setFilters] = useState({
-    priceRange: null,
-    rating: null,
-    location: '',
-    availability: false,
-    verified: false
-  });
+  const [locations, setLocations] = useState([]);
+  const [loadingLocations, setLoadingLocations] = useState(true);
+
+  useEffect(() => {
+    fetchAvailableLocations();
+  }, []);
+
+  const fetchAvailableLocations = async () => {
+    try {
+      setLoadingLocations(true);
+      // Fetch services to extract unique locations
+      const response = await servicesAPI.getServices({ limit: 1000 });
+      const result = apiUtils.formatResponse(response);
+      
+      if (result.success) {
+        // Extract unique cities from services
+        const uniqueCities = [...new Set(
+          result.data
+            .flatMap(service => service.serviceArea?.cities || [])
+            .filter(Boolean)
+        )].sort();
+        
+        setLocations(uniqueCities);
+      }
+    } catch (error) {
+      console.error('Failed to fetch locations:', error);
+      // Fallback to default cities
+      setLocations(['Kolkata', 'Mumbai', 'Delhi', 'Bangalore', 'Chennai', 'Pune']);
+    } finally {
+      setLoadingLocations(false);
+    }
+  };
 
   const updateFilter = (key, value) => {
-    setFilters(prev => ({
-      ...prev,
-      [key]: value
-    }));
+    const newFilters = { ...filters, [key]: value };
+    if (onFilterChange) {
+      onFilterChange(newFilters);
+    }
   };
 
   const clearFilters = () => {
-    setFilters({
+    const clearedFilters = {
+      search: '',
+      location: '',
+      category: '',
       priceRange: null,
       rating: null,
-      location: '',
       availability: false,
       verified: false
-    });
+    };
+    if (onFilterChange) {
+      onFilterChange(clearedFilters);
+    }
   };
 
-  const activeFiltersCount = Object.values(filters).filter(Boolean).length;
+  const activeFiltersCount = Object.values(filters || {}).filter(value => {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'string') return value !== '';
+    return value !== null && value !== undefined;
+  }).length;
+
+  const handlePriceRangeChange = (rangeIndex) => {
+    const range = priceRanges[rangeIndex];
+    updateFilter('minPrice', range.min);
+    updateFilter('maxPrice', range.max === Infinity ? undefined : range.max);
+    updateFilter('priceRange', rangeIndex);
+  };
+
+  const handleRatingChange = (rating) => {
+    updateFilter('rating', filters?.rating === rating ? null : rating);
+  };
 
   return (
     <div className={s.filterContainer}>
@@ -90,8 +136,8 @@ export default function FilterSidebar() {
                   <input
                     type="radio"
                     name="priceRange"
-                    checked={filters.priceRange === index}
-                    onChange={() => updateFilter('priceRange', index)}
+                    checked={filters?.priceRange === index}
+                    onChange={() => handlePriceRangeChange(index)}
                   />
                   <span className={s.checkmark}></span>
                   {range.label}
@@ -112,8 +158,8 @@ export default function FilterSidebar() {
                   <input
                     type="radio"
                     name="rating"
-                    checked={filters.rating === rating}
-                    onChange={() => updateFilter('rating', rating)}
+                    checked={filters?.rating === rating}
+                    onChange={() => handleRatingChange(rating)}
                   />
                   <span className={s.checkmark}></span>
                   <div className={s.ratingOption}>
@@ -135,8 +181,9 @@ export default function FilterSidebar() {
             </h4>
             <select 
               className={s.select}
-              value={filters.location}
+              value={filters?.location || ''}
               onChange={(e) => updateFilter('location', e.target.value)}
+              disabled={loadingLocations}
             >
               <option value="">All Locations</option>
               {locations.map((location) => (
@@ -145,6 +192,9 @@ export default function FilterSidebar() {
                 </option>
               ))}
             </select>
+            {loadingLocations && (
+              <span className={s.loadingText}>Loading locations...</span>
+            )}
           </div>
 
           {/* Availability */}
@@ -156,7 +206,7 @@ export default function FilterSidebar() {
             <label className={s.checkboxOption}>
               <input
                 type="checkbox"
-                checked={filters.availability}
+                checked={filters?.availability || false}
                 onChange={(e) => updateFilter('availability', e.target.checked)}
               />
               <span className={s.checkbox}></span>
@@ -173,7 +223,7 @@ export default function FilterSidebar() {
             <label className={s.checkboxOption}>
               <input
                 type="checkbox"
-                checked={filters.verified}
+                checked={filters?.verified || false}
                 onChange={(e) => updateFilter('verified', e.target.checked)}
               />
               <span className={s.checkbox}></span>

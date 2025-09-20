@@ -1,16 +1,26 @@
+// src/components/Listing/ListingHero.jsx
 import React, { useState } from 'react';
 import s from '../../assets/css/components/Listing/ListingHero.module.css';
 import { FiSearch, FiMapPin, FiFilter, FiGrid, FiList } from 'react-icons/fi';
 
-export default function ListingHero() {
+export default function ListingHero({ onSearch, stats = {} }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [location, setLocation] = useState('');
   const [viewMode, setViewMode] = useState('grid');
 
   const handleSearch = (e) => {
     e.preventDefault();
-    // Handle search logic
-    console.log('Search:', searchQuery, 'Location:', location);
+    if (onSearch) {
+      onSearch({ searchQuery, location });
+    }
+  };
+
+  // Default stats if not provided
+  const defaultStats = {
+    totalServices: '500+',
+    totalProviders: '1000+',
+    averageRating: '4.9★',
+    ...stats
   };
 
   return (
@@ -58,15 +68,15 @@ export default function ListingHero() {
 
             <div className={s.quickStats}>
               <div className={s.stat}>
-                <span className={s.statNumber}>500+</span>
+                <span className={s.statNumber}>{defaultStats.totalServices}</span>
                 <span className={s.statLabel}>Services</span>
               </div>
               <div className={s.stat}>
-                <span className={s.statNumber}>1000+</span>
+                <span className={s.statNumber}>{defaultStats.totalProviders}</span>
                 <span className={s.statLabel}>Professionals</span>
               </div>
               <div className={s.stat}>
-                <span className={s.statNumber}>4.9★</span>
+                <span className={s.statNumber}>{defaultStats.averageRating}</span>
                 <span className={s.statLabel}>Rating</span>
               </div>
             </div>

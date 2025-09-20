@@ -1,3 +1,4 @@
+// src/components/Listing/Category.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import s from '../../assets/css/components/Listing/Category.module.css';
 import { 
@@ -8,22 +9,31 @@ import {
   FiShield, 
   FiTruck,
   FiChevronLeft,
-  FiChevronRight
+  FiChevronRight,
+  FiTool,
+  FiSettings,
+  FiGrid
 } from 'react-icons/fi';
 
-const categories = [
-  { name: 'AC Services', icon: <FiWind />, count: 45, color: '#06b6d4' },
-  { name: 'Electrical', icon: <FiZap />, count: 32, color: '#f59e0b' },
-  { name: 'Plumbing', icon: <FiDroplet />, count: 28, color: '#3b82f6' },
-  { name: 'Cleaning', icon: <FiHome />, count: 56, color: '#10b981' },
-  { name: 'Security', icon: <FiShield />, count: 23, color: '#ef4444' },
-  { name: 'Shifting', icon: <FiTruck />, count: 19, color: '#8b5cf6' },
-  { name: 'Maintenance', icon: <FiWind />, count: 34, color: '#06b6d4' },
-  { name: 'Repair', icon: <FiZap />, count: 41, color: '#f59e0b' }
-];
+// Icon mapping
+const iconMap = {
+  FiWind: FiWind,
+  FiZap: FiZap,
+  FiDroplet: FiDroplet,
+  FiHome: FiHome,
+  FiShield: FiShield,
+  FiTruck: FiTruck,
+  FiTool: FiTool,
+  FiSettings: FiSettings,
+  FiGrid: FiGrid
+};
 
-export default function Category() {
-  const [activeCategory, setActiveCategory] = useState(0);
+export default function Category({ 
+  categories = [], 
+  onCategorySelect, 
+  selectedCategory = null 
+}) {
+  const [activeCategory, setActiveCategory] = useState(null);
   const [isVisible, setIsVisible] = useState(false);
   const scrollContainerRef = useRef(null);
   const sectionRef = useRef(null);
@@ -45,7 +55,13 @@ export default function Category() {
     return () => observer.disconnect();
   }, []);
 
-    const scrollLeft = () => {
+  useEffect(() => {
+    // Find the index of selected category
+    const selectedIndex = categories.findIndex(cat => cat.name === selectedCategory);
+    setActiveCategory(selectedIndex >= 0 ? selectedIndex : null);
+  }, [selectedCategory, categories]);
+
+  const scrollLeft = () => {
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollBy({ left: -200, behavior: 'smooth' });
     }
@@ -56,6 +72,24 @@ export default function Category() {
       scrollContainerRef.current.scrollBy({ left: 200, behavior: 'smooth' });
     }
   };
+
+  const handleCategoryClick = (category, index) => {
+    const newActiveIndex = activeCategory === index ? null : index;
+    setActiveCategory(newActiveIndex);
+    
+    if (onCategorySelect) {
+      onCategorySelect(newActiveIndex !== null ? category.name : null);
+    }
+  };
+
+  const getIcon = (iconName) => {
+    const IconComponent = iconMap[iconName] || FiGrid;
+    return <IconComponent />;
+  };
+
+  if (!categories || categories.length === 0) {
+    return null;
+  }
 
   return (
     <section ref={sectionRef} className={`section ${s.wrap}`}>
@@ -76,15 +110,20 @@ export default function Category() {
                 <button
                   key={index}
                   className={`${s.categoryCard} ${activeCategory === index ? s.active : ''}`}
-                  onClick={() => setActiveCategory(index)}
-                  style={{ '--category-color': category.color, '--delay': `${index * 0.1}s` }}
+                  onClick={() => handleCategoryClick(category, index)}
+                  style={{ 
+                    '--category-color': category.color, 
+                    '--delay': `${index * 0.1}s` 
+                  }}
                 >
                   <div className={s.categoryIcon}>
-                    {category.icon}
+                    {getIcon(category.icon)}
                   </div>
                   <div className={s.categoryContent}>
                     <h3 className={s.categoryName}>{category.name}</h3>
-                    <span className={s.categoryCount}>{category.count} services</span>
+                    <span className={s.categoryCount}>
+                      {category.count} service{category.count !== 1 ? 's' : ''}
+                    </span>
                   </div>
                   <div className={s.categoryBadge}>
                     {category.count}

@@ -1,16 +1,17 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { ThemeProvider, useTheme } from './components/ThemeProvider';
-import Navbar from './includes/Navbar';
-import Footer from './includes/Footer';
+import React from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ThemeProvider, useTheme } from "./components/ThemeProvider";
+import Navbar from "./includes/Navbar";
+import Footer from "./includes/Footer";
+import { AuthProvider } from "./context/AuthContext";
 
 /* Pages */
-import Home from './pages/Home';
-import About from './pages/About';
-import Contact from './pages/Contact';
-import Listing from './pages/Listing';
-import ServiceDetails from './pages/ServiceDetails';
-import FAQPage from './pages/FAQ';
+import Home from "./pages/Home";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+import Listing from "./pages/Listing";
+import ServiceDetails from "./pages/ServiceDetails";
+import FAQPage from "./pages/FAQ";
 
 function AppContent() {
   const { theme, resolvedTheme, toggleTheme } = useTheme();
@@ -18,7 +19,11 @@ function AppContent() {
   return (
     <BrowserRouter>
       <div className="app-container">
-        <Navbar theme={theme} resolvedTheme={resolvedTheme} toggleTheme={toggleTheme} />
+        <Navbar
+          theme={theme}
+          resolvedTheme={resolvedTheme}
+          toggleTheme={toggleTheme}
+        />
         <main className="main-content">
           <Routes>
             <Route path="/" element={<Home />} />
@@ -37,9 +42,11 @@ function AppContent() {
 
 function App() {
   return (
-    <ThemeProvider>
-      <AppContent />
-    </ThemeProvider>
+    <AuthProvider>
+      <ThemeProvider>
+        <AppContent />
+      </ThemeProvider>
+    </AuthProvider>
   );
 }
 
