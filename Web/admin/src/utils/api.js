@@ -4,25 +4,22 @@ const API_BASE_URL = import.meta.env.REACT_APP_API_URL || 'http://localhost:5000
 class ApiClient {
   constructor() {
     this.baseURL = API_BASE_URL;
+    this.isHandlingAuth = false; // Prevent multiple auth handling
   }
 
-  // Get auth token from localStorage
   getAuthToken() {
     return localStorage.getItem('admin_token');
   }
 
-  // Set auth token
   setAuthToken(token) {
     localStorage.setItem('admin_token', token);
   }
 
-  // Remove auth token
   removeAuthToken() {
     localStorage.removeItem('admin_token');
     localStorage.removeItem('admin_user');
   }
 
-  // Default headers
   getHeaders(includeAuth = true) {
     const headers = {
       'Content-Type': 'application/json',
@@ -38,7 +35,6 @@ class ApiClient {
     return headers;
   }
 
-  // Generic request method
   async request(endpoint, options = {}) {
     const url = `${this.baseURL}${endpoint}`;
     const config = {
@@ -48,27 +44,47 @@ class ApiClient {
 
     try {
       const response = await fetch(url, config);
-      const data = await response.json();
+      
+      // Handle non-JSON responses
+      let data;
+      try {
+        data = await response.json();
+      } catch (parseError) {
+        data = { message: 'Invalid response format' };
+      }
 
       if (!response.ok) {
-        // Handle specific error cases
         if (response.status === 401) {
-          this.removeAuthToken();
-          // Instead of forcing a redirect, let the AuthProvider handle this
-          // Check if we're not already on the login page
-          if (!window.location.pathname.includes('/login')) {
-            // Dispatch a custom event that the AuthProvider can listen to
-            window.dispatchEvent(new CustomEvent('auth:expired'));
+          // Handle unauthorized access
+          if (!this.isHandlingAuth) {
+            this.isHandlingAuth = true;
+            console.log('401 error detected, clearing auth data');
+            this.removeAuthToken();
+            
+            // Only trigger auth expired if not already on login page
+            if (!window.location.pathname.includes('/login')) {
+              setTimeout(() => {
+                window.dispatchEvent(new CustomEvent('auth:expired'));
+                this.isHandlingAuth = false;
+              }, 100);
+            } else {
+              this.isHandlingAuth = false;
+            }
           }
+          
           throw new Error('Session expired. Please login again.');
         }
         
-        throw new Error(data.error || data.message || 'An error occurred');
+        throw new Error(data.error || data.message || `HTTP ${response.status}: ${response.statusText}`);
       }
 
       return data;
     } catch (error) {
-      console.error('API Request Error:', error);
+      console.error('API Request Error:', {
+        url,
+        method: config.method || 'GET',
+        error: error.message
+      });
       throw error;
     }
   }
@@ -103,7 +119,6 @@ class ApiClient {
     });
   }
 
-  // File upload method
   async uploadFile(endpoint, formData) {
     const token = this.getAuthToken();
     const headers = {};
@@ -123,9 +138,17 @@ class ApiClient {
 
       if (!response.ok) {
         if (response.status === 401) {
-          this.removeAuthToken();
-          if (!window.location.pathname.includes('/login')) {
-            window.dispatchEvent(new CustomEvent('auth:expired'));
+          if (!this.isHandlingAuth) {
+            this.isHandlingAuth = true;
+            this.removeAuthToken();
+            if (!window.location.pathname.includes('/login')) {
+              setTimeout(() => {
+                window.dispatchEvent(new CustomEvent('auth:expired'));
+                this.isHandlingAuth = false;
+              }, 100);
+            } else {
+              this.isHandlingAuth = false;
+            }
           }
           throw new Error('Session expired. Please login again.');
         }

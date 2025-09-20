@@ -1,3 +1,4 @@
+// components/Auth/AuthProvider.js
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { authAPI } from '../../utils/api';
@@ -12,7 +13,6 @@ export const useAuth = () => {
   return context;
 };
 
-// AuthNavigationHandler component that can use Router hooks
 const AuthNavigationHandler = ({ onAuthExpired }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -20,9 +20,12 @@ const AuthNavigationHandler = ({ onAuthExpired }) => {
   useEffect(() => {
     const handleAuthExpired = () => {
       onAuthExpired();
-      if (!location.pathname.includes('/login')) {
-        navigate('/login', { replace: true });
-      }
+      // Add a small delay to prevent multiple redirects
+      setTimeout(() => {
+        if (!location.pathname.includes('/login')) {
+          navigate('/login', { replace: true });
+        }
+      }, 100);
     };
 
     window.addEventListener('auth:expired', handleAuthExpired);
@@ -32,7 +35,7 @@ const AuthNavigationHandler = ({ onAuthExpired }) => {
     };
   }, [navigate, location.pathname, onAuthExpired]);
 
-  return null; // This component doesn't render anything
+  return null;
 };
 
 export const AuthProvider = ({ children }) => {
@@ -44,43 +47,51 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const handleAuthExpired = () => {
+    console.log('Auth expired, clearing user data');
     setUser(null);
+    localStorage.removeItem('admin_token');
+    localStorage.removeItem('admin_user');
   };
 
   const checkAuthStatus = async () => {
     try {
+      setLoading(true);
       const token = localStorage.getItem('admin_token');
       const userData = localStorage.getItem('admin_user');
       
-      if (token && userData) {
-        // Try to parse stored user data first
-        try {
-          const parsedUser = JSON.parse(userData);
-          setUser(parsedUser);
-          
-          // Verify token with backend in the background
-          authAPI.getProfile().then(response => {
-            if (response.success) {
-              // Update user data if backend returned newer data
-              if (JSON.stringify(response.data) !== userData) {
-                setUser(response.data);
-                localStorage.setItem('admin_user', JSON.stringify(response.data));
-              }
-            }
-          }).catch(() => {
-            // Token invalid, but don't immediately logout
-            // Let the individual API calls handle the 401
-          });
-          
-        } catch (parseError) {
-          console.error('Failed to parse user data:', parseError);
-          localStorage.removeItem('admin_token');
-          localStorage.removeItem('admin_user');
+      if (!token || !userData) {
+        console.log('No token or user data found');
+        setLoading(false);
+        return;
+      }
+
+      // First validate the token with the server BEFORE setting user
+      try {
+        console.log('Validating token with server...');
+        const response = await authAPI.getProfile();
+        
+        if (response.success) {
+          console.log('Token valid, setting user');
+          setUser(response.data);
+          // Update localStorage with fresh user data
+          localStorage.setItem('admin_user', JSON.stringify(response.data));
+        } else {
+          console.log('Token validation failed');
+          throw new Error('Token validation failed');
         }
+      } catch (tokenError) {
+        console.error('Token validation error:', tokenError);
+        // Token is invalid, clear everything
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_user');
+        setUser(null);
       }
     } catch (error) {
       console.error('Auth check failed:', error);
-      // Don't clear storage here - let API calls handle 401s
+      // Clear auth data on any error
+      localStorage.removeItem('admin_token');
+      localStorage.removeItem('admin_user');
+      setUser(null);
     } finally {
       setLoading(false);
     }
@@ -92,6 +103,7 @@ export const AuthProvider = ({ children }) => {
       const response = await authAPI.login({ email, password });
       
       if (response.success) {
+        console.log('Login successful');
         localStorage.setItem('admin_token', response.token);
         localStorage.setItem('admin_user', JSON.stringify(response.data));
         setUser(response.data);
@@ -109,15 +121,15 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await authAPI.logout();
+      console.log('Logging out...');
+      // Try to call logout API, but don't block on it
+      await authAPI.logout().catch(err => console.log('Logout API call failed:', err));
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
       localStorage.removeItem('admin_token');
       localStorage.removeItem('admin_user');
       setUser(null);
-      // The navigation will be handled by AuthNavigationHandler
-      window.dispatchEvent(new CustomEvent('auth:expired'));
     }
   };
 
@@ -151,7 +163,8 @@ export const AuthProvider = ({ children }) => {
     updateProfile,
     changePassword,
     loading,
-    isAuthenticated: !!user
+    isAuthenticated: !!user,
+    checkAuthStatus // Expose this for manual refresh
   };
 
   return (
