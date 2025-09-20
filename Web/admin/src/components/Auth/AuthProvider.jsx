@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { authAPI } from '../../utils/api';
 
 const AuthContext = createContext();
@@ -11,6 +12,29 @@ export const useAuth = () => {
   return context;
 };
 
+// AuthNavigationHandler component that can use Router hooks
+const AuthNavigationHandler = ({ onAuthExpired }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const handleAuthExpired = () => {
+      onAuthExpired();
+      if (!location.pathname.includes('/login')) {
+        navigate('/login', { replace: true });
+      }
+    };
+
+    window.addEventListener('auth:expired', handleAuthExpired);
+    
+    return () => {
+      window.removeEventListener('auth:expired', handleAuthExpired);
+    };
+  }, [navigate, location.pathname, onAuthExpired]);
+
+  return null; // This component doesn't render anything
+};
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -19,26 +43,44 @@ export const AuthProvider = ({ children }) => {
     checkAuthStatus();
   }, []);
 
+  const handleAuthExpired = () => {
+    setUser(null);
+  };
+
   const checkAuthStatus = async () => {
     try {
       const token = localStorage.getItem('admin_token');
       const userData = localStorage.getItem('admin_user');
       
       if (token && userData) {
-        // Verify token with backend
-        const response = await authAPI.getProfile();
-        if (response.success) {
-          setUser(response.data);
-        } else {
-          // Token invalid, clear storage
+        // Try to parse stored user data first
+        try {
+          const parsedUser = JSON.parse(userData);
+          setUser(parsedUser);
+          
+          // Verify token with backend in the background
+          authAPI.getProfile().then(response => {
+            if (response.success) {
+              // Update user data if backend returned newer data
+              if (JSON.stringify(response.data) !== userData) {
+                setUser(response.data);
+                localStorage.setItem('admin_user', JSON.stringify(response.data));
+              }
+            }
+          }).catch(() => {
+            // Token invalid, but don't immediately logout
+            // Let the individual API calls handle the 401
+          });
+          
+        } catch (parseError) {
+          console.error('Failed to parse user data:', parseError);
           localStorage.removeItem('admin_token');
           localStorage.removeItem('admin_user');
         }
       }
     } catch (error) {
       console.error('Auth check failed:', error);
-      localStorage.removeItem('admin_token');
-      localStorage.removeItem('admin_user');
+      // Don't clear storage here - let API calls handle 401s
     } finally {
       setLoading(false);
     }
@@ -74,6 +116,8 @@ export const AuthProvider = ({ children }) => {
       localStorage.removeItem('admin_token');
       localStorage.removeItem('admin_user');
       setUser(null);
+      // The navigation will be handled by AuthNavigationHandler
+      window.dispatchEvent(new CustomEvent('auth:expired'));
     }
   };
 
@@ -112,6 +156,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={value}>
+      <AuthNavigationHandler onAuthExpired={handleAuthExpired} />
       {children}
     </AuthContext.Provider>
   );

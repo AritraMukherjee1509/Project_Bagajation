@@ -28,6 +28,14 @@ export default function Bookings() {
       setLoading(true);
       setError(null);
 
+      // Check if we have a valid token before making the API call
+      const token = localStorage.getItem('admin_token');
+      if (!token) {
+        setError('Authentication required');
+        setLoading(false);
+        return;
+      }
+
       const params = {
         ...filters,
         ...(filters.status !== 'all' && { status: filters.status }),
@@ -50,6 +58,11 @@ export default function Bookings() {
     } catch (error) {
       console.error('Failed to load bookings:', error);
       setError(error.message);
+      
+      // Don't automatically redirect on API errors - let the user decide
+      if (error.message.includes('Session expired')) {
+        setError('Session expired. Please refresh the page and login again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -81,6 +94,7 @@ export default function Bookings() {
       }
     } catch (error) {
       console.error('Export failed:', error);
+      setError('Export failed: ' + error.message);
     }
   };
 

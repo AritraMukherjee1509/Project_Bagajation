@@ -54,7 +54,12 @@ class ApiClient {
         // Handle specific error cases
         if (response.status === 401) {
           this.removeAuthToken();
-          window.location.href = '/login';
+          // Instead of forcing a redirect, let the AuthProvider handle this
+          // Check if we're not already on the login page
+          if (!window.location.pathname.includes('/login')) {
+            // Dispatch a custom event that the AuthProvider can listen to
+            window.dispatchEvent(new CustomEvent('auth:expired'));
+          }
           throw new Error('Session expired. Please login again.');
         }
         
@@ -119,7 +124,9 @@ class ApiClient {
       if (!response.ok) {
         if (response.status === 401) {
           this.removeAuthToken();
-          window.location.href = '/login';
+          if (!window.location.pathname.includes('/login')) {
+            window.dispatchEvent(new CustomEvent('auth:expired'));
+          }
           throw new Error('Session expired. Please login again.');
         }
         throw new Error(data.error || 'Upload failed');

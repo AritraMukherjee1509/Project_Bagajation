@@ -18,8 +18,8 @@ import './styles/admin.css';
 
 function AdminApp() {
   return (
-    <AuthProvider>
-      <BrowserRouter basename="/admin">
+    <BrowserRouter basename="/admin">
+      <AuthProvider>
         <div className="admin-app">
           <Routes>
             <Route path="/login" element={<Login />} />
@@ -43,8 +43,8 @@ function AdminApp() {
             />
           </Routes>
         </div>
-      </BrowserRouter>
-    </AuthProvider>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 
