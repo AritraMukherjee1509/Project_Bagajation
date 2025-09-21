@@ -187,7 +187,7 @@ const loadServices = async () => {
             <FiRefreshCw />
             Refresh
           </button>
-          <button className="btn btn-outline" onClick={handleExport}>
+          {/* <button className="btn btn-outline" onClick={handleExport}>
             <FiDownload />
             Export Services
           </button>
@@ -198,7 +198,7 @@ const loadServices = async () => {
           <button className="btn btn-outline">
             <FiFilter />
             Advanced Filter
-          </button>
+          </button> */}
         </div>
       </div>
 

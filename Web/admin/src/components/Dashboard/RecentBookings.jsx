@@ -67,13 +67,13 @@ export default function RecentBookings({ data, loading, onRefresh, onViewAll }) 
         <h3 className="card-title">Recent Bookings</h3>
         <div className="card-actions">
           {onRefresh && (
-            <button className="refresh-btn" onClick={onRefresh}>
+            <button className="refresh-btn btn btn-outline" onClick={onRefresh}>
               <FiRefreshCw />
             </button>
           )}
-          <button className="view-all-link" onClick={onViewAll}>
+          {/* <button className="view-all-link" onClick={onViewAll}>
             View All <FiArrowRight />
-          </button>
+          </button> */}
         </div>
       </div>
 

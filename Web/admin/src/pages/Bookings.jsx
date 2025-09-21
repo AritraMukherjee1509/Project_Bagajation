@@ -255,10 +255,10 @@ export default function Bookings() {
             <FiDownload />
             Export All
           </button>
-          <button className="btn btn-primary">
+          {/* <button className="btn btn-primary">
             <FiPlus />
             New Booking
-          </button>
+          </button> */}
         </div>
       </div>
 

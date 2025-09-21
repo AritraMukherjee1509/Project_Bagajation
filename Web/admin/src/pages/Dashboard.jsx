@@ -212,14 +212,14 @@ export default function Dashboard() {
           </p>
         </div>
         <div className="header-actions">
-          <button 
+          {/* <button 
             className="btn btn-outline" 
             onClick={handleExportDashboard}
             disabled={refreshing}
           >
             <FiDownload />
             Export Report
-          </button>
+          </button> */}
           <button 
             className="btn btn-outline" 
             onClick={() => navigate('/settings')}
