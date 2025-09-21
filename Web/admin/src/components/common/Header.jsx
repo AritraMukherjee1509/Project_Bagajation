@@ -1,3 +1,4 @@
+// Header.jsx
 import React, { useState } from 'react';
 import { useAuth } from '../Auth/AuthProvider';
 import { 
@@ -6,10 +7,11 @@ import {
   FiUser, 
   FiLogOut,
   FiSettings,
-  FiChevronDown
+  FiChevronDown,
+  FiMenu
 } from 'react-icons/fi';
 
-export default function Header() {
+export default function Header({ toggleSidebar, isMobile }) {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const { user, logout } = useAuth();
@@ -43,6 +45,11 @@ export default function Header() {
   return (
     <header className="admin-header">
       <div className="header-left">
+        {isMobile && (
+          <button className="mobile-menu-toggle" onClick={toggleSidebar}>
+            <FiMenu />
+          </button>
+        )}
         <div className="search-container">
           <FiSearch className="search-icon" />
           <input

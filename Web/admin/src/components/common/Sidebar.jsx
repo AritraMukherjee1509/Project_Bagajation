@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+// Sidebar.jsx
+import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { 
   FiHome, 
@@ -49,12 +50,21 @@ const menuItems = [
   }
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen, setIsOpen, isMobile }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const location = useLocation();
 
+  // Handle sidebar toggle
+  const toggleSidebar = () => {
+    if (isMobile) {
+      setIsOpen(!isOpen);
+    } else {
+      setIsCollapsed(!isCollapsed);
+    }
+  };
+
   return (
-    <aside className={`admin-sidebar ${isCollapsed ? 'collapsed' : ''}`}>
+    <aside className={`admin-sidebar ${isCollapsed ? 'collapsed' : ''} ${isMobile && isOpen ? 'open' : ''}`}>
       <div className="sidebar-header">
         <div className="sidebar-logo">
           <span className="logo-badge">LG</span>
@@ -62,9 +72,9 @@ export default function Sidebar() {
         </div>
         <button
           className="sidebar-toggle"
-          onClick={() => setIsCollapsed(!isCollapsed)}
+          onClick={toggleSidebar}
         >
-          {isCollapsed ? <FiMenu /> : <FiX />}
+          {isCollapsed || (isMobile && !isOpen) ? <FiMenu /> : <FiX />}
         </button>
       </div>
 
@@ -79,6 +89,7 @@ export default function Sidebar() {
                 <NavLink
                   to={item.path}
                   className={`nav-link ${isActive ? 'active' : ''}`}
+                  onClick={() => isMobile && setIsOpen(false)}
                 >
                   <IconComponent className="nav-icon" />
                   {!isCollapsed && (

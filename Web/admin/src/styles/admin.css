@@ -13,6 +13,15 @@
   
   --admin-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   --admin-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+
+  --bg-secondary: #f9fafb;
+  --surface: #ffffff;
+  --border: #e5e7eb;
+  --border-hover: #d1d5db;
+  --text-strong: #1f2937;
+  --text-muted: #6b7280;
+  --text-subtle: #9ca3af;
+  --chip-bg: #f3f4f6;
 }
 
 /* Admin App */
@@ -108,6 +117,7 @@
 
 .input-wrapper {
   position: relative;
+  display: flex;
 }
 
 .input-icon {
@@ -332,6 +342,33 @@
   font-weight: 600;
 }
 
+.mobile-menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 24px;
+  cursor: pointer;
+  padding: 8px;
+  margin-right: 16px;
+}
+
+/* Sidebar overlay for mobile */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+}
+
+.sidebar-overlay.active {
+  display: block;
+}
+
 /* Main Content */
 .admin-main {
   flex: 1;
@@ -357,7 +394,7 @@
   padding: 0 24px;
   position: sticky;
   top: 0;
-  z-index: 50;
+  z-index: 500;
 }
 
 .header-left {
@@ -1144,17 +1181,56 @@
 
 /* Responsive */
 @media (max-width: 1024px) {
-  .admin-sidebar {
+    .admin-sidebar {
     transform: translateX(-100%);
     position: fixed;
+    z-index: 1000;
   }
   
   .admin-sidebar.open {
     transform: translateX(0);
   }
   
+  .admin-sidebar.collapsed {
+    width: var(--admin-sidebar-collapsed);
+  }
+  
+  /* This ensures the collapsed sidebar is still visible on mobile when opened */
+  .admin-sidebar.collapsed.open {
+    transform: translateX(0);
+    width: var(--admin-sidebar-collapsed);
+  }
+  
   .admin-main {
     margin-left: 0;
+  }
+
+  
+  
+  /* Add a mobile menu toggle button that's visible in the header */
+  .mobile-menu-toggle {
+    display: block;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 24px;
+    cursor: pointer;
+  }
+  
+  /* Add overlay when sidebar is open on mobile */
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
+  
+  .sidebar-overlay.active {
+    display: block;
   }
   
   .dashboard-row {
@@ -1167,6 +1243,34 @@
   
   .search-input {
     width: 200px;
+  }
+
+    .mobile-menu-toggle {
+    display: block;
+  }
+  
+  .admin-sidebar {
+    transform: translateX(-100%);
+    position: fixed;
+    z-index: 1000;
+  }
+  
+  .admin-sidebar.open {
+    transform: translateX(0);
+  }
+  
+  .admin-sidebar.collapsed {
+    width: var(--admin-sidebar-collapsed);
+  }
+  
+  /* This ensures the collapsed sidebar is still visible on mobile when opened */
+  .admin-sidebar.collapsed.open {
+    transform: translateX(0);
+    width: var(--admin-sidebar-collapsed);
+  }
+  
+  .admin-main {
+    margin-left: 0 !important;
   }
 }
 
