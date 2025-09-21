@@ -44,7 +44,7 @@ export default function Header({ toggleSidebar, isMobile }) {
 
   return (
     <header className="admin-header">
-      <div className="header-left">
+      {/* <div className="header-left">
         {isMobile && (
           <button className="mobile-menu-toggle" onClick={toggleSidebar}>
             <FiMenu />
@@ -58,12 +58,12 @@ export default function Header({ toggleSidebar, isMobile }) {
             className="search-input"
           />
         </div>
-      </div>
+      </div> */}
 
       <div className="header-right">
         {/* Notifications */}
         <div className="header-item">
-          <button
+          {/* <button
             className="notification-btn"
             onClick={() => setShowNotifications(!showNotifications)}
           >
@@ -71,7 +71,7 @@ export default function Header({ toggleSidebar, isMobile }) {
             {unreadCount > 0 && (
               <span className="notification-badge">{unreadCount}</span>
             )}
-          </button>
+          </button> */}
 
           {showNotifications && (
             <div className="notifications-dropdown">
