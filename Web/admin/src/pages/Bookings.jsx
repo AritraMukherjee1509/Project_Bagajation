@@ -1,8 +1,8 @@
-// pages/Bookings.jsx
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../components/Auth/AuthProvider';
 import BookingsList from '../components/Bookings/BookingsList';
 import BookingFilters from '../components/Bookings/BookingFilters';
+import BookingDetails from '../components/Bookings/BookingDetails';
 import { FiDownload, FiPlus, FiRefreshCw } from 'react-icons/fi';
 import { bookingsAPI } from '../utils/api';
 
@@ -13,7 +13,14 @@ export default function Bookings() {
     status: 'all',
     dateRange: 'all',
     service: 'all',
+    provider: 'all',
     search: '',
+    startDate: '',
+    endDate: '',
+    minAmount: '',
+    maxAmount: '',
+    sortBy: 'createdAt',
+    order: 'desc',
     page: 1,
     limit: 10
   });
@@ -22,6 +29,8 @@ export default function Bookings() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState({});
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [showDetails, setShowDetails] = useState(false);
 
   useEffect(() => {
     // Only load bookings if authenticated and not in auth loading state
@@ -41,25 +50,40 @@ export default function Bookings() {
       setLoading(true);
       setError(null);
 
+      // Build query parameters
       const params = {
-        ...filters,
+        page: filters.page,
+        limit: filters.limit,
+        sortBy: filters.sortBy,
+        order: filters.order,
         ...(filters.status !== 'all' && { status: filters.status }),
         ...(filters.service !== 'all' && { service: filters.service }),
-        ...(filters.search && { search: filters.search })
+        ...(filters.provider !== 'all' && { provider: filters.provider }),
+        ...(filters.search && { search: filters.search }),
+        ...(filters.startDate && { startDate: filters.startDate }),
+        ...(filters.endDate && { endDate: filters.endDate }),
+        ...(filters.minAmount && { minAmount: filters.minAmount }),
+        ...(filters.maxAmount && { maxAmount: filters.maxAmount }),
+        // Handle predefined date ranges
+        ...(filters.dateRange !== 'all' && filters.dateRange !== 'custom' && { 
+          dateRange: filters.dateRange 
+        })
       };
 
       console.log('Loading bookings with params:', params);
       const response = await bookingsAPI.getBookings(params);
       
       if (response.success) {
-        setBookings(response.data);
+        setBookings(response.data || []);
         setPagination({
-          total: response.total,
+          total: response.total || 0,
           page: response.page || 1,
           pages: response.pages || 1,
-          hasNext: response.pagination?.next,
-          hasPrev: response.pagination?.prev
+          hasNext: response.pagination?.next || false,
+          hasPrev: response.pagination?.prev || false
         });
+      } else {
+        throw new Error(response.error || 'Failed to load bookings');
       }
     } catch (error) {
       console.error('Failed to load bookings:', error);
@@ -97,55 +121,105 @@ export default function Bookings() {
     );
   }
 
-  const handleFilterChange = (newFilters) => {
-    setFilters(prev => ({
-      ...prev,
-      ...newFilters,
-      page: 1
-    }));
-  };
-
   const handlePageChange = (page) => {
     setFilters(prev => ({ ...prev, page }));
   };
 
-  const handleExport = async () => {
+  const handleViewDetails = (booking) => {
+    setSelectedBooking(booking);
+    setShowDetails(true);
+  };
+
+  const handleUpdateStatus = async (bookingId, statusData) => {
     try {
-      const response = await bookingsAPI.getBookings({ 
-        ...filters, 
-        limit: 1000,
-        export: true 
-      });
-      
+      const response = await bookingsAPI.updateBookingStatus(bookingId, statusData);
       if (response.success) {
-        const csvContent = convertToCSV(response.data);
-        downloadCSV(csvContent, `bookings-${Date.now()}.csv`);
+        // Refresh bookings to get updated data
+        await loadBookings();
+        return response;
+      } else {
+        throw new Error(response.error || 'Failed to update status');
       }
+    } catch (error) {
+      console.error('Failed to update booking status:', error);
+      setError('Failed to update booking status: ' + error.message);
+      throw error;
+    }
+  };
+
+  const handleExport = async (selectedBookings = null) => {
+    try {
+      setLoading(true);
+      
+      let exportData;
+      if (selectedBookings) {
+        exportData = selectedBookings;
+      } else {
+        // Export all bookings with current filters
+        const response = await bookingsAPI.getBookings({ 
+          ...filters, 
+          limit: 10000, // Large limit to get all data
+          page: 1
+        });
+        
+        if (response.success) {
+          exportData = response.data;
+        } else {
+          throw new Error('Failed to fetch data for export');
+        }
+      }
+      
+      const csvContent = convertToCSV(exportData);
+      downloadCSV(csvContent, `bookings-${Date.now()}.csv`);
+      
     } catch (error) {
       console.error('Export failed:', error);
       if (!error.message.includes('Session expired')) {
         setError('Export failed: ' + error.message);
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   const convertToCSV = (data) => {
-    const headers = ['Booking ID', 'Customer', 'Service', 'Provider', 'Date', 'Status', 'Amount'];
+    const headers = [
+      'Booking ID', 
+      'Customer Name', 
+      'Customer Email', 
+      'Customer Phone',
+      'Service Name', 
+      'Provider Name', 
+      'Scheduled Date',
+      'Scheduled Time',
+      'Status', 
+      'Amount',
+      'Address',
+      'Created Date'
+    ];
+    
     const rows = data.map(booking => [
-      booking.bookingId || 'N/A',
+      booking.bookingId || booking._id?.substring(0, 8) || 'N/A',
       booking.user?.name || 'N/A',
+      booking.user?.email || 'N/A',
+      booking.user?.phone || booking.contactInfo?.phone || 'N/A',
       booking.service?.name || 'N/A',
       booking.provider?.name || 'N/A',
-      booking.createdAt ? new Date(booking.createdAt).toLocaleDateString() : 'N/A',
+      booking.scheduledDate ? new Date(booking.scheduledDate).toLocaleDateString() : 'N/A',
+      booking.scheduledTime || 'N/A',
       booking.status || 'N/A',
-      `₹${booking.pricing?.totalAmount || 0}`
+      `₹${booking.pricing?.totalAmount || booking.amount || 0}`,
+      booking.address ? `${booking.address.city}, ${booking.address.state}` : booking.location || 'N/A',
+      booking.createdAt ? new Date(booking.createdAt).toLocaleDateString() : 'N/A'
     ]);
     
-    return [headers, ...rows].map(row => row.join(',')).join('\n');
+    return [headers, ...rows].map(row => 
+      row.map(cell => `"${String(cell).replace(/"/g, '""')}"`)
+    ).map(row => row.join(',')).join('\n');
   };
 
   const downloadCSV = (content, filename) => {
-    const blob = new Blob([content], { type: 'text/csv' });
+    const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -175,11 +249,11 @@ export default function Bookings() {
           </button>
           <button 
             className="btn btn-outline" 
-            onClick={handleExport}
+            onClick={() => handleExport()}
             disabled={loading || authLoading}
           >
             <FiDownload />
-            Export
+            Export All
           </button>
           <button className="btn btn-primary">
             <FiPlus />
@@ -191,7 +265,7 @@ export default function Bookings() {
       <div className="bookings-content">
         <BookingFilters 
           filters={filters} 
-          setFilters={handleFilterChange}
+          setFilters={setFilters}
           loading={loading}
         />
         <BookingsList 
@@ -201,8 +275,34 @@ export default function Bookings() {
           pagination={pagination}
           onPageChange={handlePageChange}
           onRefresh={loadBookings}
+          onViewDetails={handleViewDetails}
+          onUpdateStatus={handleUpdateStatus}
+          onExport={handleExport}
         />
       </div>
+
+      {/* Booking Details Modal */}
+      {showDetails && selectedBooking && (
+        <BookingDetails
+          booking={selectedBooking}
+          onClose={() => {
+            setShowDetails(false);
+            setSelectedBooking(null);
+          }}
+          onUpdate={async (updatedBooking) => {
+            try {
+              await handleUpdateStatus(selectedBooking._id, {
+                status: updatedBooking.status,
+                notes: updatedBooking.notes
+              });
+              setShowDetails(false);
+              setSelectedBooking(null);
+            } catch (error) {
+              console.error('Failed to update booking:', error);
+            }
+          }}
+        />
+      )}
     </div>
   );
 }

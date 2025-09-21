@@ -175,9 +175,16 @@ export const authAPI = {
   changePassword: (data) => apiClient.put('/auth/updatepassword', data),
 };
 
+// Enhanced Dashboard API
 export const dashboardAPI = {
-  getStats: () => apiClient.get('/admin/dashboard'),
-  getAnalytics: (params) => apiClient.get('/analytics/dashboard', params),
+  getStats: () => apiClient.get('/admin/dashboard/stats'),
+  getRecentActivity: () => apiClient.get('/admin/dashboard/recent-activity'),
+  getRecentBookings: (limit = 10) => apiClient.get(`/admin/dashboard/recent-bookings?limit=${limit}`),
+  getAnalytics: (params) => apiClient.get('/admin/dashboard/analytics', params),
+  getQuickStats: () => apiClient.get('/admin/dashboard/quick-stats'),
+  getRevenueChart: (period = '7d') => apiClient.get(`/admin/dashboard/revenue-chart?period=${period}`),
+  getServiceChart: () => apiClient.get('/admin/dashboard/service-chart'),
+  getPerformanceIndicators: () => apiClient.get('/admin/dashboard/kpi'),
 };
 
 export const usersAPI = {
@@ -191,6 +198,19 @@ export const usersAPI = {
   getFavorites: (id) => apiClient.get(`/users/${id}/favorites`),
   addToFavorites: (id, serviceId) => apiClient.post(`/users/${id}/favorites/${serviceId}`),
   removeFromFavorites: (id, serviceId) => apiClient.delete(`/users/${id}/favorites/${serviceId}`),
+  getUserActivity: (id, params) => apiClient.get(`/users/${id}/activity`, params),
+  getUserBookings: (id, params) => apiClient.get(`/users/${id}/bookings`, params),
+  getUserReviews: (id, params) => apiClient.get(`/users/${id}/reviews`, params),
+  getUserStats: (id) => apiClient.get(`/users/${id}/stats`),
+  blockUser: (id, reason) => apiClient.put(`/users/${id}/block`, { reason }),
+  unblockUser: (id) => apiClient.put(`/users/${id}/unblock`),
+  sendNotification: (id, data) => apiClient.post(`/users/${id}/notifications`, data),
+  getUserNotifications: (id) => apiClient.get(`/users/${id}/notifications`),
+  bulkUpdateUsers: (data) => apiClient.put('/users/bulk-update', data),
+  exportUsers: (params) => apiClient.get('/users/export', params),
+  importUsers: (data) => apiClient.post('/users/import', data),
+  getUsersByDateRange: (startDate, endDate) => apiClient.get(`/users/date-range?start=${startDate}&end=${endDate}`),
+  getUserGrowthStats: () => apiClient.get('/users/growth-stats'),
 };
 
 export const servicesAPI = {
@@ -204,6 +224,16 @@ export const servicesAPI = {
   getPopularServices: () => apiClient.get('/services/popular'),
   searchServices: (params) => apiClient.get('/services/search', params),
   getServicesByCategory: (category) => apiClient.get(`/services/category/${category}`),
+  getServiceAnalytics: (id) => apiClient.get(`/services/${id}/analytics`),
+  getServiceBookings: (id, params) => apiClient.get(`/services/${id}/bookings`, params),
+  getServiceReviews: (id, params) => apiClient.get(`/services/${id}/reviews`, params),
+  getServiceRevenue: (id, params) => apiClient.get(`/services/${id}/revenue`, params),
+  updateServiceStatus: (id, status) => apiClient.put(`/services/${id}/status`, { status }),
+  bulkUpdateServices: (data) => apiClient.put('/services/bulk-update', data),
+  duplicateService: (id) => apiClient.post(`/services/${id}/duplicate`),
+  getServicePerformance: (id) => apiClient.get(`/services/${id}/performance`),
+  getServiceAvailability: (id) => apiClient.get(`/services/${id}/availability`),
+  updateServiceAvailability: (id, data) => apiClient.put(`/services/${id}/availability`, data),
 };
 
 export const bookingsAPI = {
@@ -215,8 +245,20 @@ export const bookingsAPI = {
   cancelBooking: (id, data) => apiClient.put(`/bookings/${id}/cancel`, data),
   getBookingAnalytics: (params) => apiClient.get('/bookings/analytics', params),
   addMessage: (id, data) => apiClient.post(`/bookings/${id}/messages`, data),
+  getBookingMessages: (id) => apiClient.get(`/bookings/${id}/messages`),
+  addBookingMessage: (id, data) => apiClient.post(`/bookings/${id}/messages`, data),
+  getBookingTimeline: (id) => apiClient.get(`/bookings/${id}/timeline`),
+  assignProvider: (id, providerId) => apiClient.put(`/bookings/${id}/assign`, { providerId }),
+  rescheduleBooking: (id, data) => apiClient.put(`/bookings/${id}/reschedule`, data),
+  addBookingNote: (id, note) => apiClient.post(`/bookings/${id}/notes`, { note }),
+  getBookingNotes: (id) => apiClient.get(`/bookings/${id}/notes`),
+  bulkUpdateBookings: (data) => apiClient.put('/bookings/bulk-update', data),
+  getBookingsByDateRange: (startDate, endDate) => apiClient.get(`/bookings/date-range?start=${startDate}&end=${endDate}`),
+  getBookingsByStatus: (status) => apiClient.get(`/bookings/status/${status}`),
+  generateBookingReport: (params) => apiClient.get('/bookings/report', params),
 };
 
+// Enhanced Providers API
 export const providersAPI = {
   getProviders: (params) => apiClient.get('/providers', params),
   getProvider: (id) => apiClient.get(`/providers/${id}`),
@@ -225,8 +267,18 @@ export const providersAPI = {
   deleteProvider: (id) => apiClient.delete(`/providers/${id}`),
   verifyProvider: (id, data) => apiClient.put(`/providers/${id}/verify`, data),
   getProviderDashboard: (id) => apiClient.get(`/providers/${id}/dashboard`),
+  getProviderAnalytics: (id) => apiClient.get(`/providers/${id}/analytics`),
+  getProviderBookings: (id, params) => apiClient.get(`/providers/${id}/bookings`, params),
+  getProviderReviews: (id, params) => apiClient.get(`/providers/${id}/reviews`, params),
+  getProviderRevenue: (id, params) => apiClient.get(`/providers/${id}/revenue`, params),
+  updateProviderStatus: (id, status) => apiClient.put(`/providers/${id}/status`, { status }),
   updateAvailability: (id, data) => apiClient.put(`/providers/${id}/availability`, data),
-  getTopProviders: () => apiClient.get('/providers/top'),
+  getProviderAvailability: (id) => apiClient.get(`/providers/${id}/availability`),
+  getTopProviders: (params) => apiClient.get('/providers/top', params),
+  getProviderPerformance: (id) => apiClient.get(`/providers/${id}/performance`),
+  sendProviderNotification: (id, data) => apiClient.post(`/providers/${id}/notifications`, data),
+  bulkUpdateProviders: (data) => apiClient.put('/providers/bulk-update', data),
+  exportProviders: (params) => apiClient.get('/providers/export', params),
 };
 
 export const reviewsAPI = {
@@ -240,14 +292,30 @@ export const reviewsAPI = {
   addResponse: (id, data) => apiClient.post(`/reviews/${id}/response`, data),
   reportReview: (id, data) => apiClient.post(`/reviews/${id}/report`, data),
   getReviewStats: () => apiClient.get('/reviews/stats'),
+  getReviewStats: () => apiClient.get('/reviews/stats'),
+  getReviewsByService: (serviceId, params) => apiClient.get(`/reviews/service/${serviceId}`, params),
+  getReviewsByUser: (userId, params) => apiClient.get(`/reviews/user/${userId}`, params),
+  getReviewsByProvider: (providerId, params) => apiClient.get(`/reviews/provider/${providerId}`, params),
+  bulkModerateReviews: (data) => apiClient.put('/reviews/bulk-moderate', data),
+  getReviewAnalytics: (params) => apiClient.get('/reviews/analytics', params),
+  exportReviews: (params) => apiClient.get('/reviews/export', params),
+  getFlaggedReviews: (params) => apiClient.get('/reviews/flagged', params),
+  getReviewTrends: (params) => apiClient.get('/reviews/trends', params),
 };
 
+// Analytics API endpoints
 export const analyticsAPI = {
   getDashboard: (params) => apiClient.get('/analytics/dashboard', params),
   getRevenue: (params) => apiClient.get('/analytics/revenue', params),
   getBookings: (params) => apiClient.get('/analytics/bookings', params),
   getUsers: (params) => apiClient.get('/analytics/users', params),
   getServices: (params) => apiClient.get('/analytics/services', params),
+  getServiceCategoryStats: () => apiClient.get('/analytics/service-categories'),
+  getRevenueByPeriod: (period) => apiClient.get(`/analytics/revenue/${period}`),
+  getTopServices: (params) => apiClient.get('/analytics/top-services', params),
+  getTopProviders: (params) => apiClient.get('/analytics/top-providers', params),
+  getUserActivity: (params) => apiClient.get('/analytics/user-activity', params),
+  getPerformanceMetrics: () => apiClient.get('/analytics/performance'),
 };
 
 export const adminAPI = {
@@ -260,6 +328,51 @@ export const adminAPI = {
   getActivity: (params) => apiClient.get('/admin/activity', params),
   bulkOperation: (action, data) => apiClient.post(`/admin/bulk/${action}`, data),
   sendNotification: (data) => apiClient.post('/admin/notifications', data),
+};
+
+// Notifications API
+export const notificationsAPI = {
+  getNotifications: (params) => apiClient.get('/notifications', params),
+  sendNotification: (data) => apiClient.post('/notifications', data),
+  markAsRead: (id) => apiClient.put(`/notifications/${id}/read`),
+  markAllAsRead: () => apiClient.put('/notifications/mark-all-read'),
+  deleteNotification: (id) => apiClient.delete(`/notifications/${id}`),
+  getNotificationTemplates: () => apiClient.get('/notifications/templates'),
+  createNotificationTemplate: (data) => apiClient.post('/notifications/templates', data),
+  sendBulkNotification: (data) => apiClient.post('/notifications/bulk-send', data),
+  getNotificationStats: () => apiClient.get('/notifications/stats'),
+};
+
+// Reports API
+export const reportsAPI = {
+  generateReport: (type, params) => apiClient.get(`/reports/${type}`, params),
+  getBookingsReport: (params) => apiClient.get('/reports/bookings', params),
+  getRevenueReport: (params) => apiClient.get('/reports/revenue', params),
+  getUsersReport: (params) => apiClient.get('/reports/users', params),
+  getServicesReport: (params) => apiClient.get('/reports/services', params),
+  getProvidersReport: (params) => apiClient.get('/reports/providers', params),
+  getPerformanceReport: (params) => apiClient.get('/reports/performance', params),
+  scheduleReport: (data) => apiClient.post('/reports/schedule', data),
+  getScheduledReports: () => apiClient.get('/reports/scheduled'),
+  downloadReport: (id) => apiClient.get(`/reports/download/${id}`),
+  getReportHistory: () => apiClient.get('/reports/history'),
+};
+
+// Settings API
+export const settingsAPI = {
+  getSettings: () => apiClient.get('/admin/settings'),
+  updateSettings: (data) => apiClient.put('/admin/settings', data),
+  getSystemSettings: () => apiClient.get('/admin/settings/system'),
+  updateSystemSettings: (data) => apiClient.put('/admin/settings/system', data),
+  getEmailSettings: () => apiClient.get('/admin/settings/email'),
+  updateEmailSettings: (data) => apiClient.put('/admin/settings/email', data),
+  getPaymentSettings: () => apiClient.get('/admin/settings/payment'),
+  updatePaymentSettings: (data) => apiClient.put('/admin/settings/payment', data),
+  getNotificationSettings: () => apiClient.get('/admin/settings/notifications'),
+  updateNotificationSettings: (data) => apiClient.put('/admin/settings/notifications', data),
+  testEmailSettings: (data) => apiClient.post('/admin/settings/email/test', data),
+  backupSettings: () => apiClient.post('/admin/settings/backup'),
+  restoreSettings: (data) => apiClient.post('/admin/settings/restore', data),
 };
 
 // File upload APIs
