@@ -91,13 +91,21 @@ class ApiClient {
 
   // HTTP Methods
   async get(endpoint, params = {}) {
-    const queryString = new URLSearchParams(params).toString();
-    const url = queryString ? `${endpoint}?${queryString}` : endpoint;
-    
-    return this.request(url, {
-      method: 'GET',
-    });
-  }
+  const cleanParams = {};
+  Object.keys(params).forEach(key => {
+    const value = params[key];
+    if (value !== null && value !== undefined && value !== '') {
+      cleanParams[key] = value;
+    }
+  });
+
+  const queryString = new URLSearchParams(cleanParams).toString();
+  const url = queryString ? `${endpoint}?${queryString}` : endpoint;
+  
+  return this.request(url, {
+    method: 'GET',
+  });
+}
 
   async post(endpoint, data = {}) {
     return this.request(endpoint, {

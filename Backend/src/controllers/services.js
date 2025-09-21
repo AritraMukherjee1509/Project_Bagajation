@@ -11,118 +11,148 @@ const mongoose = require('mongoose');
 // @access  Public
 const getServices = async (req, res, next) => {
   try {
-    let query = Service.find({ status: 'active' });
+    // Start with base query for active services
+    let query = { status: 'active' };
 
     // Search functionality
-    if (req.query.search) {
-      const searchRegex = new RegExp(req.query.search, 'i');
-      query = query.find({
-        $or: [
-          { name: searchRegex },
-          { description: searchRegex },
-          { category: searchRegex },
-          { tags: { $in: [searchRegex] } }
-        ]
-      });
+    if (req.query.search && req.query.search.trim()) {
+      const searchRegex = new RegExp(req.query.search.trim(), 'i');
+      query.$or = [
+        { name: searchRegex },
+        { description: searchRegex },
+        { category: searchRegex },
+        { tags: { $in: [searchRegex] } }
+      ];
     }
 
-    // Category filter
-    if (req.query.category) {
-      query = query.find({ category: req.query.category });
+    // Category filter - only apply if not "all"
+    if (req.query.category && req.query.category !== 'all') {
+      query.category = req.query.category;
+    }
+
+    // Status filter - only apply if not "all" and if admin
+    if (req.query.status && req.query.status !== 'all') {
+      // Only admins can filter by status other than active
+      if (req.admin) {
+        query.status = req.query.status;
+      }
     }
 
     // Price range filter
     if (req.query.minPrice || req.query.maxPrice) {
       const priceFilter = {};
-      if (req.query.minPrice) priceFilter.$gte = parseFloat(req.query.minPrice);
-      if (req.query.maxPrice) priceFilter.$lte = parseFloat(req.query.maxPrice);
-      query = query.find({ 'pricing.basePrice': priceFilter });
+      if (req.query.minPrice && !isNaN(req.query.minPrice)) {
+        priceFilter.$gte = parseFloat(req.query.minPrice);
+      }
+      if (req.query.maxPrice && !isNaN(req.query.maxPrice)) {
+        priceFilter.$lte = parseFloat(req.query.maxPrice);
+      }
+      if (Object.keys(priceFilter).length > 0) {
+        query['pricing.basePrice'] = priceFilter;
+      }
     }
 
     // Rating filter
-    if (req.query.rating) {
-      query = query.find({ 'ratings.averageRating': { $gte: parseFloat(req.query.rating) } });
+    if (req.query.rating && !isNaN(req.query.rating)) {
+      query['ratings.averageRating'] = { $gte: parseFloat(req.query.rating) };
     }
 
     // Location filter
     if (req.query.city) {
-      query = query.find({ 'serviceArea.cities': { $in: [req.query.city] } });
+      query['serviceArea.cities'] = { $in: [req.query.city] };
     }
 
     // Provider filter
     if (req.query.provider) {
-      query = query.find({ provider: req.query.provider });
+      query.provider = req.query.provider;
     }
 
     // Featured filter
     if (req.query.featured === 'true') {
-      query = query.find({ featured: true });
+      query.featured = true;
     }
 
     // Popular filter
     if (req.query.popular === 'true') {
-      query = query.find({ popular: true });
+      query.popular = true;
     }
 
     // Availability filter
     if (req.query.available === 'true') {
-      query = query.find({ 'availability.isAvailable': true });
+      query['availability.isAvailable'] = true;
     }
 
     // Sort
-    let sortBy = req.query.sort || '-createdAt';
+    let sortBy = req.query.sortBy || 'createdAt';
+    let sortOrder = req.query.order === 'asc' ? 1 : -1;
     
-    // Custom sort options
-    if (req.query.sort === 'price-low') sortBy = 'pricing.basePrice';
-    if (req.query.sort === 'price-high') sortBy = '-pricing.basePrice';
-    if (req.query.sort === 'rating') sortBy = '-ratings.averageRating';
-    if (req.query.sort === 'popular') sortBy = '-stats.totalBookings';
-
-    query = query.sort(sortBy);
-
-    // Pagination
-    const page = parseInt(req.query.page, 10) || 1;
-    const limit = parseInt(req.query.limit, 10) || 12;
-    const startIndex = (page - 1) * limit;
-    const endIndex = page * limit;
-    const total = await Service.countDocuments(query.getQuery());
-
-    query = query.skip(startIndex).limit(limit);
-
-    // Populate provider details
-    query = query.populate({
-      path: 'provider',
-      select: 'name ratings verification status businessInfo'
-    });
-
-    // Execute query
-    const services = await query;
-
-    // Pagination result
-    const pagination = {};
-
-    if (endIndex < total) {
-      pagination.next = {
-        page: page + 1,
-        limit
-      };
+    // Handle legacy sort parameter
+    if (req.query.sort) {
+      sortBy = req.query.sort;
+      sortOrder = sortBy.startsWith('-') ? -1 : 1;
+      sortBy = sortBy.replace(/^-/, '');
     }
 
-    if (startIndex > 0) {
-      pagination.prev = {
-        page: page - 1,
-        limit
-      };
+    // Custom sort options
+    if (sortBy === 'price-low') {
+      sortBy = 'pricing.basePrice';
+      sortOrder = 1;
+    } else if (sortBy === 'price-high') {
+      sortBy = 'pricing.basePrice';
+      sortOrder = -1;
+    } else if (sortBy === 'rating') {
+      sortBy = 'ratings.averageRating';
+      sortOrder = -1;
+    } else if (sortBy === 'popular') {
+      sortBy = 'stats.totalBookings';
+      sortOrder = -1;
+    }
+
+    const sortObject = {};
+    sortObject[sortBy] = sortOrder;
+
+    // Pagination
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 12));
+    const skip = (page - 1) * limit;
+
+    // Get total count
+    const total = await Service.countDocuments(query);
+
+    // Execute query with population
+    const services = await Service.find(query)
+      .populate({
+        path: 'provider',
+        select: 'name ratings verification status businessInfo'
+      })
+      .sort(sortObject)
+      .skip(skip)
+      .limit(limit)
+      .lean(); // Use lean for better performance
+
+    // Calculate pagination
+    const totalPages = Math.ceil(total / limit);
+    const pagination = {};
+
+    if (page < totalPages) {
+      pagination.next = { page: page + 1, limit };
+    }
+
+    if (page > 1) {
+      pagination.prev = { page: page - 1, limit };
     }
 
     res.status(200).json({
       success: true,
       count: services.length,
       total,
+      page,
+      pages: totalPages,
       pagination,
       data: services
     });
   } catch (error) {
+    console.error('Get services error:', error);
     next(error);
   }
 };

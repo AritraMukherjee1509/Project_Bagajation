@@ -709,6 +709,95 @@ const addBookingMessage = async (req, res, next) => {
   }
 };
 
+// @desc    Get booking messages
+// @route   GET /api/v1/bookings/:id/messages
+// @access  Private
+const getBookingMessages = async (req, res, next) => {
+  try {
+    const booking = await Booking.findById(req.params.id)
+      .select('communication.messages user provider');
+
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        message: 'Booking not found'
+      });
+    }
+
+    // Check access
+    const hasAccess = req.admin || 
+                     (req.user && booking.user.toString() === req.user.id) ||
+                     (req.provider && booking.provider.toString() === req.provider.id);
+
+    if (!hasAccess) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: booking.communication.messages || []
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get booking timeline
+// @route   GET /api/v1/bookings/:id/timeline
+// @access  Private
+const getBookingTimeline = async (req, res, next) => {
+  try {
+    const booking = await Booking.findById(req.params.id)
+      .select('statusHistory createdAt user provider');
+
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        message: 'Booking not found'
+      });
+    }
+
+    // Check access
+    const hasAccess = req.admin || 
+                     (req.user && booking.user.toString() === req.user.id) ||
+                     (req.provider && booking.provider.toString() === req.provider.id);
+
+    if (!hasAccess) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied'
+      });
+    }
+
+    // Create timeline from status history
+    const timeline = [
+      {
+        status: 'created',
+        timestamp: booking.createdAt,
+        title: 'Booking Created',
+        description: 'Booking request submitted'
+      },
+      ...booking.statusHistory.map(entry => ({
+        status: entry.status,
+        timestamp: entry.timestamp,
+        title: `Booking ${entry.status.replace('-', ' ')}`,
+        description: entry.reason || entry.notes || `Booking status changed to ${entry.status}`,
+        updatedBy: entry.updatedBy
+      }))
+    ];
+
+    res.status(200).json({
+      success: true,
+      data: timeline
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getBookings,
   getBooking,
@@ -717,5 +806,7 @@ module.exports = {
   updateBookingStatus,
   cancelBooking,
   getBookingAnalytics,
-  addBookingMessage
+  addBookingMessage,
+  getBookingMessages,
+  getBookingTimeline
 };

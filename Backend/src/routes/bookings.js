@@ -8,7 +8,9 @@ const {
   updateBookingStatus,
   cancelBooking,
   getBookingAnalytics,
-  addBookingMessage
+  addBookingMessage,
+  getBookingMessages,
+  getBookingTimeline
 } = require('../controllers/bookings');
 
 const { protect, protectAdmin, protectProvider } = require('../middleware/auth');
@@ -109,5 +111,8 @@ router.put('/:id/cancel', checkBookingAccess, cancelBooking);
 
 // Communication
 router.post('/:id/messages', checkBookingAccess, addBookingMessage);
+
+router.get('/:id/messages', checkBookingAccess, getBookingMessages);
+router.get('/:id/timeline', checkBookingAccess, getBookingTimeline);
 
 module.exports = router;

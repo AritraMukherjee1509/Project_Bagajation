@@ -27,37 +27,44 @@ export default function Services() {
     loadServices();
   }, [filters]);
 
-  const loadServices = async () => {
-    try {
-      setLoading(true);
-      setError(null);
+  // In Services.jsx, update the loadServices function
+const loadServices = async () => {
+  try {
+    setLoading(true);
+    setError(null);
 
-      const params = {
-        ...filters,
-        ...(filters.status !== 'all' && { status: filters.status }),
-        ...(filters.category !== 'all' && { category: filters.category }),
-        ...(filters.search && { search: filters.search })
-      };
+    // Build query parameters - exclude "all" values
+    const params = {
+      page: filters.page,
+      limit: filters.limit,
+      ...(filters.sortBy && { sortBy: filters.sortBy }),
+      ...(filters.order && { order: filters.order }),
+      // Only include these if they're not "all"
+      ...(filters.status && filters.status !== 'all' && { status: filters.status }),
+      ...(filters.category && filters.category !== 'all' && { category: filters.category }),
+      ...(filters.search && filters.search.trim() && { search: filters.search.trim() })
+    };
 
-      const response = await servicesAPI.getServices(params);
-      
-      if (response.success) {
-        setServices(response.data);
-        setPagination({
-          total: response.total,
-          page: response.page || 1,
-          pages: response.pages || 1,
-          hasNext: response.pagination?.next,
-          hasPrev: response.pagination?.prev
-        });
-      }
-    } catch (error) {
-      console.error('Failed to load services:', error);
-      setError(error.message);
-    } finally {
-      setLoading(false);
+    console.log('Loading services with params:', params);
+    const response = await servicesAPI.getServices(params);
+    
+    if (response.success) {
+      setServices(response.data);
+      setPagination({
+        total: response.total,
+        page: response.page || 1,
+        pages: response.pages || 1,
+        hasNext: response.pagination?.next,
+        hasPrev: response.pagination?.prev
+      });
     }
-  };
+  } catch (error) {
+    console.error('Failed to load services:', error);
+    setError(error.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleCreateService = () => {
     setSelectedService(null);

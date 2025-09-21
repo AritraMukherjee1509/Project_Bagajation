@@ -627,28 +627,49 @@ const getBookingTrends = async (matchCondition) => {
   ]);
 };
 
-const getServiceCategoryStats = async (matchCondition) => {
-  return await Booking.aggregate([
-    { $match: matchCondition },
-    {
-      $lookup: {
-        from: 'services',
-        localField: 'service',
-        foreignField: '_id',
-        as: 'serviceInfo'
-      }
-    },
-    { $unwind: '$serviceInfo' },
-    {
-      $group: {
-        _id: '$serviceInfo.category',
-        bookings: { $sum: 1 },
-        revenue: { $sum: '$pricing.totalAmount' },
-        averageRating: { $avg: '$serviceInfo.ratings.averageRating' }
-      }
-    },
-    { $sort: { revenue: -1 } }
-  ]);
+// @desc    Get service category statistics for dashboard
+// @route   GET /api/v1/analytics/service-categories
+// @access  Private/Admin
+const getServiceCategoryStats = async (req, res, next) => {
+  try {
+    const categoryStats = await Booking.aggregate([
+      {
+        $lookup: {
+          from: 'services',
+          localField: 'service',
+          foreignField: '_id',
+          as: 'serviceInfo'
+        }
+      },
+      { $unwind: '$serviceInfo' },
+      {
+        $group: {
+          _id: '$serviceInfo.category',
+          count: { $sum: 1 },
+          revenue: { $sum: '$pricing.totalAmount' }
+        }
+      },
+      { $sort: { count: -1 } }
+    ]);
+
+    const totalBookings = categoryStats.reduce((sum, cat) => sum + cat.count, 0);
+    
+    const colors = ['#3b82f6', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6'];
+    
+    const formattedData = categoryStats.map((cat, index) => ({
+      name: cat._id,
+      value: totalBookings > 0 ? parseFloat(((cat.count / totalBookings) * 100).toFixed(1)) : 0,
+      count: cat.count,
+      color: colors[index % colors.length]
+    }));
+
+    res.status(200).json({
+      success: true,
+      data: formattedData
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
 const getUserGrowthStats = async (matchCondition) => {
@@ -783,5 +804,6 @@ module.exports = {
   getRevenueAnalytics,
   getBookingAnalytics,
   getUserAnalytics,
-  getServiceAnalytics
+  getServiceAnalytics,
+  getServiceCategoryStats
 };

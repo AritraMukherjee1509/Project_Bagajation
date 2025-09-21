@@ -18,6 +18,7 @@ const providerRoutes = require('./routes/providers');
 const reviewRoutes = require('./routes/reviews');
 const analyticsRoutes = require('./routes/analytics');
 const adminRoutes = require('./routes/admin');
+const notificationRoutes = require('./routes/notifications');
 
 const app = express();
 
@@ -96,6 +97,7 @@ app.use(`${API_VERSION}/providers`, providerRoutes);
 app.use(`${API_VERSION}/reviews`, reviewRoutes);
 app.use(`${API_VERSION}/analytics`, analyticsRoutes);
 app.use(`${API_VERSION}/admin`, adminRoutes);
+app.use(`${API_VERSION}/notifications`, notificationRoutes);
 
 // 404 handler
 app.all('*', (req, res) => {

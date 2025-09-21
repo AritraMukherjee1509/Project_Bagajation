@@ -4,7 +4,8 @@ const {
   getRevenueAnalytics,
   getBookingAnalytics,
   getUserAnalytics,
-  getServiceAnalytics
+  getServiceAnalytics,
+  getServiceCategoryStats,
 } = require('../controllers/analytics');
 
 const { protectAdmin } = require('../middleware/auth');
@@ -23,5 +24,6 @@ router.get('/revenue', queryValidations.dateRange, getRevenueAnalytics);
 router.get('/bookings', queryValidations.dateRange, getBookingAnalytics);
 router.get('/users', queryValidations.dateRange, getUserAnalytics);
 router.get('/services', getServiceAnalytics);
+router.get('/service-categories', getServiceCategoryStats);
 
 module.exports = router;

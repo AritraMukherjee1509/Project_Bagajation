@@ -12,6 +12,13 @@ const {
   sendNotification
 } = require('../controllers/admin');
 
+const { 
+  getDashboardStats, 
+  getRecentBookings, 
+  getRevenueChart, 
+  getServiceChart 
+} = require('../controllers/dashboard');
+
 const { protectAdmin } = require('../middleware/auth');
 const { checkAdminPermission, checkAdminTarget } = require('../middleware/roleCheck');
 const { adminValidations, queryValidations } = require('../middleware/validation');
@@ -24,6 +31,11 @@ router.use(protectAdmin);
 
 // Dashboard
 router.get('/dashboard', checkAdminPermission('analytics', 'read'), getAdminDashboard);
+// Dashboard specific routes
+router.get('/dashboard/stats', checkAdminPermission('analytics', 'read'), getDashboardStats);
+router.get('/dashboard/recent-bookings', checkAdminPermission('analytics', 'read'), getRecentBookings);
+router.get('/dashboard/revenue-chart', checkAdminPermission('analytics', 'read'), getRevenueChart);
+router.get('/dashboard/service-chart', checkAdminPermission('analytics', 'read'), getServiceChart);
 
 // Admin management (super admin only)
 router.get('/admins', checkAdminPermission('admins', 'read'), getAdmins);
