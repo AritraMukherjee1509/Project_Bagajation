@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FiX, FiUpload, FiDollarSign, FiTag, FiLoader } from 'react-icons/fi';
+import styles from '../../styles/Services/ServiceForm.module.css';
 
 export default function ServiceForm({ service, mode = 'create', onClose, onSave }) {
   const [formData, setFormData] = useState({
@@ -68,7 +69,7 @@ export default function ServiceForm({ service, mode = 'create', onClose, onSave 
       // }
       
       // For now, using mock data
-      setProviders([
+            setProviders([
         { _id: '1', name: 'Subhajit Dey' },
         { _id: '2', name: 'Ravi Kumar' },
         { _id: '3', name: 'Priya Sharma' },
@@ -186,59 +187,59 @@ export default function ServiceForm({ service, mode = 'create', onClose, onSave 
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="service-form-modal">
-        <div className="modal-header">
-          <h2 className="modal-title">
+    <div className={styles.modalOverlay}>
+      <div className={styles.serviceFormModal}>
+        <div className={styles.modalHeader}>
+          <h2 className={styles.modalTitle}>
             {mode === 'edit' ? 'Edit Service' : 'Add New Service'}
           </h2>
-          <button className="close-btn" onClick={onClose} disabled={loading}>
+          <button className={styles.closeBtn} onClick={onClose} disabled={loading}>
             <FiX />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="service-form">
-          <div className="form-grid">
+        <form onSubmit={handleSubmit} className={styles.serviceForm}>
+          <div className={styles.formGrid}>
             {/* Basic Information */}
-            <div className="form-section">
-              <h3 className="section-title">Basic Information</h3>
+            <div className={styles.formSection}>
+              <h3 className={styles.sectionTitle}>Basic Information</h3>
               
-              <div className="form-group">
-                <label className="form-label">Service Name *</label>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Service Name *</label>
                 <input
                   type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className={`form-input ${errors.name ? 'error' : ''}`}
+                  className={`${styles.formInput} ${errors.name ? styles.error : ''}`}
                   placeholder="Enter service name"
                   disabled={loading}
                 />
-                {errors.name && <span className="error-text">{errors.name}</span>}
+                {errors.name && <span className={styles.errorText}>{errors.name}</span>}
               </div>
 
-              <div className="form-group">
-                <label className="form-label">Description *</label>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Description *</label>
                 <textarea
                   name="description"
                   value={formData.description}
                   onChange={handleChange}
-                  className={`form-textarea ${errors.description ? 'error' : ''}`}
+                  className={`${styles.formTextarea} ${errors.description ? styles.error : ''}`}
                   placeholder="Describe the service"
                   rows={4}
                   disabled={loading}
                 />
-                {errors.description && <span className="error-text">{errors.description}</span>}
+                {errors.description && <span className={styles.errorText}>{errors.description}</span>}
               </div>
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label className="form-label">Category *</label>
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Category *</label>
                   <select
                     name="category"
                     value={formData.category}
                     onChange={handleChange}
-                    className={`form-select ${errors.category ? 'error' : ''}`}
+                    className={`${styles.formSelect} ${errors.category ? styles.error : ''}`}
                     disabled={loading}
                   >
                     <option value="">Select category</option>
@@ -246,16 +247,16 @@ export default function ServiceForm({ service, mode = 'create', onClose, onSave 
                       <option key={category} value={category}>{category}</option>
                     ))}
                   </select>
-                  {errors.category && <span className="error-text">{errors.category}</span>}
+                  {errors.category && <span className={styles.errorText}>{errors.category}</span>}
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label">Provider *</label>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Provider *</label>
                   <select
                     name="provider"
                     value={formData.provider}
                     onChange={handleChange}
-                    className={`form-select ${errors.provider ? 'error' : ''}`}
+                    className={`${styles.formSelect} ${errors.provider ? styles.error : ''}`}
                     disabled={loading}
                   >
                     <option value="">Select provider</option>
@@ -265,69 +266,69 @@ export default function ServiceForm({ service, mode = 'create', onClose, onSave 
                       </option>
                     ))}
                   </select>
-                  {errors.provider && <span className="error-text">{errors.provider}</span>}
+                  {errors.provider && <span className={styles.errorText}>{errors.provider}</span>}
                 </div>
               </div>
             </div>
 
             {/* Pricing & Details */}
-            <div className="form-section">
-              <h3 className="section-title">Pricing & Details</h3>
+            <div className={styles.formSection}>
+              <h3 className={styles.sectionTitle}>Pricing & Details</h3>
               
-              <div className="form-row">
-                <div className="form-group">
-                  <label className="form-label">Base Price (₹) *</label>
-                  <div className="input-with-icon">
-                    <FiDollarSign className="input-icon" />
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Base Price (₹) *</label>
+                  <div className={styles.inputWithIcon}>
+                    <FiDollarSign className={styles.inputIcon} />
                     <input
                       type="number"
                       name="pricing.basePrice"
                       value={formData.pricing.basePrice}
                       onChange={handleChange}
-                      className={`form-input ${errors['pricing.basePrice'] ? 'error' : ''}`}
+                      className={`${styles.formInput} ${errors['pricing.basePrice'] ? styles.error : ''}`}
                       placeholder="0"
                       min="0"
                       disabled={loading}
                     />
                   </div>
-                  {errors['pricing.basePrice'] && <span className="error-text">{errors['pricing.basePrice']}</span>}
+                  {errors['pricing.basePrice'] && <span className={styles.errorText}>{errors['pricing.basePrice']}</span>}
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label">Duration</label>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Duration</label>
                   <input
                     type="text"
                     name="duration"
                     value={formData.duration}
                     onChange={handleChange}
-                    className="form-input"
+                    className={styles.formInput}
                     placeholder="e.g., 2-3 hours"
                     disabled={loading}
                   />
                 </div>
               </div>
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label className="form-label">Warranty Period</label>
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Warranty Period</label>
                   <input
                     type="text"
                     name="warranty"
                     value={formData.warranty}
                     onChange={handleChange}
-                    className="form-input"
+                    className={styles.formInput}
                     placeholder="e.g., 1 year"
                     disabled={loading}
                   />
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label">Status</label>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Status</label>
                   <select
                     name="status"
                     value={formData.status}
                     onChange={handleChange}
-                    className="form-select"
+                    className={styles.formSelect}
                     disabled={loading}
                   >
                     <option value="active">Active</option>
@@ -338,16 +339,16 @@ export default function ServiceForm({ service, mode = 'create', onClose, onSave 
             </div>
 
             {/* Features */}
-            <div className="form-section full-width">
-              <h3 className="section-title">Features</h3>
+            <div className={`${styles.formSection} ${styles.fullWidth}`}>
+              <h3 className={styles.sectionTitle}>Features</h3>
               
-              <div className="features-input">
-                <div className="add-feature">
+              <div className={styles.featuresInput}>
+                <div className={styles.addFeature}>
                   <input
                     type="text"
                     value={newFeature}
                     onChange={(e) => setNewFeature(e.target.value)}
-                    className="form-input"
+                    className={styles.formInput}
                     placeholder="Add a feature"
                     disabled={loading}
                     onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddFeature())}
@@ -355,7 +356,7 @@ export default function ServiceForm({ service, mode = 'create', onClose, onSave 
                   <button
                     type="button"
                     onClick={handleAddFeature}
-                    className="add-feature-btn"
+                    className={styles.addFeatureBtn}
                     disabled={loading}
                   >
                     <FiTag />
@@ -363,14 +364,14 @@ export default function ServiceForm({ service, mode = 'create', onClose, onSave 
                   </button>
                 </div>
                 
-                <div className="features-list">
+                <div className={styles.featuresList}>
                   {formData.features.map((feature, index) => (
-                    <div key={index} className="feature-tag">
+                    <div key={index} className={styles.featureTag}>
                       <span>{feature}</span>
                       <button
                         type="button"
                         onClick={() => handleRemoveFeature(feature)}
-                        className="remove-feature-btn"
+                        className={styles.removeFeatureBtn}
                         disabled={loading}
                       >
                         <FiX />
@@ -382,12 +383,12 @@ export default function ServiceForm({ service, mode = 'create', onClose, onSave 
             </div>
 
             {/* Image Upload */}
-            <div className="form-section full-width">
-              <h3 className="section-title">Service Images</h3>
+            <div className={`${styles.formSection} ${styles.fullWidth}`}>
+              <h3 className={styles.sectionTitle}>Service Images</h3>
               
-              <div className="image-upload">
-                <div className="upload-area">
-                  <label className="upload-label">
+              <div className={styles.imageUpload}>
+                <div className={styles.uploadArea}>
+                  <label className={styles.uploadLabel}>
                     <FiUpload />
                     <span>Click to upload images</span>
                     <input
@@ -395,20 +396,20 @@ export default function ServiceForm({ service, mode = 'create', onClose, onSave 
                       accept="image/*"
                       multiple
                       onChange={handleImageUpload}
-                      className="upload-input"
+                      className={styles.uploadInput}
                       disabled={loading}
                     />
                   </label>
                 </div>
                 
                 {formData.images.length > 0 && (
-                  <div className="images-preview">
+                  <div className={styles.imagesPreview}>
                     {formData.images.map((image, index) => (
-                      <div key={index} className="image-preview">
+                      <div key={index} className={styles.imagePreview}>
                         <img src={image} alt={`Service ${index + 1}`} />
                         <button
                           type="button"
-                          className="remove-image-btn"
+                          className={styles.removeImageBtn}
                           onClick={() => handleRemoveImage(index)}
                           disabled={loading}
                         >
@@ -422,14 +423,14 @@ export default function ServiceForm({ service, mode = 'create', onClose, onSave 
             </div>
           </div>
 
-          <div className="form-actions">
+          <div className={styles.formActions}>
             <button type="button" className="btn btn-outline" onClick={onClose} disabled={loading}>
               Cancel
             </button>
             <button type="submit" className="btn btn-primary" disabled={loading}>
               {loading ? (
                 <>
-                  <FiLoader className="spinning" />
+                  <FiLoader className={styles.spinning} />
                   {mode === 'edit' ? 'Updating...' : 'Creating...'}
                 </>
               ) : (

@@ -14,6 +14,7 @@ import {
   FiRefreshCw
 } from 'react-icons/fi';
 import { usersAPI, bookingsAPI } from '../../utils/api';
+import styles from '../../styles/Users/UserDetails.module.css';
 
 export default function UserDetails({ user, onClose, onEdit }) {
   const [activeTab, setActiveTab] = useState('profile');
@@ -156,95 +157,95 @@ export default function UserDetails({ user, onClose, onEdit }) {
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="user-details-modal large">
-        <div className="modal-header">
-          <div className="header-content">
-            <div className="user-header-info">
+    <div className={styles.modalOverlay}>
+      <div className={`${styles.userDetailsModal} ${styles.large}`}>
+        <div className={styles.modalHeader}>
+          <div className={styles.headerContent}>
+            <div className={styles.userHeaderInfo}>
               <img 
                 src={user.avatar || user.profileImage || '/default-avatar.jpg'} 
                 alt={user.name} 
-                className="user-avatar-large"
+                className={styles.userAvatarLarge}
                 onError={(e) => {
                   e.target.src = '/default-avatar.jpg';
                 }}
               />
-              <div className="user-basic-info">
-                <h2 className="user-name">{user.name}</h2>
-                <p className="user-email">{user.email}</p>
-                <span className={`status-badge ${user.status || 'active'}`}>
+              <div className={styles.userBasicInfo}>
+                <h2 className={styles.userName}>{user.name}</h2>
+                <p className={styles.userEmail}>{user.email}</p>
+                <span className={`${styles.statusBadge} ${user.status || 'active'}`}>
                   {user.status || 'active'}
                 </span>
               </div>
             </div>
           </div>
-          <div className="header-actions">
+          <div className={styles.headerActions}>
             <button className="btn btn-outline" onClick={() => onEdit(user)}>
               <FiEdit />
               Edit User
             </button>
-            <button className="close-btn" onClick={onClose}>
+            <button className={styles.closeBtn} onClick={onClose}>
               <FiX />
             </button>
           </div>
         </div>
 
-        <div className="modal-tabs">
+        <div className={styles.modalTabs}>
           <button
-            className={`tab-btn ${activeTab === 'profile' ? 'active' : ''}`}
+            className={`${styles.tabBtn} ${activeTab === 'profile' ? styles.active : ''}`}
             onClick={() => setActiveTab('profile')}
           >
             Profile
           </button>
           <button
-            className={`tab-btn ${activeTab === 'bookings' ? 'active' : ''}`}
+            className={`${styles.tabBtn} ${activeTab === 'bookings' ? styles.active : ''}`}
             onClick={() => setActiveTab('bookings')}
           >
             Bookings ({userStats.totalBookings})
           </button>
           <button
-            className={`tab-btn ${activeTab === 'activity' ? 'active' : ''}`}
+            className={`${styles.tabBtn} ${activeTab === 'activity' ? styles.active : ''}`}
             onClick={() => setActiveTab('activity')}
           >
             Activity
           </button>
         </div>
 
-        <div className="modal-content">
+        <div className={styles.modalContent}>
           {activeTab === 'profile' && (
-            <div className="profile-tab">
-              <div className="profile-grid">
-                <div className="profile-section">
-                  <h3 className="section-title">
+            <div className={styles.profileTab}>
+              <div className={styles.profileGrid}>
+                <div className={styles.profileSection}>
+                  <h3 className={styles.sectionTitle}>
                     <FiUser />
                     Personal Information
                   </h3>
-                  <div className="info-list">
-                    <div className="info-item">
-                      <span className="info-label">Full Name:</span>
-                      <span className="info-value">{user.name}</span>
+                  <div className={styles.infoList}>
+                    <div className={styles.infoItem}>
+                      <span className={styles.infoLabel}>Full Name:</span>
+                      <span className={styles.infoValue}>{user.name}</span>
                     </div>
-                    <div className="info-item">
-                      <span className="info-label">Email:</span>
-                      <span className="info-value">
+                    <div className={styles.infoItem}>
+                      <span className={styles.infoLabel}>Email:</span>
+                      <span className={styles.infoValue}>
                         <FiMail />
                         {user.email}
                       </span>
                     </div>
-                    <div className="info-item">
-                      <span className="info-label">Phone:</span>
-                      <span className="info-value">
+                    <div className={styles.infoItem}>
+                      <span className={styles.infoLabel}>Phone:</span>
+                      <span className={styles.infoValue}>
                         <FiPhone />
                         {user.phone || 'Not provided'}
                       </span>
                     </div>
-                    <div className="info-item">
-                      <span className="info-label">Role:</span>
-                      <span className="info-value">{user.role || 'user'}</span>
+                    <div className={styles.infoItem}>
+                      <span className={styles.infoLabel}>Role:</span>
+                      <span className={styles.infoValue}>{user.role || 'user'}</span>
                     </div>
-                    <div className="info-item">
-                      <span className="info-label">Member Since:</span>
-                      <span className="info-value">
+                    <div className={styles.infoItem}>
+                      <span className={styles.infoLabel}>Member Since:</span>
+                      <span className={styles.infoValue}>
                         <FiCalendar />
                         {formatDate(userStats.memberSince)}
                       </span>
@@ -252,9 +253,9 @@ export default function UserDetails({ user, onClose, onEdit }) {
                   </div>
 
                   {user.address && (
-                    <div className="address-section">
+                    <div className={styles.addressSection}>
                       <h4>Address</h4>
-                      <div className="address-info">
+                      <div className={styles.addressInfo}>
                         <FiMapPin />
                         <div>
                           {user.address.street && <p>{user.address.street}</p>}
@@ -268,46 +269,46 @@ export default function UserDetails({ user, onClose, onEdit }) {
                   )}
                 </div>
 
-                <div className="stats-section">
-                  <h3 className="section-title">User Statistics</h3>
-                  <div className="stats-grid">
-                    <div className="stat-card">
-                      <div className="stat-icon">
+                <div className={styles.statsSection}>
+                  <h3 className={styles.sectionTitle}>User Statistics</h3>
+                  <div className={styles.statsGrid}>
+                    <div className={styles.statCard}>
+                      <div className={styles.statIcon}>
                         <FiCalendar />
                       </div>
-                      <div className="stat-info">
-                        <span className="stat-value">{userStats.totalBookings}</span>
-                        <span className="stat-label">Total Bookings</span>
+                      <div className={styles.statInfo}>
+                        <span className={styles.statValue}>{userStats.totalBookings}</span>
+                        <span className={styles.statLabel}>Total Bookings</span>
                       </div>
                     </div>
                     
-                    <div className="stat-card">
-                      <div className="stat-icon">
+                    <div className={styles.statCard}>
+                      <div className={styles.statIcon}>
                         <FiDollarSign />
                       </div>
-                      <div className="stat-info">
-                        <span className="stat-value">₹{userStats.totalSpent.toLocaleString()}</span>
-                        <span className="stat-label">Total Spent</span>
+                      <div className={styles.statInfo}>
+                        <span className={styles.statValue}>₹{userStats.totalSpent.toLocaleString()}</span>
+                        <span className={styles.statLabel}>Total Spent</span>
                       </div>
                     </div>
                     
-                    <div className="stat-card">
-                      <div className="stat-icon">
+                    <div className={styles.statCard}>
+                      <div className={styles.statIcon}>
                         <FiStar />
                       </div>
-                      <div className="stat-info">
-                        <span className="stat-value">{userStats.averageRating || 'N/A'}</span>
-                        <span className="stat-label">Average Rating</span>
+                      <div className={styles.statInfo}>
+                        <span className={styles.statValue}>{userStats.averageRating || 'N/A'}</span>
+                        <span className={styles.statLabel}>Average Rating</span>
                       </div>
                     </div>
                     
-                    <div className="stat-card">
-                      <div className="stat-icon">
+                    <div className={styles.statCard}>
+                      <div className={styles.statIcon}>
                         <FiClock />
                       </div>
-                      <div className="stat-info">
-                        <span className="stat-value">{userStats.completedBookings}</span>
-                        <span className="stat-label">Completed</span>
+                      <div className={styles.statInfo}>
+                        <span className={styles.statValue}>{userStats.completedBookings}</span>
+                        <span className={styles.statLabel}>Completed</span>
                       </div>
                     </div>
                   </div>
@@ -317,11 +318,11 @@ export default function UserDetails({ user, onClose, onEdit }) {
           )}
 
           {activeTab === 'bookings' && (
-            <div className="bookings-tab">
-              <div className="tab-header">
+            <div className={styles.bookingsTab}>
+              <div className={styles.tabHeader}>
                 <h3>Booking History</h3>
-                <div className="tab-actions">
-                  <span className="total-count">Total: {userBookings.length}</span>
+                                <div className={styles.tabActions}>
+                  <span className={styles.totalCount}>Total: {userBookings.length}</span>
                   <button className="btn btn-outline btn-sm" onClick={loadUserBookings}>
                     <FiRefreshCw />
                     Refresh
@@ -330,54 +331,54 @@ export default function UserDetails({ user, onClose, onEdit }) {
               </div>
               
               {loading ? (
-                <div className="loading-container">
-                  <FiRefreshCw className="spinning" />
+                <div className={styles.loadingContainer}>
+                  <FiRefreshCw className={styles.spinning} />
                   <p>Loading bookings...</p>
                 </div>
               ) : error ? (
-                <div className="error-container">
+                <div className={styles.errorContainer}>
                   <p>{error}</p>
                   <button className="btn btn-primary" onClick={loadUserBookings}>
                     Retry
                   </button>
                 </div>
               ) : userBookings.length === 0 ? (
-                <div className="empty-state">
+                <div className={styles.emptyState}>
                   <p>No bookings found for this user</p>
                 </div>
               ) : (
-                <div className="bookings-list">
+                <div className={styles.bookingsList}>
                   {userBookings.map((booking) => (
-                    <div key={booking._id} className="booking-item">
-                      <div className="booking-main">
-                        <div className="booking-info">
-                          <h4 className="service-name">
+                    <div key={booking._id} className={styles.bookingItem}>
+                      <div className={styles.bookingMain}>
+                        <div className={styles.bookingInfo}>
+                          <h4 className={styles.serviceName}>
                             {booking.service?.name || 'Service not found'}
                           </h4>
-                          <p className="provider-name">
+                          <p className={styles.providerName}>
                             by {booking.provider?.name || 'Provider not assigned'}
                           </p>
-                          <span className="booking-date">
+                          <span className={styles.bookingDate}>
                             {formatDate(booking.scheduledDate || booking.createdAt)}
                           </span>
                         </div>
-                        <div className="booking-meta">
-                          <span className="booking-amount">
+                        <div className={styles.bookingMeta}>
+                          <span className={styles.bookingAmount}>
                             ₹{(booking.pricing?.totalAmount || 0).toLocaleString()}
                           </span>
-                          <span className={`status-badge ${booking.status}`}>
+                          <span className={`${styles.statusBadge} ${booking.status}`}>
                             {booking.status}
                           </span>
                         </div>
                       </div>
                       {booking.rating && (
-                        <div className="booking-rating">
-                          <span className="rating-label">Rating:</span>
-                          <div className="rating-stars">
+                        <div className={styles.bookingRating}>
+                          <span className={styles.ratingLabel}>Rating:</span>
+                          <div className={styles.ratingStars}>
                             {Array.from({ length: 5 }).map((_, i) => (
                               <FiStar 
                                 key={i} 
-                                className={`star ${i < booking.rating ? 'filled' : ''}`} 
+                                className={`${styles.star} ${i < booking.rating ? styles.filled : ''}`} 
                               />
                             ))}
                           </div>
@@ -391,8 +392,8 @@ export default function UserDetails({ user, onClose, onEdit }) {
           )}
 
           {activeTab === 'activity' && (
-            <div className="activity-tab">
-              <div className="tab-header">
+            <div className={styles.activityTab}>
+              <div className={styles.tabHeader}>
                 <h3>Recent Activity</h3>
                 <button className="btn btn-outline btn-sm" onClick={loadUserActivity}>
                   <FiRefreshCw />
@@ -401,32 +402,32 @@ export default function UserDetails({ user, onClose, onEdit }) {
               </div>
               
               {loading ? (
-                <div className="loading-container">
-                  <FiRefreshCw className="spinning" />
+                <div className={styles.loadingContainer}>
+                  <FiRefreshCw className={styles.spinning} />
                   <p>Loading activity...</p>
                 </div>
               ) : error ? (
-                <div className="error-container">
+                <div className={styles.errorContainer}>
                   <p>{error}</p>
                   <button className="btn btn-primary" onClick={loadUserActivity}>
                     Retry
                   </button>
                 </div>
               ) : userActivity.length === 0 ? (
-                <div className="empty-state">
+                <div className={styles.emptyState}>
                   <p>No recent activity found</p>
                 </div>
               ) : (
-                <div className="activity-timeline">
+                <div className={styles.activityTimeline}>
                   {userActivity.map((activity) => (
-                    <div key={activity.id} className="activity-item">
-                      <div className="activity-icon">
+                    <div key={activity.id} className={styles.activityItem}>
+                      <div className={styles.activityIcon}>
                         {getActivityIcon(activity.type)}
                       </div>
-                      <div className="activity-content">
+                      <div className={styles.activityContent}>
                         <h4>{activity.title}</h4>
                         <p>{activity.description}</p>
-                        <span className="activity-time">
+                        <span className={styles.activityTime}>
                           {formatTimeAgo(activity.timestamp)}
                         </span>
                       </div>

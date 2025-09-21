@@ -6,6 +6,7 @@ import ServiceChart from '../components/Dashboard/ServiceChart';
 import { dashboardAPI, analyticsAPI } from '../utils/api';
 import { FiRefreshCw, FiDownload, FiSettings } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
+import styles from '../styles/pages/Dashboard.module.css';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -177,10 +178,10 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="dashboard-page">
-        <div className="loading-container">
-          <div className="loading-spinner">
-            <FiRefreshCw className="spinning" />
+      <div className={styles.dashboardPage}>
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingSpinner}>
+            <FiRefreshCw className={styles.spinning} />
             <p>Loading dashboard...</p>
           </div>
         </div>
@@ -190,8 +191,8 @@ export default function Dashboard() {
 
   if (error) {
     return (
-      <div className="dashboard-page">
-        <div className="error-container">
+      <div className={styles.dashboardPage}>
+        <div className={styles.errorContainer}>
           <p>Error loading dashboard: {error}</p>
           <button className="btn btn-primary" onClick={handleRefresh}>
             <FiRefreshCw />
@@ -203,7 +204,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="dashboard-page">
+    <div className={styles.dashboardPage}>
       <div className="page-header">
         <div className="header-content">
           <h1 className="page-title">Dashboard</h1>
@@ -212,14 +213,6 @@ export default function Dashboard() {
           </p>
         </div>
         <div className="header-actions">
-          {/* <button 
-            className="btn btn-outline" 
-            onClick={handleExportDashboard}
-            disabled={refreshing}
-          >
-            <FiDownload />
-            Export Report
-          </button> */}
           <button 
             className="btn btn-outline" 
             onClick={() => navigate('/settings')}
@@ -232,27 +225,27 @@ export default function Dashboard() {
             onClick={handleRefresh}
             disabled={refreshing}
           >
-            <FiRefreshCw className={refreshing ? 'spinning' : ''} />
+            <FiRefreshCw className={refreshing ? styles.spinning : ''} />
             {refreshing ? 'Refreshing...' : 'Refresh'}
           </button>
         </div>
       </div>
 
-      <div className="dashboard-content">
+      <div className={styles.dashboardContent}>
         <StatsCards 
           data={dashboardData?.stats} 
           loading={loading}
         />
         
-        <div className="dashboard-row">
-          <div className="dashboard-col-2">
+        <div className={styles.dashboardRow}>
+          <div className={styles.dashboardCol2}>
             <RevenueChart 
               data={revenueData} 
               loading={loading}
               onRefresh={handleRefreshRevenue}
             />
           </div>
-          <div className="dashboard-col-1">
+          <div className={styles.dashboardCol1}>
             <ServiceChart 
               data={serviceData} 
               loading={loading}

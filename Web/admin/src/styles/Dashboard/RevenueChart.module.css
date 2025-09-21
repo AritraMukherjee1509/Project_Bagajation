@@ -1,0 +1,253 @@
+.chartCard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 24px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.chartHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.chartTitleSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.chartTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-strong);
+  margin: 0;
+}
+
+.chartStats {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.statsSkeletonLine {
+  height: 20px;
+  background: var(--chip-bg);
+  border-radius: 4px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.statsSkeletonLine.short {
+  width: 80px;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.totalRevenue {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+.revenueGrowth {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.revenueGrowth.positive {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--admin-success);
+}
+
+.revenueGrowth.negative {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--admin-danger);
+}
+
+.chartControls {
+  display: flex;
+  gap: 8px;
+}
+
+.timeRangeSelect {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text-strong);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.refreshBtn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 8px;
+  transition: all 0.2s ease;
+}
+
+.refreshBtn:hover {
+  background: var(--chip-bg);
+  color: var(--text-strong);
+}
+
+.chartContainer {
+  flex: 1;
+  margin-bottom: 16px;
+}
+
+.chartSkeleton {
+  display: flex;
+  align-items: end;
+  gap: 16px;
+  height: 200px;
+}
+
+.skeletonBar {
+  flex: 1;
+  background: var(--chip-bg);
+  border-radius: 4px 4px 0 0;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.chartBars {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  height: 200px;
+}
+
+.chartBarWrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.chartBar {
+  width: 100%;
+  background: linear-gradient(135deg, var(--admin-primary), var(--admin-primary-dark));
+  border-radius: 4px 4px 0 0;
+  transition: all 0.3s ease;
+  position: relative;
+  animation: barGrow 0.5s ease-out forwards;
+  animation-delay: var(--delay);
+  transform-origin: bottom;
+  transform: scaleY(0);
+}
+
+@keyframes barGrow {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+
+.chartBar:hover {
+  opacity: 0.8;
+}
+
+.barTooltip {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--text-strong);
+  color: var(--surface);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 10;
+}
+
+.chartBar:hover .barTooltip {
+  opacity: 1;
+}
+
+.chartLabel {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.chartFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.chartLegend {
+  display: flex;
+  gap: 16px;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.legendColor {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+.legendColor.primary {
+  background: linear-gradient(135deg, var(--admin-primary), var(--admin-primary-dark));
+}
+
+.chartSummary {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+@media (max-width: 768px) {
+  .chartHeader {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .chartControls {
+    width: 100%;
+  }
+  
+  .timeRangeSelect {
+    width: 100%;
+  }
+  
+  .chartBars {
+    gap: 8px;
+  }
+  
+  .chartFooter {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+}

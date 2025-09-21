@@ -14,13 +14,14 @@ import Analytics from './pages/Analytics';
 import Settings from './pages/Settings';
 
 // Styles
-import './styles/admin.css';
+import './styles/global.css';
+import styles from './styles/AdminApp.module.css';
 
 function AdminApp() {
   return (
     <BrowserRouter basename="/admin">
       <AuthProvider>
-        <div className="admin-app">
+        <div className={styles.adminApp}>
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route

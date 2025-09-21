@@ -16,6 +16,7 @@ import {
   FiCheckCircle
 } from 'react-icons/fi';
 import { bookingsAPI } from '../../utils/api';
+import styles from '../../styles/Bookings/BookingDetails.module.css';
 
 export default function BookingDetails({ booking, onClose, onUpdate }) {
   const [status, setStatus] = useState(booking?.status || 'pending');
@@ -137,48 +138,48 @@ export default function BookingDetails({ booking, onClose, onUpdate }) {
   if (!booking) return null;
 
   return (
-    <div className="modal-overlay">
-      <div className="booking-details-modal">
-        <div className="modal-header">
-          <div className="header-content">
-            <h2 className="modal-title">Booking Details</h2>
-            <div className="booking-id">
+    <div className={styles.modalOverlay}>
+      <div className={styles.bookingDetailsModal}>
+        <div className={styles.modalHeader}>
+          <div className={styles.headerContent}>
+            <h2 className={styles.modalTitle}>Booking Details</h2>
+            <div className={styles.bookingId}>
               ID: {booking.bookingId || booking._id?.substring(0, 8) || 'N/A'}
             </div>
           </div>
-          <button className="close-btn" onClick={onClose}>
+          <button className={styles.closeBtn} onClick={onClose}>
             <FiX />
           </button>
         </div>
 
-        <div className="modal-content">
-          <div className="booking-info-grid">
+        <div className={styles.modalContent}>
+          <div className={styles.bookingInfoGrid}>
             {/* Customer Information */}
-            <div className="info-section">
-              <h3 className="section-title">
+            <div className={styles.infoSection}>
+              <h3 className={styles.sectionTitle}>
                 <FiUser />
                 Customer Information
               </h3>
-              <div className="customer-card">
-                <div className="customer-avatar large">
+              <div className={styles.customerCard}>
+                <div className={`${styles.customerAvatar} ${styles.large}`}>
                   {booking.user?.name?.charAt(0) || 'U'}
                 </div>
-                <div className="customer-details">
+                <div className={styles.customerDetails}>
                   <h4>{booking.user?.name || 'Unknown User'}</h4>
-                  <div className="contact-info">
-                    <div className="contact-item">
+                  <div className={styles.contactInfo}>
+                    <div className={styles.contactItem}>
                       <FiPhone />
                       <span>
                         {booking.user?.phone || booking.contactInfo?.phone || 'Not provided'}
                       </span>
                     </div>
-                    <div className="contact-item">
+                    <div className={styles.contactItem}>
                       <FiMail />
                       <span>
                         {booking.user?.email || booking.contactInfo?.email || 'Not provided'}
                       </span>
                     </div>
-                    <div className="contact-item">
+                    <div className={styles.contactItem}>
                       <FiMapPin />
                       <span>
                         {booking.address ? 
@@ -193,52 +194,52 @@ export default function BookingDetails({ booking, onClose, onUpdate }) {
             </div>
 
             {/* Service Information */}
-            <div className="info-section">
-              <h3 className="section-title">
+            <div className={styles.infoSection}>
+              <h3 className={styles.sectionTitle}>
                 <FiCalendar />
                 Service Information
               </h3>
-              <div className="service-details">
-                <div className="detail-row">
-                  <span className="detail-label">Service:</span>
-                  <span className="detail-value">
+              <div className={styles.serviceDetails}>
+                <div className={styles.detailRow}>
+                  <span className={styles.detailLabel}>Service:</span>
+                  <span className={styles.detailValue}>
                     {booking.service?.name || 'Service not found'}
                   </span>
                 </div>
-                <div className="detail-row">
-                  <span className="detail-label">Category:</span>
-                  <span className="detail-value">
+                <div className={styles.detailRow}>
+                  <span className={styles.detailLabel}>Category:</span>
+                  <span className={styles.detailValue}>
                     {booking.service?.category || 'Not specified'}
                   </span>
                 </div>
-                <div className="detail-row">
-                  <span className="detail-label">Provider:</span>
-                  <span className="detail-value">
+                <div className={styles.detailRow}>
+                  <span className={styles.detailLabel}>Provider:</span>
+                  <span className={styles.detailValue}>
                     {booking.provider?.name || 'Not assigned'}
                   </span>
                 </div>
-                <div className="detail-row">
-                  <span className="detail-label">Scheduled Date:</span>
-                  <span className="detail-value">
+                <div className={styles.detailRow}>
+                  <span className={styles.detailLabel}>Scheduled Date:</span>
+                  <span className={styles.detailValue}>
                     {formatDate(booking.scheduledDate)}
                   </span>
                 </div>
-                <div className="detail-row">
-                  <span className="detail-label">Scheduled Time:</span>
-                  <span className="detail-value">
+                <div className={styles.detailRow}>
+                  <span className={styles.detailLabel}>Scheduled Time:</span>
+                  <span className={styles.detailValue}>
                     <FiClock />
                     {formatTime(booking.scheduledTime || booking.scheduledDate)}
                   </span>
                 </div>
-                <div className="detail-row">
-                  <span className="detail-label">Duration:</span>
-                  <span className="detail-value">
+                <div className={styles.detailRow}>
+                  <span className={styles.detailLabel}>Duration:</span>
+                  <span className={styles.detailValue}>
                     {booking.service?.duration || 'Not specified'}
                   </span>
                 </div>
-                <div className="detail-row">
-                  <span className="detail-label">Created:</span>
-                  <span className="detail-value">
+                <div className={styles.detailRow}>
+                  <span className={styles.detailLabel}>Created:</span>
+                  <span className={styles.detailValue}>
                     {formatDate(booking.createdAt)}
                   </span>
                 </div>
@@ -246,52 +247,52 @@ export default function BookingDetails({ booking, onClose, onUpdate }) {
             </div>
 
             {/* Pricing Information */}
-            <div className="info-section">
-              <h3 className="section-title">
+            <div className={styles.infoSection}>
+              <h3 className={styles.sectionTitle}>
                 <FiDollarSign />
                 Pricing Details
               </h3>
-              <div className="pricing-details">
-                <div className="detail-row">
-                  <span className="detail-label">Base Price:</span>
-                  <span className="detail-value">
+              <div className={styles.pricingDetails}>
+                <div className={styles.detailRow}>
+                  <span className={styles.detailLabel}>Base Price:</span>
+                  <span className={styles.detailValue}>
                     ₹{(booking.pricing?.basePrice || booking.service?.pricing?.basePrice || 0).toLocaleString()}
                   </span>
                 </div>
                 {booking.pricing?.additionalCharges > 0 && (
-                  <div className="detail-row">
-                    <span className="detail-label">Additional Charges:</span>
-                    <span className="detail-value">
+                  <div className={styles.detailRow}>
+                    <span className={styles.detailLabel}>Additional Charges:</span>
+                    <span className={styles.detailValue}>
                       ₹{booking.pricing.additionalCharges.toLocaleString()}
                     </span>
                   </div>
                 )}
                 {booking.pricing?.discount > 0 && (
-                  <div className="detail-row">
-                    <span className="detail-label">Discount:</span>
-                    <span className="detail-value discount">
+                  <div className={styles.detailRow}>
+                    <span className={styles.detailLabel}>Discount:</span>
+                    <span className={`${styles.detailValue} ${styles.discount}`}>
                       -₹{booking.pricing.discount.toLocaleString()}
                     </span>
                   </div>
                 )}
                 {booking.pricing?.tax > 0 && (
-                  <div className="detail-row">
-                    <span className="detail-label">Tax:</span>
-                    <span className="detail-value">
+                  <div className={styles.detailRow}>
+                    <span className={styles.detailLabel}>Tax:</span>
+                    <span className={styles.detailValue}>
                       ₹{booking.pricing.tax.toLocaleString()}
                     </span>
                   </div>
                 )}
-                <div className="detail-row total">
-                  <span className="detail-label">Total Amount:</span>
-                  <span className="detail-value amount">
-                    <FiDollarSign />
+                <div className={`${styles.detailRow} ${styles.total}`}>
+                  <span className={styles.detailLabel}>Total Amount:</span>
+                  <span className={`${styles.detailValue} ${styles.amount}`}>
+                                        <FiDollarSign />
                     ₹{(booking.pricing?.totalAmount || booking.amount || 0).toLocaleString()}
                   </span>
                 </div>
-                <div className="detail-row">
-                  <span className="detail-label">Payment Status:</span>
-                  <span className={`status-badge ${booking.paymentStatus || 'pending'}`}>
+                <div className={styles.detailRow}>
+                  <span className={styles.detailLabel}>Payment Status:</span>
+                  <span className={`${styles.statusBadge} ${booking.paymentStatus || 'pending'}`}>
                     {booking.paymentStatus || 'pending'}
                   </span>
                 </div>
@@ -299,28 +300,28 @@ export default function BookingDetails({ booking, onClose, onUpdate }) {
             </div>
 
             {/* Current Status and Actions */}
-            <div className="info-section full-width">
-              <h3 className="section-title">
+            <div className={`${styles.infoSection} ${styles.fullWidth}`}>
+              <h3 className={styles.sectionTitle}>
                 <FiEdit />
                 Status Management
               </h3>
-              <div className="status-controls">
-                <div className="current-status">
-                  <span className="status-label">Current Status:</span>
-                  <div className="status-display">
+              <div className={styles.statusControls}>
+                <div className={styles.currentStatus}>
+                  <span className={styles.statusLabel}>Current Status:</span>
+                  <div className={styles.statusDisplay}>
                     {getStatusIcon(booking.status)}
-                    <span className={`status-badge ${statusOptions.find(s => s.value === booking.status)?.color}`}>
+                    <span className={`${styles.statusBadge} ${statusOptions.find(s => s.value === booking.status)?.color}`}>
                       {statusOptions.find(s => s.value === booking.status)?.label}
                     </span>
                   </div>
                 </div>
                 
-                <div className="status-update">
-                  <label className="form-label">Update Status:</label>
+                <div className={styles.statusUpdate}>
+                  <label className={styles.formLabel}>Update Status:</label>
                   <select 
                     value={status} 
                     onChange={(e) => setStatus(e.target.value)}
-                    className="status-select"
+                    className={styles.statusSelect}
                     disabled={loading}
                   >
                     {statusOptions.map(option => (
@@ -332,13 +333,13 @@ export default function BookingDetails({ booking, onClose, onUpdate }) {
                 </div>
               </div>
               
-              <div className="notes-section">
-                <label className="form-label">Add Notes:</label>
+              <div className={styles.notesSection}>
+                <label className={styles.formLabel}>Add Notes:</label>
                 <textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Add any notes or comments about this booking..."
-                  className="notes-textarea"
+                  className={styles.notesTextarea}
                   rows={3}
                   disabled={loading}
                 />
@@ -346,18 +347,18 @@ export default function BookingDetails({ booking, onClose, onUpdate }) {
 
               {/* Previous Notes */}
               {booking.notes && booking.notes.length > 0 && (
-                <div className="previous-notes">
+                <div className={styles.previousNotes}>
                   <h4>Previous Notes:</h4>
-                  <div className="notes-list">
+                  <div className={styles.notesList}>
                     {booking.notes.map((note, index) => (
-                      <div key={index} className="note-item">
-                        <div className="note-meta">
-                          <span className="note-author">{note.author || 'Admin'}</span>
-                          <span className="note-date">
+                      <div key={index} className={styles.noteItem}>
+                        <div className={styles.noteMeta}>
+                          <span className={styles.noteAuthor}>{note.author || 'Admin'}</span>
+                          <span className={styles.noteDate}>
                             {formatDate(note.createdAt || note.date)}
                           </span>
                         </div>
-                        <p className="note-content">{note.content || note.text}</p>
+                        <p className={styles.noteContent}>{note.content || note.text}</p>
                       </div>
                     ))}
                   </div>
@@ -366,50 +367,50 @@ export default function BookingDetails({ booking, onClose, onUpdate }) {
             </div>
 
             {/* Messages/Communication */}
-            <div className="info-section full-width">
-              <h3 className="section-title">
+            <div className={`${styles.infoSection} ${styles.fullWidth}`}>
+              <h3 className={styles.sectionTitle}>
                 <FiMessageCircle />
                 Messages & Communication
               </h3>
               
-              <div className="messages-container">
+              <div className={styles.messagesContainer}>
                 {messages.length > 0 ? (
-                  <div className="messages-list">
+                  <div className={styles.messagesList}>
                     {messages.map((message, index) => (
-                      <div key={index} className={`message-item ${message.sender === 'admin' ? 'admin' : 'user'}`}>
-                        <div className="message-header">
-                          <span className="message-sender">
+                      <div key={index} className={`${styles.messageItem} ${message.sender === 'admin' ? styles.admin : styles.user}`}>
+                        <div className={styles.messageHeader}>
+                          <span className={styles.messageSender}>
                             {message.sender === 'admin' ? 'Admin' : booking.user?.name || 'User'}
                           </span>
-                          <span className="message-time">
+                          <span className={styles.messageTime}>
                             {formatDate(message.createdAt || message.timestamp)}
                           </span>
                         </div>
-                        <p className="message-content">{message.content || message.message}</p>
+                        <p className={styles.messageContent}>{message.content || message.message}</p>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="empty-messages">
+                  <div className={styles.emptyMessages}>
                     <p>No messages yet</p>
                   </div>
                 )}
                 
-                <div className="message-input">
+                <div className={styles.messageInput}>
                   <textarea
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     placeholder="Type a message to the customer..."
-                    className="message-textarea"
+                    className={styles.messageTextarea}
                     rows={2}
                     disabled={loading}
                   />
                   <button 
-                    className="send-message-btn"
+                    className={styles.sendMessageBtn}
                     onClick={handleSendMessage}
                     disabled={!newMessage.trim() || loading}
                   >
-                    {loading ? <FiLoader className="spinning" /> : <FiMessageCircle />}
+                    {loading ? <FiLoader className={styles.spinning} /> : <FiMessageCircle />}
                     Send
                   </button>
                 </div>
@@ -418,28 +419,28 @@ export default function BookingDetails({ booking, onClose, onUpdate }) {
 
             {/* Rating & Review (if completed) */}
             {booking.status === 'completed' && booking.rating && (
-              <div className="info-section full-width">
-                <h3 className="section-title">
+              <div className={`${styles.infoSection} ${styles.fullWidth}`}>
+                <h3 className={styles.sectionTitle}>
                   <FiStar />
                   Customer Feedback
                 </h3>
-                <div className="feedback-content">
-                  <div className="rating-display">
-                    <span className="rating-label">Rating:</span>
-                    <div className="stars">
+                <div className={styles.feedbackContent}>
+                  <div className={styles.ratingDisplay}>
+                    <span className={styles.ratingLabel}>Rating:</span>
+                    <div className={styles.stars}>
                       {Array.from({ length: 5 }).map((_, i) => (
                         <FiStar 
                           key={i} 
-                          className={`star ${i < booking.rating ? 'filled' : ''}`} 
+                          className={`${styles.star} ${i < booking.rating ? styles.filled : ''}`} 
                         />
                       ))}
                     </div>
-                    <span className="rating-value">({booking.rating}/5)</span>
+                    <span className={styles.ratingValue}>({booking.rating}/5)</span>
                   </div>
                   {booking.review && (
-                    <div className="review-content">
-                      <span className="review-label">Review:</span>
-                      <p className="review-text">{booking.review}</p>
+                    <div className={styles.reviewContent}>
+                      <span className={styles.reviewLabel}>Review:</span>
+                      <p className={styles.reviewText}>{booking.review}</p>
                     </div>
                   )}
                 </div>
@@ -448,7 +449,7 @@ export default function BookingDetails({ booking, onClose, onUpdate }) {
           </div>
         </div>
 
-        <div className="modal-footer">
+        <div className={styles.modalFooter}>
           <button className="btn btn-outline" onClick={onClose} disabled={loading}>
             Close
           </button>
@@ -459,7 +460,7 @@ export default function BookingDetails({ booking, onClose, onUpdate }) {
           >
             {loading ? (
               <>
-                <FiLoader className="spinning" />
+                <FiLoader className={styles.spinning} />
                 Updating...
               </>
             ) : (

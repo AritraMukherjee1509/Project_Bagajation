@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FiTrendingUp, FiCalendar, FiRefreshCw } from 'react-icons/fi';
+import styles from '../../styles/Dashboard/RevenueChart.module.css';
 
 export default function RevenueChart({ data, loading, onRefresh }) {
   const [timeRange, setTimeRange] = useState('7d');
@@ -26,7 +27,7 @@ export default function RevenueChart({ data, loading, onRefresh }) {
   
   // Calculate growth percentage
   const calculateGrowth = () => {
-    if (!currentData.data || currentData.data.length < 2) return 0;
+        if (!currentData.data || currentData.data.length < 2) return 0;
     const current = currentData.data[currentData.data.length - 1];
     const previous = currentData.data[currentData.data.length - 2];
     if (previous === 0) return current > 0 ? 100 : 0;
@@ -36,20 +37,20 @@ export default function RevenueChart({ data, loading, onRefresh }) {
   const growth = calculateGrowth();
 
   return (
-    <div className="chart-card">
-      <div className="chart-header">
-        <div className="chart-title-section">
-          <h3 className="chart-title">Revenue Overview</h3>
-          <div className="chart-stats">
+    <div className={styles.chartCard}>
+      <div className={styles.chartHeader}>
+        <div className={styles.chartTitleSection}>
+          <h3 className={styles.chartTitle}>Revenue Overview</h3>
+          <div className={styles.chartStats}>
             {loading ? (
-              <div className="stats-skeleton">
-                <div className="skeleton-line"></div>
-                <div className="skeleton-line short"></div>
+              <div className={styles.statsSkeletonLine}>
+                <div className={styles.skeletonLine}></div>
+                <div className={`${styles.skeletonLine} ${styles.short}`}></div>
               </div>
             ) : (
               <>
-                <span className="total-revenue">₹{totalRevenue.toLocaleString()}</span>
-                <span className={`revenue-growth ${growth >= 0 ? 'positive' : 'negative'}`}>
+                <span className={styles.totalRevenue}>₹{totalRevenue.toLocaleString()}</span>
+                <span className={`${styles.revenueGrowth} ${growth >= 0 ? styles.positive : styles.negative}`}>
                   <FiTrendingUp />
                   {growth >= 0 ? '+' : ''}{growth}%
                 </span>
@@ -58,11 +59,11 @@ export default function RevenueChart({ data, loading, onRefresh }) {
           </div>
         </div>
         
-        <div className="chart-controls">
+        <div className={styles.chartControls}>
           <select 
             value={timeRange} 
             onChange={(e) => setTimeRange(e.target.value)}
-            className="time-range-select"
+            className={styles.timeRangeSelect}
             disabled={loading}
           >
             <option value="7d">Last 7 days</option>
@@ -70,51 +71,51 @@ export default function RevenueChart({ data, loading, onRefresh }) {
             <option value="90d">Last 90 days</option>
           </select>
           {onRefresh && (
-            <button className="refresh-btn" onClick={onRefresh} disabled={loading}>
-              <FiRefreshCw className={loading ? 'spinning' : ''} />
+            <button className={styles.refreshBtn} onClick={onRefresh} disabled={loading}>
+              <FiRefreshCw className={loading ? styles.spinning : ''} />
             </button>
           )}
         </div>
       </div>
 
-      <div className="chart-container">
+      <div className={styles.chartContainer}>
         {loading ? (
-          <div className="chart-skeleton">
+          <div className={styles.chartSkeleton}>
             {Array.from({ length: 7 }).map((_, index) => (
-              <div key={index} className="skeleton-bar"></div>
+              <div key={index} className={styles.skeletonBar}></div>
             ))}
           </div>
         ) : (
-          <div className="chart-bars">
+          <div className={styles.chartBars}>
             {currentData.data.map((value, index) => (
-              <div key={index} className="chart-bar-wrapper">
+              <div key={index} className={styles.chartBarWrapper}>
                 <div 
-                  className="chart-bar"
+                  className={styles.chartBar}
                   style={{ 
                     height: `${(value / maxValue) * 100}%`,
                     '--delay': `${index * 0.1}s`
                   }}
                 >
-                  <div className="bar-tooltip">
+                  <div className={styles.barTooltip}>
                     ₹{value.toLocaleString()}
                   </div>
                 </div>
-                <span className="chart-label">{currentData.labels[index]}</span>
+                <span className={styles.chartLabel}>{currentData.labels[index]}</span>
               </div>
             ))}
           </div>
         )}
       </div>
 
-      <div className="chart-footer">
-        <div className="chart-legend">
-          <div className="legend-item">
-            <div className="legend-color primary"></div>
+      <div className={styles.chartFooter}>
+        <div className={styles.chartLegend}>
+          <div className={styles.legendItem}>
+            <div className={`${styles.legendColor} ${styles.primary}`}></div>
             <span>Revenue</span>
           </div>
         </div>
         {!loading && (
-          <div className="chart-summary">
+          <div className={styles.chartSummary}>
             <span>Period: {timeRange === '7d' ? 'Weekly' : timeRange === '30d' ? 'Monthly' : 'Quarterly'}</span>
           </div>
         )}

@@ -1,15 +1,16 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../Auth/AuthProvider';
+import styles from '../../styles/common/ProtectedRoute.module.css';
 
 export default function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
 
   if (loading) {
     return (
-      <div className="loading-container">
-        <div className="loading-spinner">
-          <div className="spinner"></div>
+      <div className={styles.loadingContainer}>
+        <div className={styles.loadingSpinner}>
+          <div className={styles.spinner}></div>
           <p>Loading...</p>
         </div>
       </div>

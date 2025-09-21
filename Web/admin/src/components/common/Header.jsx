@@ -1,4 +1,3 @@
-// Header.jsx
 import React, { useState } from 'react';
 import { useAuth } from '../Auth/AuthProvider';
 import { 
@@ -10,6 +9,7 @@ import {
   FiChevronDown,
   FiMenu
 } from 'react-icons/fi';
+import styles from '../../styles/common/Header.module.css';
 
 export default function Header({ toggleSidebar, isMobile }) {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
@@ -43,103 +43,77 @@ export default function Header({ toggleSidebar, isMobile }) {
   const unreadCount = notifications.filter(n => n.unread).length;
 
   return (
-    <header className="admin-header">
-      {/* <div className="header-left">
-        {isMobile && (
-          <button className="mobile-menu-toggle" onClick={toggleSidebar}>
-            <FiMenu />
-          </button>
-        )}
-        <div className="search-container">
-          <FiSearch className="search-icon" />
-          <input
-            type="text"
-            placeholder="Search..."
-            className="search-input"
-          />
-        </div>
-      </div> */}
-
-      <div className="header-right">
+    <header className={styles.adminHeader}>
+      <div className={styles.headerRight}>
         {/* Notifications */}
-        <div className="header-item">
-          {/* <button
-            className="notification-btn"
-            onClick={() => setShowNotifications(!showNotifications)}
-          >
-            <FiBell />
-            {unreadCount > 0 && (
-              <span className="notification-badge">{unreadCount}</span>
-            )}
-          </button> */}
-
+        <div className={styles.headerItem}>
           {showNotifications && (
-            <div className="notifications-dropdown">
-              <div className="dropdown-header">
+            <div className={styles.notificationsDropdown}>
+              <div className={styles.dropdownHeader}>
                 <h3>Notifications</h3>
-                <span className="notification-count">{unreadCount} new</span>
+                <span className={styles.notificationCount}>{unreadCount} new</span>
               </div>
-              <div className="notifications-list">
+              <div className={styles.notificationsList}>
                 {notifications.map((notification) => (
                   <div
                     key={notification.id}
-                    className={`notification-item ${notification.unread ? 'unread' : ''}`}
+                    className={`${styles.notificationItem} ${notification.unread ? styles.unread : ''}`}
                   >
-                    <div className="notification-content">
+                    <div className={styles.notificationContent}>
                       <h4>{notification.title}</h4>
                       <p>{notification.message}</p>
-                      <span className="notification-time">{notification.time}</span>
+                      <span className={styles.notificationTime}>{notification.time}</span>
                     </div>
                   </div>
                 ))}
               </div>
-              <div className="dropdown-footer">
-                <button className="view-all-btn">View All Notifications</button>
+              <div className={styles.dropdownFooter}>
+                <button className={styles.viewAllBtn}>View All Notifications</button>
               </div>
             </div>
           )}
         </div>
 
         {/* Profile */}
-        <div className="header-item">
+        <div className={styles.headerItem}>
           <button
-            className="profile-btn"
+            className={styles.profileBtn}
             onClick={() => setShowProfileDropdown(!showProfileDropdown)}
           >
-            <div className="profile-avatar">
+            <div className={styles.profileAvatar}>
               {user?.name?.charAt(0) || 'A'}
             </div>
-            <div className="profile-info">
-              <span className="profile-name">{user?.name || 'Admin'}</span>
-              <span className="profile-role">Administrator</span>
+            <div className={styles.profileInfo}>
+              <span className={styles.profileName}>{user?.name || 'Admin'}</span>
+              <span className={styles.profileRole}>Administrator</span>
             </div>
-            <FiChevronDown className="profile-arrow" />
+            <FiChevronDown className={styles.profileArrow} />
           </button>
 
           {showProfileDropdown && (
-            <div className="profile-dropdown">
-              <div className="dropdown-header">
-                <div className="profile-details">
-                  <div className="profile-avatar large">
+            <div className={styles.profileDropdown}>
+              <div className={styles.dropdownHeader}>
+                <div className={styles.profileDetails}>
+                  <div className={`${styles.profileAvatar} ${styles.large}`}>
                     {user?.name?.charAt(0) || 'A'}
                   </div>
-                  <div className="profile-text">
+                  <div className={styles.profileText}>
                     <h3>{user?.name || 'Admin User'}</h3>
                     <p>{user?.email || 'admin@bagajatin.com'}</p>
                   </div>
                 </div>
               </div>
-              <div className="dropdown-menu">
-                <button className="dropdown-item">
+              <div className={styles.dropdownMenu}>
+                <button className={styles.dropdownItem}>
                   <FiUser />
                   Profile Settings
                 </button>
-                <button className="dropdown-item">
+                <button className={styles.dropdownItem}>
                   <FiSettings />
                   Account Settings
                 </button>
-                <hr className="dropdown-divider" />
-                <button className="dropdown-item logout" onClick={logout}>
+                <hr className={styles.dropdownDivider} />
+                <button className={`${styles.dropdownItem} ${styles.logout}`} onClick={logout}>
                   <FiLogOut />
                   Sign Out
                 </button>
@@ -152,7 +126,7 @@ export default function Header({ toggleSidebar, isMobile }) {
       {/* Click outside handlers */}
       {(showProfileDropdown || showNotifications) && (
         <div
-          className="dropdown-overlay"
+          className={styles.dropdownOverlay}
           onClick={() => {
             setShowProfileDropdown(false);
             setShowNotifications(false);

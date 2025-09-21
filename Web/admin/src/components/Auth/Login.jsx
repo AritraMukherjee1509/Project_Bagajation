@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from './AuthProvider';
 import { FiEye, FiEyeOff, FiLock, FiMail, FiLoader } from 'react-icons/fi';
+import styles from '../../styles/Auth/Login.module.css';
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -53,33 +54,33 @@ export default function Login() {
   };
 
   return (
-    <div className="admin-login">
-      <div className="login-container">
-        <div className="login-card">
-          <div className="login-header">
-            <div className="login-logo">
-              <span className="logo-badge">LG</span>
-              <span className="logo-text">Admin Panel</span>
+    <div className={styles.adminLogin}>
+      <div className={styles.loginContainer}>
+        <div className={styles.loginCard}>
+          <div className={styles.loginHeader}>
+            <div className={styles.loginLogo}>
+              <span className={styles.logoBadge}>LG</span>
+              <span className={styles.logoText}>Admin Panel</span>
             </div>
-            <h1 className="login-title">Welcome Back</h1>
-            <p className="login-subtitle">Sign in to your admin account</p>
+            <h1 className={styles.loginTitle}>Welcome Back</h1>
+            <p className={styles.loginSubtitle}>Sign in to your admin account</p>
           </div>
 
-          <form className="login-form" onSubmit={handleSubmit}>
+          <form className={styles.loginForm} onSubmit={handleSubmit}>
             {error && (
-              <div className="error-message">
+              <div className={styles.errorMessage}>
                 {error}
               </div>
             )}
 
-            <div className="form-group">
-              <label className="form-label">Email Address</label>
-              <div className="input-wrapper">
-                <FiMail className="input-icon" />
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Email Address</label>
+              <div className={styles.inputWrapper}>
+                <FiMail className={styles.inputIcon} />
                 <input
                   type="email"
                   name="email"
-                  className="form-input"
+                  className={styles.formInput}
                   placeholder="Enter your email"
                   value={formData.email}
                   onChange={handleChange}
@@ -89,14 +90,14 @@ export default function Login() {
               </div>
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Password</label>
-              <div className="input-wrapper">
-                <FiLock className="input-icon" />
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Password</label>
+              <div className={styles.inputWrapper}>
+                <FiLock className={styles.inputIcon} />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   name="password"
-                  className="form-input"
+                  className={styles.formInput}
                   placeholder="Enter your password"
                   value={formData.password}
                   onChange={handleChange}
@@ -105,7 +106,7 @@ export default function Login() {
                 />
                 <button
                   type="button"
-                  className="password-toggle"
+                  className={styles.passwordToggle}
                   onClick={() => setShowPassword(!showPassword)}
                   disabled={loading}
                 >
@@ -116,12 +117,12 @@ export default function Login() {
 
             <button
               type="submit"
-              className="login-button"
+              className={styles.loginButton}
               disabled={loading}
             >
               {loading ? (
                 <>
-                  <FiLoader className="spinning" />
+                  <FiLoader className={styles.spinning} />
                   Signing in...
                 </>
               ) : (
@@ -130,8 +131,8 @@ export default function Login() {
             </button>
           </form>
 
-          <div className="login-footer">
-            <p className="demo-credentials">
+          <div className={styles.loginFooter}>
+            <p className={styles.demoCredentials}>
               <strong>Demo Credentials:</strong><br />
               Email: admin@bagajatin.com<br />
               Password: admin123456

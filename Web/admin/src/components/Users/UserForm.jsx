@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FiX, FiUpload, FiMail, FiPhone, FiMapPin, FiUser, FiLoader } from 'react-icons/fi';
+import styles from '../../styles/Users/UserForm.module.css';
 
 export default function UserForm({ user, mode = 'create', onClose, onSave }) {
   const [formData, setFormData] = useState({
@@ -178,28 +179,28 @@ export default function UserForm({ user, mode = 'create', onClose, onSave }) {
   ];
 
   return (
-    <div className="modal-overlay">
-      <div className="user-form-modal">
-        <div className="modal-header">
-          <h2 className="modal-title">
+    <div className={styles.modalOverlay}>
+      <div className={styles.userFormModal}>
+        <div className={styles.modalHeader}>
+          <h2 className={styles.modalTitle}>
             {mode === 'edit' ? 'Edit User' : 'Add New User'}
           </h2>
-          <button className="close-btn" onClick={onClose} disabled={loading}>
+          <button className={styles.closeBtn} onClick={onClose} disabled={loading}>
             <FiX />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="user-form">
-          <div className="form-content">
+        <form onSubmit={handleSubmit} className={styles.userForm}>
+          <div className={styles.formContent}>
             {/* Avatar Upload */}
-            <div className="avatar-section">
-              <div className="avatar-upload">
+            <div className={styles.avatarSection}>
+              <div className={styles.avatarUpload}>
                 {formData.avatar ? (
-                  <div className="avatar-preview">
+                  <div className={styles.avatarPreview}>
                     <img src={formData.avatar} alt="User avatar" />
                     <button
                       type="button"
-                      className="remove-avatar-btn"
+                      className={styles.removeAvatarBtn}
                       onClick={() => setFormData(prev => ({ ...prev, avatar: null }))}
                       disabled={loading}
                     >
@@ -207,87 +208,87 @@ export default function UserForm({ user, mode = 'create', onClose, onSave }) {
                     </button>
                   </div>
                 ) : (
-                  <label className="avatar-upload-label">
+                  <label className={styles.avatarUploadLabel}>
                     <FiUpload />
                     <span>Upload Photo</span>
                     <input
                       type="file"
                       accept="image/*"
                       onChange={handleImageUpload}
-                      className="avatar-input"
+                      className={styles.avatarInput}
                       disabled={loading}
                     />
                   </label>
                 )}
               </div>
-              {errors.avatar && <span className="error-text">{errors.avatar}</span>}
+              {errors.avatar && <span className={styles.errorText}>{errors.avatar}</span>}
             </div>
 
             {/* Basic Information */}
-            <div className="form-section">
-              <h3 className="section-title">
+            <div className={styles.formSection}>
+              <h3 className={styles.sectionTitle}>
                 <FiUser />
                 Basic Information
               </h3>
               
-              <div className="form-group">
-                <label className="form-label">Full Name *</label>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Full Name *</label>
                 <input
                   type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className={`form-input ${errors.name ? 'error' : ''}`}
+                  className={`${styles.formInput} ${errors.name ? styles.error : ''}`}
                   placeholder="Enter full name"
                   disabled={loading}
                 />
-                {errors.name && <span className="error-text">{errors.name}</span>}
+                {errors.name && <span className={styles.errorText}>{errors.name}</span>}
               </div>
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label className="form-label">Email Address *</label>
-                  <div className="input-with-icon">
-                    <FiMail className="input-icon" />
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Email Address *</label>
+                  <div className={styles.inputWithIcon}>
+                    <FiMail className={styles.inputIcon} />
                     <input
                       type="email"
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
-                      className={`form-input ${errors.email ? 'error' : ''}`}
+                      className={`${styles.formInput} ${errors.email ? styles.error : ''}`}
                       placeholder="Enter email address"
                       disabled={loading || (mode === 'edit')} // Disable email editing in edit mode
                     />
                   </div>
-                  {errors.email && <span className="error-text">{errors.email}</span>}
+                  {errors.email && <span className={styles.errorText}>{errors.email}</span>}
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label">Phone Number *</label>
-                  <div className="input-with-icon">
-                    <FiPhone className="input-icon" />
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Phone Number *</label>
+                  <div className={styles.inputWithIcon}>
+                    <FiPhone className={styles.inputIcon} />
                     <input
                       type="tel"
                       name="phone"
                       value={formData.phone}
                       onChange={handleChange}
-                      className={`form-input ${errors.phone ? 'error' : ''}`}
+                      className={`${styles.formInput} ${errors.phone ? styles.error : ''}`}
                       placeholder="Enter phone number"
                       disabled={loading}
                     />
                   </div>
-                  {errors.phone && <span className="error-text">{errors.phone}</span>}
+                  {errors.phone && <span className={styles.errorText}>{errors.phone}</span>}
                 </div>
               </div>
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label className="form-label">Role</label>
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Role</label>
                   <select
                     name="role"
                     value={formData.role}
                     onChange={handleChange}
-                    className="form-select"
+                    className={styles.formSelect}
                     disabled={loading}
                   >
                     <option value="user">User</option>
@@ -296,13 +297,13 @@ export default function UserForm({ user, mode = 'create', onClose, onSave }) {
                   </select>
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label">Status</label>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Status</label>
                   <select
                     name="status"
                     value={formData.status}
                     onChange={handleChange}
-                    className="form-select"
+                    className={styles.formSelect}
                     disabled={loading}
                   >
                     <option value="active">Active</option>
@@ -314,47 +315,47 @@ export default function UserForm({ user, mode = 'create', onClose, onSave }) {
             </div>
 
             {/* Address Information */}
-            <div className="form-section">
-              <h3 className="section-title">
+            <div className={styles.formSection}>
+              <h3 className={styles.sectionTitle}>
                 <FiMapPin />
                 Address Information
               </h3>
               
-              <div className="form-group">
-                <label className="form-label">Street Address</label>
-                <input
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Street Address</label>
+                                <input
                   type="text"
                   name="address.street"
                   value={formData.address.street}
                   onChange={handleChange}
-                  className="form-input"
+                  className={styles.formInput}
                   placeholder="Enter street address"
                   disabled={loading}
                 />
               </div>
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label className="form-label">City *</label>
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>City *</label>
                   <input
                     type="text"
                     name="address.city"
                     value={formData.address.city}
                     onChange={handleChange}
-                    className={`form-input ${errors['address.city'] ? 'error' : ''}`}
+                    className={`${styles.formInput} ${errors['address.city'] ? styles.error : ''}`}
                     placeholder="Enter city"
                     disabled={loading}
                   />
-                  {errors['address.city'] && <span className="error-text">{errors['address.city']}</span>}
+                  {errors['address.city'] && <span className={styles.errorText}>{errors['address.city']}</span>}
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label">State *</label>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>State *</label>
                   <select
                     name="address.state"
                     value={formData.address.state}
                     onChange={handleChange}
-                    className={`form-select ${errors['address.state'] ? 'error' : ''}`}
+                    className={`${styles.formSelect} ${errors['address.state'] ? styles.error : ''}`}
                     disabled={loading}
                   >
                     <option value="">Select state</option>
@@ -362,32 +363,32 @@ export default function UserForm({ user, mode = 'create', onClose, onSave }) {
                       <option key={state} value={state}>{state}</option>
                     ))}
                   </select>
-                  {errors['address.state'] && <span className="error-text">{errors['address.state']}</span>}
+                  {errors['address.state'] && <span className={styles.errorText}>{errors['address.state']}</span>}
                 </div>
               </div>
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label className="form-label">ZIP Code</label>
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>ZIP Code</label>
                   <input
                     type="text"
                     name="address.zipCode"
                     value={formData.address.zipCode}
                     onChange={handleChange}
-                    className="form-input"
+                    className={styles.formInput}
                     placeholder="Enter ZIP code"
                     disabled={loading}
                   />
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label">Country</label>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Country</label>
                   <input
                     type="text"
                     name="address.country"
                     value={formData.address.country}
                     onChange={handleChange}
-                    className="form-input"
+                    className={styles.formInput}
                     disabled={loading}
                   />
                 </div>
@@ -396,19 +397,19 @@ export default function UserForm({ user, mode = 'create', onClose, onSave }) {
           </div>
 
           {errors.submit && (
-            <div className="form-error">
+            <div className={styles.formError}>
               {errors.submit}
             </div>
           )}
 
-          <div className="form-actions">
+          <div className={styles.formActions}>
             <button type="button" className="btn btn-outline" onClick={onClose} disabled={loading}>
               Cancel
             </button>
             <button type="submit" className="btn btn-primary" disabled={loading}>
               {loading ? (
                 <>
-                  <FiLoader className="spinning" />
+                  <FiLoader className={styles.spinning} />
                   {mode === 'edit' ? 'Updating...' : 'Creating...'}
                 </>
               ) : (

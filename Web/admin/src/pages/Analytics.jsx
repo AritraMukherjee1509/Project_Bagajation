@@ -11,6 +11,7 @@ import {
   FiPieChart
 } from 'react-icons/fi';
 import { analyticsAPI } from '../utils/api';
+import styles from '../styles/pages/Analytics.module.css';
 
 export default function Analytics() {
   const [timeRange, setTimeRange] = useState('6m');
@@ -97,10 +98,10 @@ export default function Analytics() {
 
   if (loading) {
     return (
-      <div className="analytics-page">
-        <div className="loading-container">
-          <div className="loading-spinner">
-            <FiRefreshCw className="spinning" />
+      <div className={styles.analyticsPage}>
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingSpinner}>
+            <FiRefreshCw className={styles.spinning} />
             <p>Loading analytics...</p>
           </div>
         </div>
@@ -110,8 +111,8 @@ export default function Analytics() {
 
   if (error) {
     return (
-      <div className="analytics-page">
-        <div className="error-container">
+      <div className={styles.analyticsPage}>
+        <div className={styles.errorContainer}>
           <p>Error loading analytics: {error}</p>
           <button className="btn btn-primary" onClick={handleRefresh}>
             <FiRefreshCw />
@@ -129,7 +130,7 @@ export default function Analytics() {
   const topPerformers = analyticsData?.services?.topRatedServices || [];
 
   return (
-    <div className="analytics-page">
+    <div className={styles.analyticsPage}>
       <div className="page-header">
         <div className="header-content">
           <h1 className="page-title">Analytics & Reports</h1>
@@ -159,9 +160,9 @@ export default function Analytics() {
         </div>
       </div>
 
-      <div className="analytics-content">
+      <div className={styles.analyticsContent}>
         {/* Overview Stats */}
-        <div className="overview-stats">
+        <div className={styles.overviewStats}>
           <div className="stat-card revenue">
             <div className="stat-header">
               <div className="stat-icon">
@@ -202,7 +203,7 @@ export default function Analytics() {
                 <FiUsers />
               </div>
               <div className={`stat-trend ${(overview.usersGrowth || 0) > 0 ? 'positive' : 'negative'}`}>
-                                {(overview.usersGrowth || 0) > 0 ? <FiTrendingUp /> : <FiTrendingDown />}
+                {(overview.usersGrowth || 0) > 0 ? <FiTrendingUp /> : <FiTrendingDown />}
                 {formatPercentage(overview.usersGrowth)}
               </div>
             </div>
@@ -232,7 +233,7 @@ export default function Analytics() {
         </div>
 
         {/* Charts Section */}
-        <div className="charts-section">
+        <div className={styles.chartsSection}>
           <div className="chart-container main-chart">
             <div className="chart-header">
               <div className="chart-title-section">
@@ -245,7 +246,7 @@ export default function Analytics() {
                     Revenue
                   </button>
                   <button 
-                    className={`chart-type-btn ${chartType === 'bookings' ? 'active' : ''}`}
+                                        className={`chart-type-btn ${chartType === 'bookings' ? 'active' : ''}`}
                     onClick={() => setChartType('bookings')}
                   >
                     Bookings
@@ -319,13 +320,13 @@ export default function Analytics() {
         </div>
 
         {/* Top Performers */}
-        <div className="top-performers-section">
-          <div className="section-header">
-            <h3 className="section-title">Top Performing Services</h3>
-            <a href="/services" className="view-all-link">View All</a>
+        <div className={styles.topPerformersSection}>
+          <div className={styles.sectionHeader}>
+            <h3 className={styles.sectionTitle}>Top Performing Services</h3>
+            <a href="/services" className={styles.viewAllLink}>View All</a>
           </div>
           
-          <div className="performers-grid">
+          <div className={styles.performersGrid}>
             {topPerformers.map((performer, index) => (
               <div key={index} className="performer-card">
                 <div className="performer-rank">#{index + 1}</div>

@@ -11,6 +11,7 @@ import {
   FiDownload,
   FiMessageCircle
 } from 'react-icons/fi';
+import styles from '../../styles/Bookings/BookingsList.module.css';
 
 const statusConfig = {
   pending: { color: 'orange', label: 'Pending' },
@@ -77,7 +78,7 @@ export default function BookingsList({
   const getStatusBadge = (status) => {
     const config = statusConfig[status] || statusConfig.pending;
     return (
-      <span className={`status-badge ${config.color}`}>
+      <span className={`${styles.statusBadge} ${styles[config.color]}`}>
         {config.label}
       </span>
     );
@@ -104,10 +105,10 @@ export default function BookingsList({
 
   if (loading) {
     return (
-      <div className="bookings-list">
-        <div className="loading-container">
-          <div className="loading-spinner">
-            <FiRefreshCw className="spinning" />
+      <div className={styles.bookingsList}>
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingSpinner}>
+            <FiRefreshCw className={styles.spinning} />
             <p>Loading bookings...</p>
           </div>
         </div>
@@ -117,8 +118,8 @@ export default function BookingsList({
 
   if (error) {
     return (
-      <div className="bookings-list">
-        <div className="error-container">
+      <div className={styles.bookingsList}>
+        <div className={styles.errorContainer}>
           <p>Error loading bookings: {error}</p>
           <button className="btn btn-primary" onClick={onRefresh}>
             <FiRefreshCw />
@@ -130,16 +131,16 @@ export default function BookingsList({
   }
 
   return (
-    <div className="bookings-list">
-      <div className="list-header">
-        <div className="header-left">
+    <div className={styles.bookingsList}>
+      <div className={styles.listHeader}>
+        <div className={styles.headerLeft}>
           <h3>All Bookings ({pagination.total || bookings.length})</h3>
           {selectedBookings.size > 0 && (
-            <div className="bulk-actions">
-              <span className="selected-count">
+            <div className={styles.bulkActions}>
+              <span className={styles.selectedCount}>
                 {selectedBookings.size} selected
               </span>
-              <button className="bulk-action-btn" onClick={handleBulkExport}>
+              <button className={styles.bulkActionBtn} onClick={handleBulkExport}>
                 <FiDownload />
                 Export Selected
               </button>
@@ -147,7 +148,7 @@ export default function BookingsList({
           )}
         </div>
         
-        <div className="list-controls">
+        <div className={styles.listControls}>
           <button className="btn btn-outline" onClick={onRefresh}>
             <FiRefreshCw />
             Refresh
@@ -159,35 +160,35 @@ export default function BookingsList({
         </div>
       </div>
 
-      <div className="bookings-table">
-        <div className="table-header">
-          <div className="header-cell checkbox">
+      <div className={styles.bookingsTable}>
+        <div className={styles.tableHeader}>
+          <div className={`${styles.headerCell} ${styles.checkbox}`}>
             <input
               type="checkbox"
               checked={selectedBookings.size === bookings.length && bookings.length > 0}
               onChange={handleSelectAll}
             />
           </div>
-          <div className="header-cell">Booking ID</div>
-          <div className="header-cell">Customer</div>
-          <div className="header-cell">Service</div>
-          <div className="header-cell">Provider</div>
-          <div className="header-cell">Date & Time</div>
-          <div className="header-cell">Amount</div>
-          <div className="header-cell">Status</div>
-          <div className="header-cell">Actions</div>
+          <div className={styles.headerCell}>Booking ID</div>
+          <div className={styles.headerCell}>Customer</div>
+          <div className={styles.headerCell}>Service</div>
+          <div className={styles.headerCell}>Provider</div>
+          <div className={styles.headerCell}>Date & Time</div>
+          <div className={styles.headerCell}>Amount</div>
+          <div className={styles.headerCell}>Status</div>
+          <div className={styles.headerCell}>Actions</div>
         </div>
 
         <div className="table-body">
           {bookings.length === 0 ? (
-            <div className="empty-state">
+            <div className={styles.emptyState}>
               <p>No bookings found</p>
-              <p className="empty-subtitle">Try adjusting your filters or refresh the page</p>
-            </div>
+              <p className={styles.emptySubtitle}>Try adjusting your filters or refresh the page</p>
+                          </div>
           ) : (
             bookings.map((booking) => (
-              <div key={booking._id} className="table-row">
-                <div className="table-cell checkbox">
+              <div key={booking._id} className={styles.tableRow}>
+                <div className={`${styles.tableCell} ${styles.checkbox}`}>
                   <input
                     type="checkbox"
                     checked={selectedBookings.has(booking._id)}
@@ -195,22 +196,22 @@ export default function BookingsList({
                   />
                 </div>
                 
-                <div className="table-cell">
-                  <span className="booking-id">
+                <div className={styles.tableCell}>
+                  <span className={styles.bookingId}>
                     {booking.bookingId || booking._id?.substring(0, 8) || 'N/A'}
                   </span>
                 </div>
                 
-                <div className="table-cell">
-                  <div className="customer-info">
-                    <div className="customer-avatar">
+                <div className={styles.tableCell}>
+                  <div className={styles.customerInfo}>
+                    <div className={styles.customerAvatar}>
                       {booking.user?.name?.charAt(0) || 'U'}
                     </div>
-                    <div className="customer-details">
-                      <div className="customer-name">
+                    <div className={styles.customerDetails}>
+                      <div className={styles.customerName}>
                         {booking.user?.name || 'Unknown User'}
                       </div>
-                      <div className="customer-contact">
+                      <div className={styles.customerContact}>
                         <FiPhone size={12} />
                         {booking.user?.phone || booking.contactInfo?.phone || 'No phone'}
                       </div>
@@ -218,12 +219,12 @@ export default function BookingsList({
                   </div>
                 </div>
 
-                <div className="table-cell">
-                  <div className="service-info">
-                    <div className="service-name">
+                <div className={styles.tableCell}>
+                  <div className={styles.serviceInfo}>
+                    <div className={styles.serviceName}>
                       {booking.service?.name || 'Service not found'}
                     </div>
-                    <div className="service-location">
+                    <div className={styles.serviceLocation}>
                       <FiMapPin size={12} />
                       {booking.address ? 
                         `${booking.address.city}, ${booking.address.state}` :
@@ -233,43 +234,43 @@ export default function BookingsList({
                   </div>
                 </div>
 
-                <div className="table-cell">
-                  <div className="provider-info">
-                    <div className="provider-avatar">
+                <div className={styles.tableCell}>
+                  <div className={styles.providerInfo}>
+                    <div className={styles.providerAvatar}>
                       {booking.provider?.name?.charAt(0) || 'P'}
                     </div>
-                    <span className="provider-name">
+                    <span className={styles.providerName}>
                       {booking.provider?.name || 'Not assigned'}
                     </span>
                   </div>
                 </div>
 
-                <div className="table-cell">
-                  <div className="datetime-info">
-                    <div className="booking-date">
+                <div className={styles.tableCell}>
+                  <div className={styles.datetimeInfo}>
+                    <div className={styles.bookingDate}>
                       {formatDate(booking.scheduledDate || booking.createdAt)}
                     </div>
-                    <div className="booking-time">
+                    <div className={styles.bookingTime}>
                       <FiClock size={12} />
                       {formatTime(booking.scheduledTime || booking.scheduledDate)}
                     </div>
                   </div>
                 </div>
 
-                <div className="table-cell">
-                  <span className="booking-amount">
+                <div className={styles.tableCell}>
+                  <span className={styles.bookingAmount}>
                     ₹{(booking.pricing?.totalAmount || booking.amount || 0).toLocaleString()}
                   </span>
                 </div>
 
-                <div className="table-cell">
+                <div className={styles.tableCell}>
                   {getStatusBadge(booking.status)}
                 </div>
 
-                <div className="table-cell">
-                  <div className="action-buttons">
+                <div className={styles.tableCell}>
+                  <div className={styles.actionButtons}>
                     <button 
-                      className="action-btn view" 
+                      className={`${styles.actionBtn} ${styles.view}`} 
                       title="View Details"
                       onClick={() => onViewDetails(booking)}
                     >
@@ -278,16 +279,16 @@ export default function BookingsList({
                     
                     {booking.messages?.length > 0 && (
                       <button 
-                        className="action-btn message" 
+                        className={`${styles.actionBtn} ${styles.message}`} 
                         title="View Messages"
                       >
                         <FiMessageCircle />
                       </button>
                     )}
                     
-                    <div className="action-menu">
+                    <div className={styles.actionMenu}>
                       <button 
-                        className="action-btn more"
+                        className={`${styles.actionBtn} ${styles.more}`}
                         title="More Options"
                         onClick={() => setActionMenuOpen(
                           actionMenuOpen === booking._id ? null : booking._id
@@ -297,11 +298,11 @@ export default function BookingsList({
                       </button>
                       
                       {actionMenuOpen === booking._id && (
-                        <div className="action-dropdown">
+                        <div className={styles.actionDropdown}>
                           {booking.status === 'pending' && (
                             <button 
                               onClick={() => handleStatusUpdate(booking, 'confirmed')}
-                              className="dropdown-item"
+                              className={styles.dropdownItem}
                             >
                               Confirm Booking
                             </button>
@@ -309,7 +310,7 @@ export default function BookingsList({
                           {booking.status === 'confirmed' && (
                             <button 
                               onClick={() => handleStatusUpdate(booking, 'in-progress')}
-                              className="dropdown-item"
+                              className={styles.dropdownItem}
                             >
                               Start Service
                             </button>
@@ -317,7 +318,7 @@ export default function BookingsList({
                           {booking.status === 'in-progress' && (
                             <button 
                               onClick={() => handleStatusUpdate(booking, 'completed')}
-                              className="dropdown-item"
+                              className={styles.dropdownItem}
                             >
                               Complete Service
                             </button>
@@ -325,14 +326,14 @@ export default function BookingsList({
                           {['pending', 'confirmed'].includes(booking.status) && (
                             <button 
                               onClick={() => handleStatusUpdate(booking, 'cancelled')}
-                              className="dropdown-item danger"
+                              className={`${styles.dropdownItem} ${styles.danger}`}
                             >
                               Cancel Booking
                             </button>
                           )}
                           <button 
                             onClick={() => onViewDetails(booking)}
-                            className="dropdown-item"
+                            className={styles.dropdownItem}
                           >
                             View Full Details
                           </button>
@@ -349,13 +350,13 @@ export default function BookingsList({
 
       {/* Pagination */}
       {pagination.pages > 1 && (
-        <div className="table-pagination">
-          <div className="pagination-info">
+        <div className={styles.tablePagination}>
+          <div className={styles.paginationInfo}>
             Showing {((pagination.page - 1) * 10) + 1}-{Math.min(pagination.page * 10, pagination.total)} of {pagination.total} bookings
           </div>
-          <div className="pagination-controls">
+          <div className={styles.paginationControls}>
             <button 
-              className="pagination-btn" 
+              className={styles.paginationBtn} 
               disabled={!pagination.hasPrev}
               onClick={() => handlePageClick(pagination.page - 1)}
             >
@@ -368,7 +369,7 @@ export default function BookingsList({
                 return (
                   <button
                     key={pageNum}
-                    className={`pagination-btn ${pageNum === pagination.page ? 'active' : ''}`}
+                    className={`${styles.paginationBtn} ${pageNum === pagination.page ? styles.active : ''}`}
                     onClick={() => handlePageClick(pageNum)}
                   >
                     {pageNum}
@@ -379,7 +380,7 @@ export default function BookingsList({
             })}
             
             <button 
-              className="pagination-btn" 
+              className={styles.paginationBtn} 
               disabled={!pagination.hasNext}
               onClick={() => handlePageClick(pagination.page + 1)}
             >

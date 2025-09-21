@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FiFilter, FiCalendar, FiSearch, FiX, FiRefreshCw } from 'react-icons/fi';
 import { servicesAPI, providersAPI } from '../../utils/api';
+import styles from '../../styles/Bookings/BookingFilters.module.css';
 
 export default function BookingFilters({ filters, setFilters, loading }) {
   const [services, setServices] = useState([]);
@@ -144,18 +145,18 @@ export default function BookingFilters({ filters, setFilters, loading }) {
   const activeFilters = getActiveFilters();
 
   return (
-    <div className="booking-filters">
-      <div className="filters-header">
-        <div className="filters-title">
+    <div className={styles.bookingFilters}>
+      <div className={styles.filtersHeader}>
+        <div className={styles.filtersTitle}>
           <FiFilter />
           <span>Filters</span>
           {activeFilters.length > 0 && (
-            <span className="active-count">({activeFilters.length})</span>
+            <span className={styles.activeCount}>({activeFilters.length})</span>
           )}
         </div>
         
         {activeFilters.length > 0 && (
-          <button className="clear-filters-btn" onClick={clearFilters}>
+          <button className={styles.clearFiltersBtn} onClick={clearFilters}>
             <FiX />
             Clear All
           </button>
@@ -164,13 +165,13 @@ export default function BookingFilters({ filters, setFilters, loading }) {
 
       {/* Active Filters Tags */}
       {activeFilters.length > 0 && (
-        <div className="active-filters">
+        <div className={styles.activeFilters}>
           {activeFilters.map((filter, index) => (
-            <div key={index} className="filter-tag">
+            <div key={index} className={styles.filterTag}>
               <span>{filter.label}</span>
               <button 
                 onClick={() => clearIndividualFilter(filter.key)}
-                className="remove-filter"
+                className={styles.removeFilter}
               >
                 <FiX />
               </button>
@@ -179,22 +180,22 @@ export default function BookingFilters({ filters, setFilters, loading }) {
         </div>
       )}
 
-      <div className="filters-grid">
+      <div className={styles.filtersGrid}>
         {/* Search */}
-        <div className="filter-group search-group">
-          <div className="search-filter">
-            <FiSearch className="search-icon" />
+        <div className={`${styles.filterGroup} ${styles.searchGroup}`}>
+          <div className={styles.searchFilter}>
+            <FiSearch className={styles.searchIcon} />
             <input
               type="text"
               placeholder="Search bookings by ID, customer name, or service..."
               value={filters.search || ''}
               onChange={(e) => handleFilterChange('search', e.target.value)}
-              className="search-input"
+              className={styles.searchInput}
               disabled={loading}
             />
             {filters.search && (
               <button 
-                className="clear-search" 
+                className={styles.clearSearch} 
                 onClick={() => handleFilterChange('search', '')}
               >
                 <FiX />
@@ -204,12 +205,12 @@ export default function BookingFilters({ filters, setFilters, loading }) {
         </div>
 
         {/* Status Filter */}
-        <div className="filter-group">
-          <label className="filter-label">Status</label>
+        <div className={styles.filterGroup}>
+          <label className={styles.filterLabel}>Status</label>
           <select
             value={filters.status || 'all'}
             onChange={(e) => handleFilterChange('status', e.target.value)}
-            className="filter-select"
+            className={styles.filterSelect}
             disabled={loading}
           >
             <option value="all">All Status</option>
@@ -222,8 +223,8 @@ export default function BookingFilters({ filters, setFilters, loading }) {
         </div>
 
         {/* Date Range Filter */}
-        <div className="filter-group">
-          <label className="filter-label">
+        <div className={styles.filterGroup}>
+          <label className={styles.filterLabel}>
             <FiCalendar />
             Date Range
           </label>
@@ -237,7 +238,7 @@ export default function BookingFilters({ filters, setFilters, loading }) {
                 handleFilterChange('endDate', '');
               }
             }}
-            className="filter-select"
+            className={styles.filterSelect}
             disabled={loading}
           >
             <option value="all">All Time</option>
@@ -247,30 +248,30 @@ export default function BookingFilters({ filters, setFilters, loading }) {
             <option value="last-week">Last Week</option>
             <option value="this-month">This Month</option>
             <option value="last-month">Last Month</option>
-            <option value="custom">Custom Range</option>
+                        <option value="custom">Custom Range</option>
           </select>
         </div>
 
         {/* Custom Date Range */}
         {filters.dateRange === 'custom' && (
           <>
-            <div className="filter-group">
-              <label className="filter-label">Start Date</label>
+            <div className={styles.filterGroup}>
+              <label className={styles.filterLabel}>Start Date</label>
               <input
                 type="date"
                 value={filters.startDate || ''}
                 onChange={(e) => handleFilterChange('startDate', e.target.value)}
-                className="filter-input"
+                className={styles.filterInput}
                 disabled={loading}
               />
             </div>
-            <div className="filter-group">
-              <label className="filter-label">End Date</label>
+            <div className={styles.filterGroup}>
+              <label className={styles.filterLabel}>End Date</label>
               <input
                 type="date"
                 value={filters.endDate || ''}
                 onChange={(e) => handleFilterChange('endDate', e.target.value)}
-                className="filter-input"
+                className={styles.filterInput}
                 disabled={loading}
                 min={filters.startDate}
               />
@@ -279,12 +280,12 @@ export default function BookingFilters({ filters, setFilters, loading }) {
         )}
 
         {/* Service Filter */}
-        <div className="filter-group">
-          <label className="filter-label">Service</label>
+        <div className={styles.filterGroup}>
+          <label className={styles.filterLabel}>Service</label>
           <select
             value={filters.service || 'all'}
             onChange={(e) => handleFilterChange('service', e.target.value)}
-            className="filter-select"
+            className={styles.filterSelect}
             disabled={loading || filtersLoading}
           >
             <option value="all">All Services</option>
@@ -295,17 +296,17 @@ export default function BookingFilters({ filters, setFilters, loading }) {
             ))}
           </select>
           {filtersLoading && (
-            <FiRefreshCw className="filter-loading" />
+            <FiRefreshCw className={styles.filterLoading} />
           )}
         </div>
 
         {/* Provider Filter */}
-        <div className="filter-group">
-          <label className="filter-label">Provider</label>
+        <div className={styles.filterGroup}>
+          <label className={styles.filterLabel}>Provider</label>
           <select
             value={filters.provider || 'all'}
             onChange={(e) => handleFilterChange('provider', e.target.value)}
-            className="filter-select"
+            className={styles.filterSelect}
             disabled={loading || filtersLoading}
           >
             <option value="all">All Providers</option>
@@ -316,30 +317,30 @@ export default function BookingFilters({ filters, setFilters, loading }) {
             ))}
           </select>
           {filtersLoading && (
-            <FiRefreshCw className="filter-loading" />
+            <FiRefreshCw className={styles.filterLoading} />
           )}
         </div>
 
         {/* Amount Range Filter */}
-        <div className="filter-group">
-          <label className="filter-label">Amount Range</label>
-          <div className="amount-range-inputs">
+        <div className={styles.filterGroup}>
+          <label className={styles.filterLabel}>Amount Range</label>
+          <div className={styles.amountRangeInputs}>
             <input
               type="number"
               placeholder="Min"
               value={filters.minAmount || ''}
               onChange={(e) => handleFilterChange('minAmount', e.target.value)}
-              className="filter-input amount-input"
+              className={`${styles.filterInput} ${styles.amountInput}`}
               disabled={loading}
               min="0"
             />
-            <span className="range-separator">to</span>
+            <span className={styles.rangeSeparator}>to</span>
             <input
               type="number"
               placeholder="Max"
               value={filters.maxAmount || ''}
               onChange={(e) => handleFilterChange('maxAmount', e.target.value)}
-              className="filter-input amount-input"
+              className={`${styles.filterInput} ${styles.amountInput}`}
               disabled={loading}
               min={filters.minAmount || "0"}
             />
@@ -347,12 +348,12 @@ export default function BookingFilters({ filters, setFilters, loading }) {
         </div>
 
         {/* Sort Options */}
-        <div className="filter-group">
-          <label className="filter-label">Sort By</label>
+        <div className={styles.filterGroup}>
+          <label className={styles.filterLabel}>Sort By</label>
           <select
             value={filters.sortBy || 'createdAt'}
             onChange={(e) => handleFilterChange('sortBy', e.target.value)}
-            className="filter-select"
+            className={styles.filterSelect}
             disabled={loading}
           >
             <option value="createdAt">Date Created</option>
@@ -364,12 +365,12 @@ export default function BookingFilters({ filters, setFilters, loading }) {
           </select>
         </div>
 
-        <div className="filter-group">
-          <label className="filter-label">Order</label>
+        <div className={styles.filterGroup}>
+          <label className={styles.filterLabel}>Order</label>
           <select
             value={filters.order || 'desc'}
             onChange={(e) => handleFilterChange('order', e.target.value)}
-            className="filter-select"
+            className={styles.filterSelect}
             disabled={loading}
           >
             <option value="desc">Newest First</option>
@@ -379,12 +380,12 @@ export default function BookingFilters({ filters, setFilters, loading }) {
       </div>
 
       {/* Filter Summary */}
-      <div className="filter-summary">
-        <span className="results-count">
+      <div className={styles.filterSummary}>
+        <span className={styles.resultsCount}>
           {loading ? 'Loading...' : `Showing filtered results`}
         </span>
         {!loading && (
-          <button className="refresh-filters" onClick={loadFilterOptions}>
+          <button className={styles.refreshFilters} onClick={loadFilterOptions}>
             <FiRefreshCw />
             Refresh Options
           </button>

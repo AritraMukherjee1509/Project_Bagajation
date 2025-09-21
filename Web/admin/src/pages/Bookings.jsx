@@ -5,6 +5,7 @@ import BookingFilters from '../components/Bookings/BookingFilters';
 import BookingDetails from '../components/Bookings/BookingDetails';
 import { FiDownload, FiPlus, FiRefreshCw } from 'react-icons/fi';
 import { bookingsAPI } from '../utils/api';
+import styles from '../styles/pages/Bookings.module.css';
 
 export default function Bookings() {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
@@ -115,7 +116,7 @@ export default function Bookings() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Authentication Required</h2>
-          <p className="text-gray-600">Please log in to access the bookings page.</p>
+                    <p className="text-gray-600">Please log in to access the bookings page.</p>
         </div>
       </div>
     );
@@ -231,7 +232,7 @@ export default function Bookings() {
   };
 
   return (
-    <div className="bookings-page">
+    <div className={styles.bookingsPage}>
       <div className="page-header">
         <div className="header-content">
           <h1 className="page-title">Bookings Management</h1>
@@ -255,14 +256,10 @@ export default function Bookings() {
             <FiDownload />
             Export All
           </button>
-          {/* <button className="btn btn-primary">
-            <FiPlus />
-            New Booking
-          </button> */}
         </div>
       </div>
 
-      <div className="bookings-content">
+      <div className={styles.bookingsContent}>
         <BookingFilters 
           filters={filters} 
           setFilters={setFilters}

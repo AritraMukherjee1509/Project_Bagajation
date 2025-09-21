@@ -1,11 +1,12 @@
-// Layout.jsx
 import React, { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import Header from './Header';
+import styles from '../../styles/common/Layout.module.css';
 
 export default function Layout({ children }) {
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   
   useEffect(() => {
     const checkIfMobile = () => {
@@ -25,21 +26,30 @@ export default function Layout({ children }) {
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
+
+  const handleSidebarCollapse = (collapsed) => {
+    setSidebarCollapsed(collapsed);
+  };
   
   return (
-    <div className="admin-layout">
-      <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} isMobile={isMobile} />
+    <div className={styles.adminLayout}>
+      <Sidebar 
+        isOpen={sidebarOpen} 
+        setIsOpen={setSidebarOpen} 
+        isMobile={isMobile}
+        onCollapse={handleSidebarCollapse}
+      />
       
       {isMobile && sidebarOpen && (
         <div 
-          className="sidebar-overlay active" 
+          className={`${styles.sidebarOverlay} ${styles.active}`}
           onClick={() => setSidebarOpen(false)}
         />
       )}
       
-      <div className="admin-main">
+      <div className={`${styles.adminMain} ${sidebarCollapsed && !isMobile ? styles.sidebarCollapsed : ''}`}>
         <Header toggleSidebar={toggleSidebar} isMobile={isMobile} />
-        <main className="admin-content">
+        <main className={styles.adminContent}>
           {children}
         </main>
       </div>

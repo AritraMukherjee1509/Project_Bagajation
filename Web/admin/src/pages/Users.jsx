@@ -4,6 +4,7 @@ import UserForm from '../components/Users/UserForm';
 import UserDetails from '../components/Users/UserDetails';
 import { FiDownload, FiUpload, FiUserPlus, FiFilter, FiRefreshCw } from 'react-icons/fi';
 import { usersAPI } from '../utils/api';
+import styles from '../styles/pages/Users.module.css';
 
 export default function Users() {
   const [showForm, setShowForm] = useState(false);
@@ -49,7 +50,7 @@ export default function Users() {
           total: response.total,
           page: response.page || 1,
           pages: response.pages || 1,
-          hasNext: response.pagination?.next,
+                    hasNext: response.pagination?.next,
           hasPrev: response.pagination?.prev
         });
       }
@@ -171,7 +172,7 @@ export default function Users() {
   };
 
   return (
-    <div className="users-page">
+    <div className={styles.usersPage}>
       <div className="page-header">
         <div className="header-content">
           <h1 className="page-title">Users Management</h1>
@@ -198,7 +199,7 @@ export default function Users() {
         </div>
       </div>
 
-      <div className="users-content">
+      <div className={styles.usersContent}>
         <UsersList
           users={users}
           loading={loading}

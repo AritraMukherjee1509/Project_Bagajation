@@ -12,6 +12,7 @@ import {
   FiFilter,
   FiRefreshCw
 } from 'react-icons/fi';
+import styles from '../../styles/Users/UsersList.module.css';
 
 export default function UsersList({ 
   users = [], 
@@ -87,10 +88,10 @@ export default function UsersList({
 
   if (loading) {
     return (
-      <div className="users-list">
-        <div className="loading-container">
-          <div className="loading-spinner">
-            <FiRefreshCw className="spinning" />
+      <div className={styles.usersList}>
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingSpinner}>
+            <FiRefreshCw className={styles.spinning} />
             <p>Loading users...</p>
           </div>
         </div>
@@ -100,8 +101,8 @@ export default function UsersList({
 
   if (error) {
     return (
-      <div className="users-list">
-        <div className="error-container">
+      <div className={styles.usersList}>
+        <div className={styles.errorContainer}>
           <p>Error loading users: {error}</p>
           <button className="btn btn-primary" onClick={onRefresh}>
             <FiRefreshCw />
@@ -113,25 +114,25 @@ export default function UsersList({
   }
 
   return (
-    <div className="users-list">
+    <div className={styles.usersList}>
       {/* Filters Section */}
-      <div className="filters-section">
-        <div className="search-filter">
-          <FiSearch className="search-icon" />
+      <div className={styles.filtersSection}>
+        <div className={styles.searchFilter}>
+          <FiSearch className={styles.searchIcon} />
           <input
             type="text"
             placeholder="Search users by name or email..."
             value={filters.search || ''}
             onChange={(e) => handleFilterChange('search', e.target.value)}
-            className="search-input"
+            className={styles.searchInput}
           />
         </div>
         
-        <div className="filter-controls">
+        <div className={styles.filterControls}>
           <select 
             value={filters.status || 'all'} 
             onChange={(e) => handleFilterChange('status', e.target.value)}
-            className="filter-select"
+            className={styles.filterSelect}
           >
             <option value="all">All Status</option>
             <option value="active">Active</option>
@@ -143,7 +144,7 @@ export default function UsersList({
             type="date"
             value={filters.startDate || ''}
             onChange={(e) => handleFilterChange('startDate', e.target.value)}
-            className="filter-input"
+            className={styles.filterInput}
             placeholder="Start Date"
           />
           
@@ -151,14 +152,14 @@ export default function UsersList({
             type="date"
             value={filters.endDate || ''}
             onChange={(e) => handleFilterChange('endDate', e.target.value)}
-            className="filter-input"
+            className={styles.filterInput}
             placeholder="End Date"
           />
           
           <select 
             value={filters.sortBy || 'createdAt'} 
             onChange={(e) => handleFilterChange('sortBy', e.target.value)}
-            className="sort-select"
+            className={styles.sortSelect}
           >
             <option value="createdAt">Sort by Join Date</option>
             <option value="name">Sort by Name</option>
@@ -170,7 +171,7 @@ export default function UsersList({
           <select 
             value={filters.order || 'desc'} 
             onChange={(e) => handleFilterChange('order', e.target.value)}
-            className="sort-select"
+            className={styles.sortSelect}
           >
             <option value="desc">Descending</option>
             <option value="asc">Ascending</option>
@@ -178,15 +179,15 @@ export default function UsersList({
         </div>
       </div>
 
-      <div className="list-header">
-        <div className="header-left">
+      <div className={styles.listHeader}>
+        <div className={styles.headerLeft}>
           <h3>All Users ({pagination.total || users.length})</h3>
           {selectedUsers.size > 0 && (
-            <div className="bulk-actions">
-              <span className="selected-count">
+            <div className={styles.bulkActions}>
+              <span className={styles.selectedCount}>
                 {selectedUsers.size} selected
               </span>
-              <button className="bulk-action-btn" onClick={handleBulkDelete}>
+              <button className={styles.bulkActionBtn} onClick={handleBulkDelete}>
                 <FiTrash2 />
                 Delete Selected
               </button>
@@ -194,7 +195,7 @@ export default function UsersList({
           )}
         </div>
         
-        <div className="header-controls">
+        <div className={styles.headerControls}>
           <button className="btn btn-outline" onClick={onRefresh}>
             <FiRefreshCw />
             Refresh
@@ -206,28 +207,28 @@ export default function UsersList({
         </div>
       </div>
 
-      <div className="users-table">
-        <div className="table-header">
-          <div className="header-cell checkbox">
+      <div className={styles.usersTable}>
+        <div className={styles.tableHeader}>
+          <div className={`${styles.headerCell} ${styles.checkbox}`}>
             <input
               type="checkbox"
               checked={selectedUsers.size === users.length && users.length > 0}
               onChange={handleSelectAll}
             />
           </div>
-          <div className="header-cell">User</div>
-          <div className="header-cell">Contact</div>
-          <div className="header-cell">Location</div>
-          <div className="header-cell">Join Date</div>
-          <div className="header-cell">Bookings</div>
-          <div className="header-cell">Total Spent</div>
-          <div className="header-cell">Status</div>
-          <div className="header-cell">Actions</div>
+          <div className={styles.headerCell}>User</div>
+          <div className={styles.headerCell}>Contact</div>
+          <div className={styles.headerCell}>Location</div>
+          <div className={styles.headerCell}>Join Date</div>
+          <div className={styles.headerCell}>Bookings</div>
+          <div className={styles.headerCell}>Total Spent</div>
+          <div className={styles.headerCell}>Status</div>
+          <div className={styles.headerCell}>Actions</div>
         </div>
 
         <div className="table-body">
           {users.length === 0 ? (
-            <div className="empty-state">
+            <div className={styles.emptyState}>
               <p>No users found</p>
               <button className="btn btn-primary" onClick={onCreate}>
                 <FiPlus />
@@ -236,8 +237,8 @@ export default function UsersList({
             </div>
           ) : (
             users.map((user) => (
-              <div key={user._id} className="table-row">
-                <div className="table-cell checkbox">
+              <div key={user._id} className={styles.tableRow}>
+                <div className={`${styles.tableCell} ${styles.checkbox}`}>
                   <input
                     type="checkbox"
                     checked={selectedUsers.has(user._id)}
@@ -245,38 +246,38 @@ export default function UsersList({
                   />
                 </div>
                 
-                <div className="table-cell">
-                  <div className="user-info">
+                <div className={styles.tableCell}>
+                  <div className={styles.userInfo}>
                     <img 
                       src={user.avatar || user.profileImage || '/default-avatar.jpg'} 
                       alt={user.name}
-                      className="user-avatar"
+                      className={styles.userAvatar}
                       onError={(e) => {
                         e.target.src = '/default-avatar.jpg';
                       }}
                     />
-                    <div className="user-details">
-                      <h4 className="user-name">{user.name}</h4>
-                      <span className="user-id">ID: {user._id?.substring(0, 8) || 'N/A'}</span>
+                    <div className={styles.userDetails}>
+                      <h4 className={styles.userName}>{user.name}</h4>
+                      <span className={styles.userId}>ID: {user._id?.substring(0, 8) || 'N/A'}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="table-cell">
-                  <div className="contact-info">
-                    <div className="contact-item">
+                <div className={styles.tableCell}>
+                  <div className={styles.contactInfo}>
+                                        <div className={styles.contactItem}>
                       <FiMail size={14} />
                       <span>{user.email}</span>
                     </div>
-                    <div className="contact-item">
+                    <div className={styles.contactItem}>
                       <FiPhone size={14} />
                       <span>{user.phone || 'Not provided'}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="table-cell">
-                  <div className="location-info">
+                <div className={styles.tableCell}>
+                  <div className={styles.locationInfo}>
                     <FiMapPin size={14} />
                     <span>
                       {user.address ? 
@@ -287,50 +288,50 @@ export default function UsersList({
                   </div>
                 </div>
 
-                <div className="table-cell">
-                  <div className="date-info">
+                <div className={styles.tableCell}>
+                  <div className={styles.dateInfo}>
                     <FiCalendar size={14} />
                     <span>{formatDate(user.createdAt)}</span>
                   </div>
                 </div>
 
-                <div className="table-cell">
-                  <div className="bookings-count">
-                    <span className="count-value">{user.stats?.totalBookings || 0}</span>
-                    <span className="count-label">bookings</span>
+                <div className={styles.tableCell}>
+                  <div className={styles.bookingsCount}>
+                    <span className={styles.countValue}>{user.stats?.totalBookings || 0}</span>
+                    <span className={styles.countLabel}>bookings</span>
                   </div>
                 </div>
 
-                <div className="table-cell">
-                  <div className="spent-amount">
+                <div className={styles.tableCell}>
+                  <div className={styles.spentAmount}>
                     ₹{(user.stats?.totalSpent || 0).toLocaleString()}
                   </div>
                 </div>
 
-                <div className="table-cell">
-                  <span className={`status-badge ${user.status || 'active'}`}>
+                <div className={styles.tableCell}>
+                  <span className={`${styles.statusBadge} ${user.status || 'active'}`}>
                     {user.status || 'active'}
                   </span>
                 </div>
 
-                <div className="table-cell">
-                  <div className="action-buttons">
+                <div className={styles.tableCell}>
+                  <div className={styles.actionButtons}>
                     <button 
-                      className="action-btn view"
+                      className={`${styles.actionBtn} ${styles.view}`}
                       onClick={() => onView(user)}
                       title="View Details"
                     >
                       <FiEye />
                     </button>
                     <button 
-                      className="action-btn edit"
+                      className={`${styles.actionBtn} ${styles.edit}`}
                       onClick={() => onEdit(user)}
                       title="Edit User"
                     >
                       <FiEdit />
                     </button>
                     <button 
-                      className="action-btn delete"
+                      className={`${styles.actionBtn} ${styles.delete}`}
                       onClick={() => onDelete(user)}
                       title="Delete User"
                     >
@@ -346,13 +347,13 @@ export default function UsersList({
 
       {/* Pagination */}
       {pagination.pages > 1 && (
-        <div className="table-pagination">
-          <div className="pagination-info">
+        <div className={styles.tablePagination}>
+          <div className={styles.paginationInfo}>
             Showing {((pagination.page - 1) * filters.limit) + 1}-{Math.min(pagination.page * filters.limit, pagination.total)} of {pagination.total} users
           </div>
-          <div className="pagination-controls">
+          <div className={styles.paginationControls}>
             <button 
-              className="pagination-btn" 
+              className={styles.paginationBtn} 
               disabled={!pagination.hasPrev}
               onClick={() => handlePageChange(pagination.page - 1)}
             >
@@ -365,7 +366,7 @@ export default function UsersList({
                 return (
                   <button
                     key={pageNum}
-                    className={`pagination-btn ${pageNum === pagination.page ? 'active' : ''}`}
+                    className={`${styles.paginationBtn} ${pageNum === pagination.page ? styles.active : ''}`}
                     onClick={() => handlePageChange(pageNum)}
                   >
                     {pageNum}
@@ -376,7 +377,7 @@ export default function UsersList({
             })}
             
             <button 
-              className="pagination-btn" 
+              className={styles.paginationBtn} 
               disabled={!pagination.hasNext}
               onClick={() => handlePageChange(pagination.page + 1)}
             >

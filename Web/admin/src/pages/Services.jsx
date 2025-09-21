@@ -4,6 +4,7 @@ import ServiceForm from '../components/Services/ServiceForm';
 import ServiceDetails from '../components/Services/ServiceDetails';
 import { FiDownload, FiUpload, FiFilter, FiRefreshCw } from 'react-icons/fi';
 import { servicesAPI } from '../utils/api';
+import styles from '../styles/pages/Services.module.css';
 
 export default function Services() {
   const [showForm, setShowForm] = useState(false);
@@ -175,7 +176,7 @@ const loadServices = async () => {
   };
 
   return (
-    <div className="services-page">
+    <div className={styles.servicesPage}>
       <div className="page-header">
         <div className="header-content">
           <h1 className="page-title">Services Management</h1>
@@ -187,22 +188,10 @@ const loadServices = async () => {
             <FiRefreshCw />
             Refresh
           </button>
-          {/* <button className="btn btn-outline" onClick={handleExport}>
-            <FiDownload />
-            Export Services
-          </button>
-          <button className="btn btn-outline">
-            <FiUpload />
-            Import Services
-          </button>
-          <button className="btn btn-outline">
-            <FiFilter />
-            Advanced Filter
-          </button> */}
         </div>
       </div>
 
-      <div className="services-content">
+      <div className={styles.servicesContent}>
         <ServicesList
           services={services}
           loading={loading}

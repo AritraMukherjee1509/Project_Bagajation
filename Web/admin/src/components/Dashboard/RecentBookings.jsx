@@ -1,5 +1,6 @@
 import React from 'react';
 import { FiEye, FiClock, FiMapPin, FiArrowRight, FiRefreshCw } from 'react-icons/fi';
+import styles from '../../styles/Dashboard/RecentBookings.module.css';
 
 const statusConfig = {
   pending: { color: 'orange', label: 'Pending' },
@@ -13,7 +14,7 @@ export default function RecentBookings({ data, loading, onRefresh, onViewAll }) 
   const getStatusBadge = (status) => {
     const config = statusConfig[status] || statusConfig.pending;
     return (
-      <span className={`status-badge ${config.color}`}>
+      <span className={`${styles.statusBadge} ${styles[config.color]}`}>
         {config.label}
       </span>
     );
@@ -39,18 +40,18 @@ export default function RecentBookings({ data, loading, onRefresh, onViewAll }) 
 
   if (loading) {
     return (
-      <div className="recent-bookings-card">
-        <div className="card-header">
-          <h3 className="card-title">Recent Bookings</h3>
-          <FiRefreshCw className="spinning" />
+      <div className={styles.recentBookingsCard}>
+        <div className={styles.cardHeader}>
+          <h3 className={styles.cardTitle}>Recent Bookings</h3>
+          <FiRefreshCw className={styles.spinning} />
         </div>
-        <div className="loading-container">
+        <div className={styles.loadingContainer}>
           {Array.from({ length: 4 }).map((_, index) => (
-            <div key={index} className="booking-item-skeleton">
-              <div className="skeleton-avatar"></div>
-              <div className="skeleton-content">
-                <div className="skeleton-line"></div>
-                <div className="skeleton-line short"></div>
+            <div key={index} className={styles.bookingItemSkeleton}>
+              <div className={styles.skeletonAvatar}></div>
+              <div className={styles.skeletonContent}>
+                <div className={styles.skeletonLine}></div>
+                <div className={`${styles.skeletonLine} ${styles.short}`}></div>
               </div>
             </div>
           ))}
@@ -62,59 +63,56 @@ export default function RecentBookings({ data, loading, onRefresh, onViewAll }) 
   const recentBookings = data || [];
 
   return (
-    <div className="recent-bookings-card">
-      <div className="card-header">
-        <h3 className="card-title">Recent Bookings</h3>
-        <div className="card-actions">
+    <div className={styles.recentBookingsCard}>
+      <div className={styles.cardHeader}>
+        <h3 className={styles.cardTitle}>Recent Bookings</h3>
+        <div className={styles.cardActions}>
           {onRefresh && (
-            <button className="refresh-btn btn btn-outline" onClick={onRefresh}>
+            <button className={`${styles.refreshBtn} btn btn-outline`} onClick={onRefresh}>
               <FiRefreshCw />
             </button>
           )}
-          {/* <button className="view-all-link" onClick={onViewAll}>
-            View All <FiArrowRight />
-          </button> */}
         </div>
       </div>
 
-      <div className="bookings-list-compact">
+      <div className={styles.bookingsListCompact}>
         {recentBookings.length === 0 ? (
-          <div className="empty-state">
+          <div className={styles.emptyState}>
             <p>No recent bookings</p>
           </div>
         ) : (
           recentBookings.map((booking) => (
-            <div key={booking._id} className="booking-item-compact">
-              <div className="booking-main">
-                <div className="customer-section">
-                  <div className="customer-avatar">
+            <div key={booking._id} className={styles.bookingItemCompact}>
+              <div className={styles.bookingMain}>
+                <div className={styles.customerSection}>
+                  <div className={styles.customerAvatar}>
                     {booking.user?.name?.charAt(0) || 'U'}
                   </div>
-                  <div className="customer-info">
-                    <h4 className="customer-name">
+                  <div className={styles.customerInfo}>
+                    <h4 className={styles.customerName}>
                       {booking.user?.name || 'Unknown User'}
                     </h4>
-                    <p className="booking-service">
+                    <p className={styles.bookingService}>
                       {booking.service?.name || 'Service not found'}
                     </p>
                   </div>
                 </div>
 
-                <div className="booking-details">
-                  <div className="booking-amount">
+                <div className={styles.bookingDetails}>
+                  <div className={styles.bookingAmount}>
                     ₹{(booking.pricing?.totalAmount || booking.amount || 0).toLocaleString()}
                   </div>
                   {getStatusBadge(booking.status)}
                 </div>
               </div>
 
-              <div className="booking-footer">
-                <div className="booking-meta">
-                  <span className="booking-time">
+              <div className={styles.bookingFooter}>
+                <div className={styles.bookingMeta}>
+                  <span className={styles.bookingTime}>
                     <FiClock size={12} />
                     {formatTime(booking.createdAt)}
                   </span>
-                  <span className="booking-location">
+                  <span className={styles.bookingLocation}>
                     <FiMapPin size={12} />
                     {booking.address ? 
                       `${booking.address.city}, ${booking.address.state}` :
@@ -124,7 +122,7 @@ export default function RecentBookings({ data, loading, onRefresh, onViewAll }) 
                 </div>
                 
                 <button 
-                  className="view-booking-btn"
+                  className={styles.viewBookingBtn}
                   onClick={() => onViewAll && onViewAll(booking)}
                 >
                   <FiEye size={14} />

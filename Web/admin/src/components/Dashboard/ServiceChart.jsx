@@ -1,5 +1,6 @@
 import React from 'react';
 import { FiTrendingUp, FiRefreshCw } from 'react-icons/fi';
+import styles from '../../styles/Dashboard/ServiceChart.module.css';
 
 export default function ServiceChart({ data, loading, onRefresh }) {
   const defaultServiceData = [
@@ -17,19 +18,19 @@ export default function ServiceChart({ data, loading, onRefresh }) {
 
   if (loading) {
     return (
-      <div className="service-chart-card">
-        <div className="chart-header">
-          <h3 className="chart-title">Popular Services</h3>
-          <div className="chart-subtitle">
-            <FiRefreshCw className="spinning" />
+      <div className={styles.serviceChartCard}>
+        <div className={styles.chartHeader}>
+          <h3 className={styles.chartTitle}>Popular Services</h3>
+          <div className={styles.chartSubtitle}>
+            <FiRefreshCw className={styles.spinning} />
             Loading...
           </div>
         </div>
-        <div className="chart-skeleton">
-          <div className="donut-skeleton"></div>
-          <div className="legend-skeleton">
+        <div className={styles.chartSkeleton}>
+          <div className={styles.donutSkeleton}></div>
+          <div className={styles.legendSkeleton}>
             {Array.from({ length: 5 }).map((_, index) => (
-              <div key={index} className="legend-item-skeleton"></div>
+              <div key={index} className={styles.legendItemSkeleton}></div>
             ))}
           </div>
         </div>
@@ -38,29 +39,29 @@ export default function ServiceChart({ data, loading, onRefresh }) {
   }
 
   return (
-    <div className="service-chart-card">
-      <div className="chart-header">
-        <h3 className="chart-title">Popular Services</h3>
-        <div className="chart-subtitle">
+    <div className={styles.serviceChartCard}>
+      <div className={styles.chartHeader}>
+        <h3 className={styles.chartTitle}>Popular Services</h3>
+        <div className={styles.chartSubtitle}>
           <FiTrendingUp />
           {totalServices} total bookings
         </div>
         {onRefresh && (
-          <button className="refresh-btn" onClick={onRefresh}>
+          <button className={styles.refreshBtn} onClick={onRefresh}>
             <FiRefreshCw />
           </button>
         )}
       </div>
 
-      <div className="donut-chart-container">
+      <div className={styles.donutChartContainer}>
         {totalServices === 0 ? (
-          <div className="empty-chart">
+          <div className={styles.emptyChart}>
             <p>No service data available</p>
           </div>
         ) : (
           <>
-            <div className="donut-chart">
-              <svg viewBox="0 0 100 100" className="donut-svg">
+            <div className={styles.donutChart}>
+              <svg viewBox="0 0 100 100" className={styles.donutSvg}>
                 {serviceData.map((item, index) => {
                   const startAngle = serviceData.slice(0, index).reduce((sum, s) => sum + (s.value / 100) * 360, 0);
                   const angle = ((item.value || 0) / 100) * 360;
@@ -77,7 +78,7 @@ export default function ServiceChart({ data, loading, onRefresh }) {
                       key={index}
                       d={`M 50 50 L ${x1} ${y1} A 35 35 0 ${largeArc} 1 ${x2} ${y2} Z`}
                       fill={item.color}
-                      className="donut-segment"
+                      className={styles.donutSegment}
                       style={{ '--delay': `${index * 0.2}s` }}
                     />
                   );
@@ -85,27 +86,27 @@ export default function ServiceChart({ data, loading, onRefresh }) {
                 <circle cx="50" cy="50" r="20" fill="var(--surface)" />
               </svg>
               
-              <div className="donut-center">
-                <div className="center-value">{topService.value || 0}%</div>
-                <div className="center-label">Top Service</div>
+              <div className={styles.donutCenter}>
+                <div className={styles.centerValue}>{topService.value || 0}%</div>
+                <div className={styles.centerLabel}>Top Service</div>
               </div>
             </div>
           </>
         )}
       </div>
 
-      <div className="service-legend">
+      <div className={styles.serviceLegend}>
         {serviceData.map((item, index) => (
-          <div key={index} className="legend-item">
+          <div key={index} className={styles.legendItem}>
             <div 
-              className="legend-dot" 
+              className={styles.legendDot} 
               style={{ backgroundColor: item.color }}
             ></div>
-            <div className="legend-content">
-              <span className="legend-name">{item.name}</span>
-              <div className="legend-stats">
-                <span className="legend-percentage">{item.value || 0}%</span>
-                <span className="legend-count">({item.count || 0})</span>
+            <div className={styles.legendContent}>
+              <span className={styles.legendName}>{item.name}</span>
+              <div className={styles.legendStats}>
+                <span className={styles.legendPercentage}>{item.value || 0}%</span>
+                <span className={styles.legendCount}>({item.count || 0})</span>
               </div>
             </div>
           </div>

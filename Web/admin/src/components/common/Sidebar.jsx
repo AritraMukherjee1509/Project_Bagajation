@@ -1,4 +1,3 @@
-// Sidebar.jsx
 import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { 
@@ -10,6 +9,7 @@ import {
   FiMenu,
   FiX
 } from 'react-icons/fi';
+import styles from '../../styles/common/Sidebar.module.css';
 
 const menuItems = [
   {
@@ -50,9 +50,16 @@ const menuItems = [
   }
 ];
 
-export default function Sidebar({ isOpen, setIsOpen, isMobile }) {
+export default function Sidebar({ isOpen, setIsOpen, isMobile, onCollapse }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const location = useLocation();
+
+  // Notify parent component when collapse state changes
+  useEffect(() => {
+    if (onCollapse) {
+      onCollapse(isCollapsed);
+    }
+  }, [isCollapsed, onCollapse]);
 
   // Handle sidebar toggle
   const toggleSidebar = () => {
@@ -64,39 +71,40 @@ export default function Sidebar({ isOpen, setIsOpen, isMobile }) {
   };
 
   return (
-    <aside className={`admin-sidebar ${isCollapsed ? 'collapsed' : ''} ${isMobile && isOpen ? 'open' : ''}`}>
-      <div className="sidebar-header">
-        <div className="sidebar-logo">
-          <span className="logo-badge">LG</span>
-          {!isCollapsed && <span className="logo-text">Admin</span>}
+    <aside className={`${styles.adminSidebar} ${isCollapsed ? styles.collapsed : ''} ${isMobile && isOpen ? styles.open : ''}`}>
+      <div className={styles.sidebarHeader}>
+        <div className={styles.sidebarLogo}>
+          {!isCollapsed && <span className={styles.logoBadge}>LG</span>}
+          {!isCollapsed && <span className={styles.logoText}>Admin</span>}
         </div>
         <button
-          className="sidebar-toggle"
+          className={styles.sidebarToggle}
           onClick={toggleSidebar}
         >
           {isCollapsed || (isMobile && !isOpen) ? <FiMenu /> : <FiX />}
         </button>
       </div>
 
-      <nav className="sidebar-nav">
-        <ul className="nav-list">
+      <nav className={styles.sidebarNav}>
+        <ul className={styles.navList}>
           {menuItems.map((item) => {
             const IconComponent = item.icon;
             const isActive = location.pathname === item.path;
 
             return (
-              <li key={item.path} className="nav-item">
+              <li key={item.path} className={styles.navItem}>
                 <NavLink
                   to={item.path}
-                  className={`nav-link ${isActive ? 'active' : ''}`}
+                  className={`${styles.navLink} ${isActive ? styles.active : ''}`}
                   onClick={() => isMobile && setIsOpen(false)}
+                  title={isCollapsed ? item.label : undefined}
                 >
-                  <IconComponent className="nav-icon" />
+                  <IconComponent className={styles.navIcon} />
                   {!isCollapsed && (
                     <>
-                      <span className="nav-label">{item.label}</span>
+                      <span className={styles.navLabel}>{item.label}</span>
                       {item.badge && (
-                        <span className="nav-badge">{item.badge}</span>
+                        <span className={styles.navBadge}>{item.badge}</span>
                       )}
                     </>
                   )}

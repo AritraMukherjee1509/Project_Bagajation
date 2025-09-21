@@ -8,6 +8,7 @@ import {
   FiArrowDown,
   FiMinus
 } from 'react-icons/fi';
+import styles from '../../styles/Dashboard/StatsCards.module.css';
 
 export default function StatsCards({ data, loading }) {
   const defaultStats = [
@@ -132,33 +133,33 @@ export default function StatsCards({ data, loading }) {
   ] : defaultStats;
 
   return (
-    <div className="stats-grid">
+    <div className={styles.statsGrid}>
       {stats.map((stat) => {
         const IconComponent = stat.icon;
         const TrendIcon = getTrendIcon(stat.trend);
         
         return (
-          <div key={stat.id} className={`stat-card ${stat.color} ${loading ? 'loading' : ''}`}>
-            <div className="stat-header">
-              <div className="stat-icon">
+          <div key={stat.id} className={`${styles.statCard} ${styles[stat.color]} ${loading ? styles.loading : ''}`}>
+            <div className={styles.statHeader}>
+              <div className={styles.statIcon}>
                 <IconComponent />
               </div>
-              <div className={`stat-change ${stat.trend}`}>
+              <div className={`${styles.statChange} ${styles[stat.trend]}`}>
                 <TrendIcon />
                 {stat.change}
               </div>
             </div>
             
-            <div className="stat-content">
-              <h3 className="stat-value">
+            <div className={styles.statContent}>
+              <h3 className={styles.statValue}>
                 {loading ? (
-                  <div className="stat-skeleton"></div>
+                  <div className={styles.statSkeleton}></div>
                 ) : (
                   stat.value
                 )}
               </h3>
-              <p className="stat-title">{stat.title}</p>
-              <span className="stat-subtitle">{stat.subtitle}</span>
+              <p className={styles.statTitle}>{stat.title}</p>
+              <span className={styles.statSubtitle}>{stat.subtitle}</span>
             </div>
           </div>
         );

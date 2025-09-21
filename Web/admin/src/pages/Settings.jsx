@@ -17,6 +17,7 @@ import {
 } from "react-icons/fi";
 import { adminAPI } from "../utils/api";
 import { useAuth } from "../components/Auth/AuthProvider";
+import styles from '../styles/pages/Settings.module.css';
 
 export default function Settings() {
   const [activeTab, setActiveTab] = useState("general");
@@ -137,7 +138,7 @@ export default function Settings() {
   }
 
   return (
-    <div className="settings-page">
+    <div className={styles.settingsPage}>
       <div className="page-header">
         <h1>Settings</h1>
         {message.text && (
@@ -149,15 +150,15 @@ export default function Settings() {
         )}
       </div>
 
-      <div className="settings-container">
-        <aside className="settings-sidebar">
+      <div className={styles.settingsContainer}>
+        <aside className={styles.settingsSidebar}>
           {tabs.map((tab) => {
             const Icon = tab.icon;
             return (
               <button
                 key={tab.id}
-                className={`settings-tab ${
-                  activeTab === tab.id ? "active" : ""
+                className={`${styles.settingsTab} ${
+                  activeTab === tab.id ? styles.active : ""
                 }`}
                 onClick={() => setActiveTab(tab.id)}
               >
@@ -167,14 +168,14 @@ export default function Settings() {
           })}
         </aside>
 
-        <main className="settings-main">
+        <main className={styles.settingsMain}>
           {/* ✅ reuse your second-version tab UI here */}
           {/* You can drop in your existing JSX for each tab (general, profile, notifications, etc.)
               and just wire inputs with handleSettingChange(key, value) */}
         </main>
       </div>
 
-      <div className="settings-footer">
+      <div className={styles.settingsFooter}>
         <button className="btn btn-outline" onClick={resetSettings}>
           <FiRefreshCw /> Reset
         </button>

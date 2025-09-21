@@ -12,6 +12,7 @@ import {
   FiSearch,
   FiRefreshCw
 } from 'react-icons/fi';
+import styles from '../../styles/Services/ServicesList.module.css';
 
 export default function ServicesList({ 
   services = [], 
@@ -88,10 +89,10 @@ export default function ServicesList({
 
   if (loading) {
     return (
-      <div className="services-list">
-        <div className="loading-container">
-          <div className="loading-spinner">
-            <FiRefreshCw className="spinning" />
+      <div className={styles.servicesList}>
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingSpinner}>
+            <FiRefreshCw className={styles.spinning} />
             <p>Loading services...</p>
           </div>
         </div>
@@ -101,8 +102,8 @@ export default function ServicesList({
 
   if (error) {
     return (
-      <div className="services-list">
-        <div className="error-container">
+      <div className={styles.servicesList}>
+        <div className={styles.errorContainer}>
           <p>Error loading services: {error}</p>
           <button className="btn btn-primary" onClick={onRefresh}>
             <FiRefreshCw />
@@ -114,25 +115,25 @@ export default function ServicesList({
   }
 
   return (
-    <div className="services-list">
+    <div className={styles.servicesList}>
       {/* Filters Section */}
-      <div className="filters-section">
-        <div className="search-filter">
-          <FiSearch className="search-icon" />
+      <div className={styles.filtersSection}>
+        <div className={styles.searchFilter}>
+          <FiSearch className={styles.searchIcon} />
           <input
             type="text"
             placeholder="Search services..."
             value={filters.search || ''}
             onChange={(e) => handleFilterChange('search', e.target.value)}
-            className="search-input"
+            className={styles.searchInput}
           />
         </div>
         
-        <div className="filter-controls">
+        <div className={styles.filterControls}>
           <select 
             value={filters.status || 'all'} 
             onChange={(e) => handleFilterChange('status', e.target.value)}
-            className="filter-select"
+            className={styles.filterSelect}
           >
             <option value="all">All Status</option>
             <option value="active">Active</option>
@@ -142,7 +143,7 @@ export default function ServicesList({
           <select 
             value={filters.category || 'all'} 
             onChange={(e) => handleFilterChange('category', e.target.value)}
-            className="filter-select"
+            className={styles.filterSelect}
           >
             <option value="all">All Categories</option>
             <option value="AC Services">AC Services</option>
@@ -157,7 +158,7 @@ export default function ServicesList({
           <select 
             value={filters.sortBy || 'createdAt'} 
             onChange={(e) => handleFilterChange('sortBy', e.target.value)}
-            className="sort-select"
+            className={styles.sortSelect}
           >
             <option value="createdAt">Sort by Date</option>
             <option value="name">Sort by Name</option>
@@ -167,15 +168,15 @@ export default function ServicesList({
         </div>
       </div>
 
-      <div className="list-header">
-        <div className="header-left">
+      <div className={styles.listHeader}>
+        <div className={styles.headerLeft}>
           <h3>All Services ({pagination.total || services.length})</h3>
           {selectedServices.size > 0 && (
-            <div className="bulk-actions">
-              <span className="selected-count">
+            <div className={styles.bulkActions}>
+              <span className={styles.selectedCount}>
                 {selectedServices.size} selected
               </span>
-              <button className="bulk-action-btn" onClick={handleBulkDelete}>
+              <button className={styles.bulkActionBtn} onClick={handleBulkDelete}>
                 <FiTrash2 />
                 Delete Selected
               </button>
@@ -183,7 +184,7 @@ export default function ServicesList({
           )}
         </div>
         
-        <div className="header-controls">
+        <div className={styles.headerControls}>
           <button className="btn btn-outline" onClick={onRefresh}>
             <FiRefreshCw />
             Refresh
@@ -195,28 +196,28 @@ export default function ServicesList({
         </div>
       </div>
 
-      <div className="services-table">
-        <div className="table-header">
-          <div className="header-cell checkbox">
+      <div className={styles.servicesTable}>
+        <div className={styles.tableHeader}>
+          <div className={`${styles.headerCell} ${styles.checkbox}`}>
             <input
               type="checkbox"
               checked={selectedServices.size === services.length && services.length > 0}
               onChange={handleSelectAll}
             />
           </div>
-          <div className="header-cell">Service</div>
-          <div className="header-cell">Category</div>
-          <div className="header-cell">Provider</div>
-          <div className="header-cell">Price</div>
-          <div className="header-cell">Rating</div>
-          <div className="header-cell">Bookings</div>
-          <div className="header-cell">Status</div>
-          <div className="header-cell">Actions</div>
+          <div className={styles.headerCell}>Service</div>
+          <div className={styles.headerCell}>Category</div>
+          <div className={styles.headerCell}>Provider</div>
+          <div className={styles.headerCell}>Price</div>
+          <div className={styles.headerCell}>Rating</div>
+          <div className={styles.headerCell}>Bookings</div>
+          <div className={styles.headerCell}>Status</div>
+          <div className={styles.headerCell}>Actions</div>
         </div>
 
         <div className="table-body">
           {services.length === 0 ? (
-            <div className="empty-state">
+            <div className={styles.emptyState}>
               <p>No services found</p>
               <button className="btn btn-primary" onClick={onCreate}>
                 <FiPlus />
@@ -225,8 +226,8 @@ export default function ServicesList({
             </div>
           ) : (
             services.map((service) => (
-              <div key={service._id} className="table-row">
-                <div className="table-cell checkbox">
+              <div key={service._id} className={styles.tableRow}>
+                <div className={`${styles.tableCell} ${styles.checkbox}`}>
                   <input
                     type="checkbox"
                     checked={selectedServices.has(service._id)}
@@ -234,19 +235,19 @@ export default function ServicesList({
                   />
                 </div>
                 
-                <div className="table-cell">
-                  <div className="service-info">
+                <div className={styles.tableCell}>
+                  <div className={styles.serviceInfo}>
                     <img 
                       src={service.images?.[0] || '/default-service.jpg'} 
                       alt={service.name}
-                      className="service-image"
+                      className={styles.serviceImage}
                       onError={(e) => {
                         e.target.src = '/default-service.jpg';
                       }}
                     />
-                    <div className="service-details">
-                      <h4 className="service-name">{service.name}</h4>
-                      <p className="service-description">
+                    <div className={styles.serviceDetails}>
+                      <h4 className={styles.serviceName}>{service.name}</h4>
+                      <p className={styles.serviceDescription}>
                         {service.description?.substring(0, 100)}
                         {service.description?.length > 100 ? '...' : ''}
                       </p>
@@ -254,54 +255,54 @@ export default function ServicesList({
                   </div>
                 </div>
 
-                <div className="table-cell">
-                  <span className="category-badge">{service.category}</span>
+                <div className={styles.tableCell}>
+                  <span className={styles.categoryBadge}>{service.category}</span>
                 </div>
 
-                <div className="table-cell">
-                  <div className="provider-info">
-                    <div className="provider-avatar">
+                <div className={styles.tableCell}>
+                  <div className={styles.providerInfo}>
+                    <div className={styles.providerAvatar}>
                       {service.provider?.name?.charAt(0) || 'N'}
                     </div>
-                    <span className="provider-name">
+                    <span className={styles.providerName}>
                       {service.provider?.name || 'Not assigned'}
                     </span>
                   </div>
                 </div>
 
-                <div className="table-cell">
-                  <div className="price-info">
+                <div className={styles.tableCell}>
+                  <div className={styles.priceInfo}>
                     <FiDollarSign />
-                    <span className="price">
+                    <span className={styles.price}>
                       ₹{service.pricing?.basePrice || 0}
                     </span>
                   </div>
                 </div>
 
-                <div className="table-cell">
-                  <div className="rating-info">
-                    <FiStar className="star-icon" />
-                    <span className="rating">
+                <div className={styles.tableCell}>
+                  <div className={styles.ratingInfo}>
+                    <FiStar className={styles.starIcon} />
+                    <span className={styles.rating}>
                       {service.ratings?.averageRating || 0}
                     </span>
-                    <span className="rating-count">
+                    <span className={styles.ratingCount}>
                       ({service.ratings?.totalReviews || 0})
                     </span>
                   </div>
                 </div>
 
-                <div className="table-cell">
-                  <div className="bookings-info">
+                <div className={styles.tableCell}>
+                  <div className={styles.bookingsInfo}>
                     <FiUsers />
-                    <span className="bookings">
+                    <span className={styles.bookings}>
                       {service.stats?.totalBookings || 0}
                     </span>
                   </div>
                 </div>
 
-                <div className="table-cell">
+                <div className={styles.tableCell}>
                   <button
-                    className={`status-toggle ${service.status}`}
+                    className={`${styles.statusToggle} ${service.status}`}
                     onClick={() => toggleServiceStatus(service)}
                   >
                     {service.status === 'active' ? (
@@ -318,24 +319,24 @@ export default function ServicesList({
                   </button>
                 </div>
 
-                <div className="table-cell">
-                  <div className="action-buttons">
+                <div className={styles.tableCell}>
+                  <div className={styles.actionButtons}>
                     <button 
-                      className="action-btn view"
+                      className={`${styles.actionBtn} ${styles.view}`}
                       onClick={() => onView(service)}
                       title="View Details"
                     >
                       <FiEye />
                     </button>
                     <button 
-                      className="action-btn edit"
+                      className={`${styles.actionBtn} ${styles.edit}`}
                       onClick={() => onEdit(service)}
                       title="Edit Service"
                     >
                       <FiEdit />
                     </button>
                     <button 
-                      className="action-btn delete"
+                      className={`${styles.actionBtn} ${styles.delete}`}
                       onClick={() => onDelete(service)}
                       title="Delete Service"
                     >
@@ -351,13 +352,13 @@ export default function ServicesList({
 
       {/* Pagination */}
       {pagination.pages > 1 && (
-        <div className="table-pagination">
-          <div className="pagination-info">
+        <div className={styles.tablePagination}>
+          <div className={styles.paginationInfo}>
             Showing {((pagination.page - 1) * filters.limit) + 1}-{Math.min(pagination.page * filters.limit, pagination.total)} of {pagination.total} services
           </div>
-          <div className="pagination-controls">
+          <div className={styles.paginationControls}>
             <button 
-              className="pagination-btn" 
+              className={styles.paginationBtn} 
               disabled={!pagination.hasPrev}
               onClick={() => handlePageChange(pagination.page - 1)}
             >
@@ -370,7 +371,7 @@ export default function ServicesList({
                 return (
                   <button
                     key={pageNum}
-                    className={`pagination-btn ${pageNum === pagination.page ? 'active' : ''}`}
+                    className={`${styles.paginationBtn} ${pageNum === pagination.page ? styles.active : ''}`}
                     onClick={() => handlePageChange(pageNum)}
                   >
                     {pageNum}
@@ -381,7 +382,7 @@ export default function ServicesList({
             })}
             
             <button 
-              className="pagination-btn" 
+              className={styles.paginationBtn} 
               disabled={!pagination.hasNext}
               onClick={() => handlePageChange(pagination.page + 1)}
             >
