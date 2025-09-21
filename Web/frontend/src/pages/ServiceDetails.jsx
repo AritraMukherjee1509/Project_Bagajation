@@ -68,20 +68,28 @@ export default function ServiceDetails() {
     }
   };
 
-  const handleBookService = async (bookingData) => {
-    if (!isAuthenticated) {
-      // Redirect to login or show login modal
-      window.location.href = '/login';
-      return;
-    }
+  // src/pages/ServiceDetails.jsx - Update the handleBookService function
 
-    try {
-      // Handle booking logic here
-      console.log('Booking service:', bookingData);
-    } catch (error) {
-      console.error('Booking failed:', error);
-    }
-  };
+const handleBookService = async (bookingData) => {
+  if (!isAuthenticated) {
+    // Redirect to login or show login modal
+    window.location.href = `/login?return=${encodeURIComponent(`/book/${service._id}`)}`;
+    return;
+  }
+
+  try {
+    console.log('Booking service:', bookingData);
+    // Navigate to booking page
+    navigate(`/book/${service._id}`, { 
+      state: { 
+        service,
+        quantity: bookingData.quantity || 1
+      }
+    });
+  } catch (error) {
+    console.error('Booking navigation failed:', error);
+  }
+};
 
   if (loading) {
     return (

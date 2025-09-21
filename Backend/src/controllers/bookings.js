@@ -154,6 +154,8 @@ const getBooking = async (req, res, next) => {
 // @desc    Create new booking
 // @route   POST /api/v1/bookings
 // @access  Private/User
+// src/controllers/bookings.js - Update the createBooking function
+
 const createBooking = async (req, res, next) => {
   try {
     // Get service details
@@ -209,6 +211,11 @@ const createBooking = async (req, res, next) => {
       discount: req.body.pricing?.discount || 0,
       totalAmount: service.pricing.basePrice - (req.body.pricing?.discount || 0)
     };
+
+    // Generate a unique booking ID
+    const timestamp = new Date().getTime().toString().slice(-6);
+    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+    req.body.bookingId = `BK${timestamp}${random}`;
 
     // Create booking
     const booking = await Booking.create(req.body);
@@ -274,7 +281,6 @@ const createBooking = async (req, res, next) => {
     next(error);
   }
 };
-
 // @desc    Update booking
 // @route   PUT /api/v1/bookings/:id
 // @access  Private

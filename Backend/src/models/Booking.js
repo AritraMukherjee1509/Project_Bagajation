@@ -4,7 +4,6 @@ const bookingSchema = new mongoose.Schema({
   bookingId: {
     type: String,
     unique: true,
-    required: true
   },
   user: {
     type: mongoose.Schema.ObjectId,
@@ -276,11 +275,17 @@ bookingSchema.index({ 'payment.status': 1 });
 
 // Generate unique booking ID
 bookingSchema.pre('save', async function(next) {
-  if (!this.bookingId) {
-    const count = await this.constructor.countDocuments();
-    this.bookingId = `BK${String(count + 1).padStart(6, '0')}`;
+  try {
+    if (!this.bookingId) {
+      // Generate a unique booking ID with timestamp to avoid collisions
+      const timestamp = new Date().getTime().toString().slice(-6);
+      const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+      this.bookingId = `BK${timestamp}${random}`;
+    }
+    next();
+  } catch (error) {
+    next(error);
   }
-  next();
 });
 
 // Calculate total amount including taxes

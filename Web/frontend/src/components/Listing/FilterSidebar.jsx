@@ -31,31 +31,32 @@ export default function FilterSidebar({ filters, onFilterChange }) {
     fetchAvailableLocations();
   }, []);
 
-  const fetchAvailableLocations = async () => {
-    try {
-      setLoadingLocations(true);
-      // Fetch services to extract unique locations
-      const response = await servicesAPI.getServices({ limit: 1000 });
-      const result = apiUtils.formatResponse(response);
+  // src/components/Listing/FilterSidebar.jsx - Update the fetchAvailableLocations function
+const fetchAvailableLocations = async () => {
+  try {
+    setLoadingLocations(true);
+    // Use a limit of 100 instead of 1000
+    const response = await servicesAPI.getServices({ limit: 100 });
+    const result = apiUtils.formatResponse(response);
+    
+    if (result.success) {
+      // Extract unique cities from services
+      const uniqueCities = [...new Set(
+        result.data
+          .flatMap(service => service.serviceArea?.cities || [])
+          .filter(Boolean)
+      )].sort();
       
-      if (result.success) {
-        // Extract unique cities from services
-        const uniqueCities = [...new Set(
-          result.data
-            .flatMap(service => service.serviceArea?.cities || [])
-            .filter(Boolean)
-        )].sort();
-        
-        setLocations(uniqueCities);
-      }
-    } catch (error) {
-      console.error('Failed to fetch locations:', error);
-      // Fallback to default cities
-      setLocations(['Kolkata', 'Mumbai', 'Delhi', 'Bangalore', 'Chennai', 'Pune']);
-    } finally {
-      setLoadingLocations(false);
+      setLocations(uniqueCities);
     }
-  };
+  } catch (error) {
+    console.error('Failed to fetch locations:', error);
+    // Fallback to default cities
+    setLocations(['Kolkata', 'Mumbai', 'Delhi', 'Bangalore', 'Chennai', 'Pune']);
+  } finally {
+    setLoadingLocations(false);
+  }
+};
 
   const updateFilter = (key, value) => {
     const newFilters = { ...filters, [key]: value };

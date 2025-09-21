@@ -246,8 +246,17 @@ const providerLogin = async (req, res, next) => {
 // @desc    Get current logged in user
 // @route   GET /api/v1/auth/me
 // @access  Private
+// src/controllers/auth.js - Update the getMe function
 const getMe = async (req, res, next) => {
   try {
+    // Check if req.user exists
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({
+        success: false,
+        message: 'Not authenticated'
+      });
+    }
+
     const user = await User.findById(req.user.id)
       .populate('bookings', 'service status createdAt')
       .populate('reviews', 'service rating comment createdAt');

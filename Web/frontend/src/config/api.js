@@ -35,12 +35,21 @@ const tokenManager = {
 };
 
 // Request interceptor to add auth token
+// src/config/api.js - Update the request interceptor
+// Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
     const token = tokenManager.getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    // Add validation for pagination limits
+    if (config.params && config.params.limit) {
+      // Ensure limit is within acceptable range (1-100)
+      config.params.limit = Math.min(Math.max(1, config.params.limit), 100);
+    }
+    
     return config;
   },
   (error) => {
@@ -74,6 +83,59 @@ export const authAPI = {
   forgotPassword: (email) => api.post('/auth/forgotpassword', { email }),
   resetPassword: (token, password) => api.put(`/auth/resetpassword/${token}`, { password }),
   verifyEmail: (token) => api.get(`/auth/verify/${token}`),
+  // Handle API errors
+  handleError: (error) => {
+  console.error('API Error:', error);
+  
+  if (error.response) {
+    // Server responded with error status
+    const errorData = error.response.data;
+    let message = 'An error occurred';
+    
+    if (errorData.message) {
+      message = errorData.message;
+    } else if (errorData.error) {
+      message = errorData.error;
+    }
+    
+    const errors = errorData?.errors || [];
+    
+    // If there are validation errors, format them
+    if (errors.length > 0) {
+      const errorMessages = errors.map(err => err.message || err).join(', ');
+      return { 
+        success: false, 
+        message: `${message}: ${errorMessages}`, 
+        status: error.response.status,
+        errors
+      };
+    }
+    
+    return { success: false, message, status: error.response.status };
+  } else if (error.request) {
+    // Request made but no response
+    return { success: false, message: 'Network error. Please check your connection.' };
+  } else {
+    // Something else happened
+    return { success: false, message: error.message || 'An unexpected error occurred.' };
+  }
+},
+  
+  // Format success response
+  formatResponse: (response) => {
+    if (!response || !response.data) {
+      return { success: false, message: 'Invalid response format' };
+    }
+    
+    return {
+      success: response.data.success !== false,
+      data: response.data.data || [],
+      message: response.data.message || '',
+      pagination: response.data.pagination || null,
+      total: response.data.total || 0,
+      count: response.data.count || 0
+    };
+  },
 };
 
 export const servicesAPI = {
@@ -109,6 +171,8 @@ export const servicesAPI = {
   getServiceAnalytics: (id) => api.get(`/services/${id}/analytics`),
 };
 
+// src/config/api.js - Update the bookingsAPI
+
 export const bookingsAPI = {
   // Get all bookings (filtered by user role)
   getBookings: (params = {}) => api.get('/bookings', { params }),
@@ -117,7 +181,10 @@ export const bookingsAPI = {
   getBooking: (id) => api.get(`/bookings/${id}`),
   
   // Create new booking
-  createBooking: (bookingData) => api.post('/bookings', bookingData),
+  createBooking: (bookingData) => {
+    console.log('Creating booking with data:', bookingData);
+    return api.post('/bookings', bookingData);
+  },
   
   // Update booking
   updateBooking: (id, bookingData) => api.put(`/bookings/${id}`, bookingData),

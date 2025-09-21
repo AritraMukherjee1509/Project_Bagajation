@@ -22,20 +22,39 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
-  const checkAuth = async () => {
-    try {
-      if (tokenManager.isAuthenticated()) {
+  // src/context/AuthContext.jsx - Update the checkAuth method
+const checkAuth = async () => {
+  try {
+    if (tokenManager.isAuthenticated()) {
+      try {
         const response = await authAPI.getMe();
-        setUser(response.data.data);
-        setIsAuthenticated(true);
+        if (response.data && response.data.success) {
+          setUser(response.data.data);
+          setIsAuthenticated(true);
+        } else {
+          // Invalid response format
+          tokenManager.removeToken();
+          setIsAuthenticated(false);
+          setUser(null);
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        tokenManager.removeToken();
+        setIsAuthenticated(false);
+        setUser(null);
       }
-    } catch (error) {
-      console.error('Auth check failed:', error);
-      tokenManager.removeToken();
-    } finally {
-      setLoading(false);
+    } else {
+      setIsAuthenticated(false);
+      setUser(null);
     }
-  };
+  } catch (error) {
+    console.error('Auth check error:', error);
+    setIsAuthenticated(false);
+    setUser(null);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const login = async (credentials, remember = false) => {
     try {
@@ -56,18 +75,38 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async (userData) => {
-    try {
-      const response = await authAPI.register(userData);
-      return { success: true, data: response.data };
-    } catch (error) {
-      console.error('Registration failed:', error);
+  // src/context/AuthContext.jsx - Update the register method
+
+const register = async (userData) => {
+  try {
+    const response = await authAPI.register(userData);
+    const data = response.data;
+    
+    if (data.success) {
+      return { success: true, data: data.data, message: data.message };
+    } else {
       return { 
         success: false, 
-        message: error.response?.data?.message || 'Registration failed' 
+        message: data.message || 'Registration failed'
       };
     }
-  };
+  } catch (error) {
+    console.error('Registration failed:', error);
+    
+    let errorMessage = 'Registration failed. Please try again.';
+    
+    if (error.response?.data?.message) {
+      errorMessage = error.response.data.message;
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+    
+    return { 
+      success: false, 
+      message: errorMessage
+    };
+  }
+};
 
   const logout = async () => {
     try {
