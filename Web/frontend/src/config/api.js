@@ -183,7 +183,7 @@ export const bookingsAPI = {
   // Create new booking
   createBooking: (bookingData) => {
     console.log('Creating booking with data:', bookingData);
-    return api.post('/bookings', bookingData);
+    return api.post('/bookings', bookingData, {timeout: 45000});
   },
   
   // Update booking

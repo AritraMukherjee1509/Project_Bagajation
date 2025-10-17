@@ -1,21 +1,21 @@
 // src/pages/BookingConfirmation.jsx
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { bookingsAPI, apiUtils } from '../config/api';
-import s from '../assets/css/pages/BookingConfirmation.module.css';
-import { 
-  FiCheckCircle, 
-  FiCalendar, 
-  FiClock, 
-  FiMapPin, 
-  FiPhone, 
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { bookingsAPI, apiUtils } from "../config/api";
+import s from "../assets/css/pages/BookingConfirmation.module.css";
+import {
+  FiCheckCircle,
+  FiCalendar,
+  FiClock,
+  FiMapPin,
+  FiPhone,
   FiMail,
   FiDownload,
   FiShare2,
   FiMessageCircle,
   FiStar,
-  FiHome
-} from 'react-icons/fi';
+  FiHome,
+} from "react-icons/fi";
 
 export default function BookingConfirmation() {
   const { bookingId } = useParams();
@@ -35,40 +35,40 @@ export default function BookingConfirmation() {
       setLoading(true);
       const response = await bookingsAPI.getBooking(bookingId);
       const result = apiUtils.formatResponse(response);
-      
+
       if (result.success) {
         setBooking(result.data);
       } else {
-        setError('Booking not found');
+        setError("Booking not found");
       }
     } catch (error) {
-      console.error('Failed to fetch booking:', error);
-      setError('Failed to load booking details');
+      console.error("Failed to fetch booking:", error);
+      setError("Failed to load booking details");
     } finally {
       setLoading(false);
     }
   };
 
   const formatPrice = (price) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
       maximumFractionDigits: 0,
     }).format(price);
   };
 
   const formatDate = (date) => {
-    return new Date(date).toLocaleDateString('en-IN', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    return new Date(date).toLocaleDateString("en-IN", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
   const handleShare = async () => {
     const shareData = {
-      title: 'Booking Confirmation',
+      title: "Booking Confirmation",
       text: `Your booking has been confirmed! Booking ID: ${booking.bookingId}`,
       url: window.location.href,
     };
@@ -77,7 +77,7 @@ export default function BookingConfirmation() {
       try {
         await navigator.share(shareData);
       } catch (error) {
-        if (error.name !== 'AbortError') {
+        if (error.name !== "AbortError") {
           fallbackShare();
         }
       }
@@ -87,30 +87,43 @@ export default function BookingConfirmation() {
   };
 
   const fallbackShare = () => {
-    navigator.clipboard.writeText(window.location.href)
-      .then(() => alert('Booking link copied to clipboard!'))
-      .catch(() => alert('Failed to copy link'));
+    navigator.clipboard
+      .writeText(window.location.href)
+      .then(() => alert("Booking link copied to clipboard!"))
+      .catch(() => alert("Failed to copy link"));
   };
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'pending': return '#f59e0b';
-      case 'confirmed': return '#10b981';
-      case 'in-progress': return '#3b82f6';
-      case 'completed': return '#059669';
-      case 'cancelled': return '#ef4444';
-      default: return '#6b7280';
+      case "pending":
+        return "#f59e0b";
+      case "confirmed":
+        return "#10b981";
+      case "in-progress":
+        return "#3b82f6";
+      case "completed":
+        return "#059669";
+      case "cancelled":
+        return "#ef4444";
+      default:
+        return "#6b7280";
     }
   };
 
   const getStatusIcon = (status) => {
     switch (status) {
-      case 'pending': return <FiClock />;
-      case 'confirmed': return <FiCheckCircle />;
-      case 'in-progress': return <FiClock />;
-      case 'completed': return <FiCheckCircle />;
-      case 'cancelled': return <FiX />;
-      default: return <FiClock />;
+      case "pending":
+        return <FiClock />;
+      case "confirmed":
+        return <FiCheckCircle />;
+      case "in-progress":
+        return <FiClock />;
+      case "completed":
+        return <FiCheckCircle />;
+      case "cancelled":
+        return <FiX />;
+      default:
+        return <FiClock />;
     }
   };
 
@@ -126,8 +139,8 @@ export default function BookingConfirmation() {
     return (
       <div className={s.error}>
         <h2>Booking Not Found</h2>
-        <p>{error || 'The requested booking could not be found.'}</p>
-        <button onClick={() => navigate('/')}>Go Home</button>
+        <p>{error || "The requested booking could not be found."}</p>
+        <button onClick={() => navigate("/")}>Go Home</button>
       </div>
     );
   }
@@ -150,14 +163,16 @@ export default function BookingConfirmation() {
         {/* Booking Status */}
         <div className={s.statusCard}>
           <div className={s.statusHeader}>
-            <div 
+            <div
               className={s.statusBadge}
-              style={{ '--status-color': getStatusColor(booking.status) }}
-            >
+              style={{ "--status-color": getStatusColor(booking.status) }}>
               {getStatusIcon(booking.status)}
-              <span>{booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}</span>
+              <span>
+                {booking.status.charAt(0).toUpperCase() +
+                  booking.status.slice(1)}
+              </span>
             </div>
-            <div className={s.statusActions}>
+            {/* <div className={s.statusActions}>
               <button className={s.actionBtn} onClick={handleShare}>
                 <FiShare2 />
                 Share
@@ -166,12 +181,15 @@ export default function BookingConfirmation() {
                 <FiDownload />
                 Download
               </button>
-            </div>
+            </div> */}
           </div>
-          
-          {booking.status === 'pending' && (
+
+          {booking.status === "pending" && (
             <div className={s.statusMessage}>
-              <p>Your booking is awaiting confirmation from the service provider. You'll receive a notification once confirmed.</p>
+              <p>
+                Your booking is awaiting confirmation from the service provider.
+                You'll receive a notification once confirmed.
+              </p>
             </div>
           )}
         </div>
@@ -182,15 +200,21 @@ export default function BookingConfirmation() {
             <h2>Service Details</h2>
             <div className={s.serviceInfo}>
               <div className={s.serviceImageContainer}>
-                <img 
-                  src={booking.service?.images?.[0]?.url || 'https://via.placeholder.com/80'} 
+                <img
+                  src={
+                    booking.service?.images?.[0]?.url ||
+                    "https://via.placeholder.com/80"
+                  }
                   alt={booking.service?.name}
                   className={s.serviceImage}
                 />
               </div>
               <div className={s.serviceDetails}>
                 <h3>{booking.service?.name || booking.serviceDetails?.name}</h3>
-                <p className={s.category}>{booking.service?.category || booking.serviceDetails?.category}</p>
+                <p className={s.category}>
+                  {booking.service?.category ||
+                    booking.serviceDetails?.category}
+                </p>
                 <div className={s.servicePrice}>
                   {formatPrice(booking.pricing?.totalAmount || 0)}
                 </div>
@@ -203,30 +227,39 @@ export default function BookingConfirmation() {
             <h2>Service Provider</h2>
             <div className={s.providerInfo}>
               <div className={s.providerAvatar}>
-                {booking.provider?.avatar?.url ? (
+                {/* {booking.provider?.avatar?.url ? (
                   <img src={booking.provider.avatar.url} alt={booking.provider.name} />
                 ) : (
                   <span>{booking.provider?.name?.charAt(0) || 'P'}</span>
-                )}
+                )} */}
+                <span>S</span>
               </div>
               <div className={s.providerDetails}>
-                <h3>{booking.provider?.name || 'Service Provider'}</h3>
-                <div className={s.providerRating}>
+                {/* <h3>{booking.provider?.name || 'Service Provider'}</h3> */}
+                <h3>Sourav Das</h3>
+                {/* <div className={s.providerRating}>
                   <FiStar className={s.star} />
                   <span>{booking.provider?.ratings?.averageRating?.toFixed(1) || '0.0'}</span>
                   <span className={s.reviewCount}>
                     ({booking.provider?.ratings?.totalReviews || 0} reviews)
                   </span>
-                </div>
+                </div> */}
                 <div className={s.providerActions}>
-                  <button className={s.contactBtn}>
-                    <FiPhone />
-                    Call
-                  </button>
-                  <button className={s.contactBtn}>
-                    <FiMessageCircle />
-                    Message
-                  </button>
+                  <a href="tel:+916289795827">
+                    <button className={s.contactBtn}>
+                      <FiPhone />
+                      Call
+                    </button>
+                  </a>
+                  <a
+                    href="https://wa.me/916289795827"
+                    target="_blank"
+                    rel="noopener noreferrer">
+                    <button className={s.contactBtn}>
+                      <FiMessageCircle />
+                      Message
+                    </button>
+                  </a>
                 </div>
               </div>
             </div>
@@ -255,12 +288,15 @@ export default function BookingConfirmation() {
                 <div>
                   <strong>Address</strong>
                   <p>
-                    {booking.serviceAddress?.street}, {booking.serviceAddress?.city},<br />
-                    {booking.serviceAddress?.state} {booking.serviceAddress?.zipCode}
+                    {booking.serviceAddress?.street},{" "}
+                    {booking.serviceAddress?.city},<br />
+                    {booking.serviceAddress?.state}{" "}
+                    {booking.serviceAddress?.zipCode}
                   </p>
                   {booking.serviceAddress?.landmark && (
                     <p className={s.landmark}>
-                      <strong>Landmark:</strong> {booking.serviceAddress.landmark}
+                      <strong>Landmark:</strong>{" "}
+                      {booking.serviceAddress.landmark}
                     </p>
                   )}
                 </div>
@@ -306,7 +342,9 @@ export default function BookingConfirmation() {
               {booking.pricing?.discount > 0 && (
                 <div className={s.priceRow}>
                   <span>Discount</span>
-                  <span className={s.discount}>-{formatPrice(booking.pricing.discount)}</span>
+                  <span className={s.discount}>
+                    -{formatPrice(booking.pricing.discount)}
+                  </span>
                 </div>
               )}
               <div className={s.priceRow}>
@@ -315,7 +353,9 @@ export default function BookingConfirmation() {
               </div>
               <div className={`${s.priceRow} ${s.total}`}>
                 <strong>Total Amount</strong>
-                <strong>{formatPrice(booking.pricing?.totalAmount || 0)}</strong>
+                <strong>
+                  {formatPrice(booking.pricing?.totalAmount || 0)}
+                </strong>
               </div>
             </div>
           </div>
@@ -327,15 +367,16 @@ export default function BookingConfirmation() {
               <div className={s.paymentMethod}>
                 <strong>Payment Method:</strong>
                 <span className={s.method}>
-                  {booking.payment?.method === 'cash' && 'Cash on Service'}
-                  {booking.payment?.method === 'card' && 'Credit/Debit Card'}
-                  {booking.payment?.method === 'upi' && 'UPI'}
+                  {booking.payment?.method === "cash" && "Cash on Service"}
+                  {booking.payment?.method === "card" && "Credit/Debit Card"}
+                  {booking.payment?.method === "upi" && "UPI"}
                 </span>
               </div>
               <div className={s.paymentStatus}>
                 <strong>Payment Status:</strong>
                 <span className={`${s.status} ${s[booking.payment?.status]}`}>
-                  {booking.payment?.status?.charAt(0).toUpperCase() + booking.payment?.status?.slice(1)}
+                  {booking.payment?.status?.charAt(0).toUpperCase() +
+                    booking.payment?.status?.slice(1)}
                 </span>
               </div>
             </div>
@@ -349,7 +390,10 @@ export default function BookingConfirmation() {
                 <div className={s.stepNumber}>1</div>
                 <div className={s.stepContent}>
                   <h3>Confirmation</h3>
-                  <p>The service provider will confirm your booking within 2 hours</p>
+                  <p>
+                    The service provider will confirm your booking within 2
+                    hours
+                  </p>
                 </div>
               </div>
               <div className={s.step}>
@@ -375,12 +419,12 @@ export default function BookingConfirmation() {
               <FiHome />
               Go Home
             </Link>
-            <Link to="/bookings" className={s.bookingsBtn}>
+            {/* <Link to="/bookings" className={s.bookingsBtn}>
               View All Bookings
-            </Link>
-            <button className={s.supportBtn}>
+            </Link> */}
+            <Link to="/contact" className={s.supportBtn}>
               Need Help?
-            </button>
+            </Link>
           </div>
         </div>
       </div>

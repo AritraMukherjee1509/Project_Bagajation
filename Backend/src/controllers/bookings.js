@@ -154,8 +154,6 @@ const getBooking = async (req, res, next) => {
 // @desc    Create new booking
 // @route   POST /api/v1/bookings
 // @access  Private/User
-// src/controllers/bookings.js - Update the createBooking function
-
 const createBooking = async (req, res, next) => {
   try {
     // Get service details
@@ -205,12 +203,17 @@ const createBooking = async (req, res, next) => {
       };
     }
 
-    // Set pricing
-    req.body.pricing = {
-      baseAmount: service.pricing.basePrice,
-      discount: req.body.pricing?.discount || 0,
-      totalAmount: service.pricing.basePrice - (req.body.pricing?.discount || 0)
-    };
+    // Use the pricing from frontend if provided, otherwise calculate
+    if (!req.body.pricing || !req.body.pricing.totalAmount) {
+      req.body.pricing = {
+        baseAmount: service.pricing.basePrice,
+        discount: 0,
+        taxes: {
+          total: 0
+        },
+        totalAmount: service.pricing.basePrice
+      };
+    }
 
     // Generate a unique booking ID
     const timestamp = new Date().getTime().toString().slice(-6);
@@ -227,60 +230,71 @@ const createBooking = async (req, res, next) => {
       { path: 'provider', select: 'name email businessInfo' }
     ]);
 
-    // Send confirmation emails
-    try {
-      // Email to customer
-      await sendEmail({
-        to: booking.customerInfo.email,
-        ...emailTemplates.bookingConfirmation(booking)
-      });
-
-      // Email to provider
-      await sendEmail({
-        to: booking.provider.email,
-        subject: `New Booking Received - ${booking.service.name}`,
-        html: `
-          <h2>New Booking Alert</h2>
-          <p>You have received a new booking:</p>
-          <p><strong>Customer:</strong> ${booking.customerInfo.name}</p>
-          <p><strong>Service:</strong> ${booking.service.name}</p>
-          <p><strong>Date:</strong> ${booking.scheduling.preferredDate}</p>
-          <p><strong>Amount:</strong> ₹${booking.pricing.totalAmount}</p>
-          <p><strong>Booking ID:</strong> ${booking.bookingId}</p>
-        `
-      });
-
-      // Email to admin
-      await sendEmail({
-        to: process.env.ADMIN_EMAIL,
-        ...emailTemplates.adminBookingNotification(booking)
-      });
-    } catch (emailError) {
-      console.error('Email notification failed:', emailError);
-    }
-
-    // Update user and service stats
-    await Promise.all([
-      User.findByIdAndUpdate(req.user.id, {
-        $inc: { 'stats.totalBookings': 1 }
-      }),
-      Service.findByIdAndUpdate(service._id, {
-        $inc: { 'stats.totalBookings': 1 }
-      }),
-      Provider.findByIdAndUpdate(service.provider._id, {
-        $inc: { 'stats.totalBookings': 1 }
-      })
-    ]);
-
+    // Send response immediately
     res.status(201).json({
       success: true,
       data: booking,
       message: 'Booking created successfully'
     });
+
+    // Perform background tasks asynchronously (don't await)
+    // This prevents timeout issues
+    setImmediate(async () => {
+      try {
+        // Send confirmation emails (non-blocking)
+        Promise.allSettled([
+          // Email to customer
+          sendEmail({
+            to: booking.customerInfo.email,
+            ...emailTemplates.bookingConfirmation(booking)
+          }).catch(err => console.error('Customer email failed:', err)),
+
+          // Email to provider
+          sendEmail({
+            to: booking.provider.email,
+            subject: `New Booking Received - ${booking.service.name}`,
+            html: `
+              <h2>New Booking Alert</h2>
+              <p>You have received a new booking:</p>
+              <p><strong>Customer:</strong> ${booking.customerInfo.name}</p>
+              <p><strong>Service:</strong> ${booking.service.name}</p>
+              <p><strong>Date:</strong> ${booking.scheduling.preferredDate}</p>
+              <p><strong>Amount:</strong> ₹${booking.pricing.totalAmount}</p>
+              <p><strong>Booking ID:</strong> ${booking.bookingId}</p>
+            `
+          }).catch(err => console.error('Provider email failed:', err)),
+
+          // Email to admin
+          process.env.ADMIN_EMAIL && sendEmail({
+            to: process.env.ADMIN_EMAIL,
+            ...emailTemplates.adminBookingNotification(booking)
+          }).catch(err => console.error('Admin email failed:', err))
+        ]);
+
+        // Update user and service stats (non-blocking)
+        await Promise.allSettled([
+          User.findByIdAndUpdate(req.user.id, {
+            $inc: { 'stats.totalBookings': 1 }
+          }),
+          Service.findByIdAndUpdate(service._id, {
+            $inc: { 'stats.totalBookings': 1 }
+          }),
+          Provider.findByIdAndUpdate(service.provider._id, {
+            $inc: { 'stats.totalBookings': 1 }
+          })
+        ]);
+      } catch (backgroundError) {
+        console.error('Background tasks failed:', backgroundError);
+      }
+    });
+
   } catch (error) {
+    console.error('Create booking error:', error);
     next(error);
   }
 };
+
+
 // @desc    Update booking
 // @route   PUT /api/v1/bookings/:id
 // @access  Private
