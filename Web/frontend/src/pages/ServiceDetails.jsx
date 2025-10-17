@@ -123,6 +123,7 @@ const handleBookService = async (bookingData) => {
             <Reviews 
               reviews={reviews} 
               serviceId={service._id}
+              providerId={service.provider._id}
               onReviewsUpdate={fetchServiceDetails}
             />
           </div>

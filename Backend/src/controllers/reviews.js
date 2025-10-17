@@ -1,9 +1,9 @@
+// backend/controllers/reviewController.js
 const Review = require('../models/Review');
-const Booking = require('../models/Booking');
 const Service = require('../models/Service');
 const Provider = require('../models/Provider');
 const { uploadMultipleImages, deleteImage } = require('../config/cloudinary');
-const ErrorResponse = require('../utils/errorResponse');
+const mongoose = require('mongoose');
 
 // @desc    Get all reviews
 // @route   GET /api/v1/reviews
@@ -152,50 +152,94 @@ const getReview = async (req, res, next) => {
 // @access  Private/User
 const createReview = async (req, res, next) => {
   try {
-    const { booking: bookingId, rating, comment, breakdown, wouldRecommend, pros, cons } = req.body;
+    const { 
+      service: serviceId, 
+      provider: providerId, 
+      rating, 
+      title,
+      comment, 
+      breakdown, 
+      wouldRecommend, 
+      pros, 
+      cons 
+    } = req.body;
 
-    // Get booking details
-    const booking = await Booking.findById(bookingId)
-      .populate('service')
-      .populate('provider');
-
-    if (!booking) {
-      return res.status(404).json({
-        success: false,
-        message: 'Booking not found'
-      });
-    }
-
-    // Check if user owns this booking
-    if (booking.user.toString() !== req.user.id) {
-      return res.status(403).json({
-        success: false,
-        message: 'You can only review your own bookings'
-      });
-    }
-
-    // Check if booking is completed
-    if (booking.status !== 'completed') {
+    // Validate required fields
+    if (!serviceId) {
       return res.status(400).json({
         success: false,
-        message: 'You can only review completed bookings'
+        message: 'Service ID is required'
       });
     }
 
-    // Check if review already exists
+    if (!providerId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Provider ID is required'
+      });
+    }
+
+    if (!rating) {
+      return res.status(400).json({
+        success: false,
+        message: 'Rating is required'
+      });
+    }
+
+    if (!comment || !comment.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Review comment is required'
+      });
+    }
+
+    // Validate ObjectIds
+    if (!mongoose.Types.ObjectId.isValid(serviceId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid service ID'
+      });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(providerId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid provider ID'
+      });
+    }
+
+    // Check if service exists
+    const service = await Service.findById(serviceId);
+    if (!service) {
+      return res.status(404).json({
+        success: false,
+        message: 'Service not found'
+      });
+    }
+
+    // Check if provider exists
+    const provider = await Provider.findById(providerId);
+    if (!provider) {
+      return res.status(404).json({
+        success: false,
+        message: 'Provider not found'
+      });
+    }
+
+    // Check if user already reviewed this service
     const existingReview = await Review.findOne({
-      booking: bookingId,
+      service: serviceId,
       user: req.user.id
     });
 
     if (existingReview) {
       return res.status(400).json({
         success: false,
-        message: 'You have already reviewed this booking'
+        message: 'You have already reviewed this service'
       });
     }
 
-    // Handle image uploads
+    // Handle image uploads (if any)
     let images = [];
     if (req.files && req.files.length > 0) {
       try {
@@ -210,6 +254,7 @@ const createReview = async (req, res, next) => {
           caption: req.files[index].originalname
         }));
       } catch (uploadError) {
+        console.error('Image upload error:', uploadError);
         return res.status(400).json({
           success: false,
           message: 'Image upload failed'
@@ -217,21 +262,36 @@ const createReview = async (req, res, next) => {
       }
     }
 
-    // Create review
-    const review = await Review.create({
+    // Create review WITHOUT booking requirement
+    const reviewData = {
       user: req.user.id,
-      service: booking.service._id,
-      provider: booking.provider._id,
-      booking: bookingId,
+      service: serviceId,
+      provider: providerId,
       rating,
-      comment,
+      comment: comment.trim(),
       breakdown,
       wouldRecommend,
-      pros,
-      cons,
-      images,
-      status: 'approved' // Auto-approve for now
-    });
+      status: 'approved'
+    };
+
+    // Add optional fields
+    if (title && title.trim()) {
+      reviewData.title = title.trim();
+    }
+
+    if (pros && Array.isArray(pros) && pros.length > 0) {
+      reviewData.pros = pros.filter(p => p && p.trim());
+    }
+
+    if (cons && Array.isArray(cons) && cons.length > 0) {
+      reviewData.cons = cons.filter(c => c && c.trim());
+    }
+
+    if (images.length > 0) {
+      reviewData.images = images;
+    }
+
+    const review = await Review.create(reviewData);
 
     // Populate review details
     await review.populate([
@@ -240,28 +300,38 @@ const createReview = async (req, res, next) => {
       { path: 'provider', select: 'name businessInfo' }
     ]);
 
-    // Update booking with review info
-    booking.feedback = {
-      rating,
-      review: comment,
-      reviewDate: new Date(),
-      wouldRecommend,
-      serviceAspects: breakdown
-    };
-    await booking.save();
-
     res.status(201).json({
       success: true,
       data: review,
       message: 'Review created successfully'
     });
   } catch (error) {
+    console.error('Create review error:', error);
+    
+    // Handle validation errors
+    if (error.name === 'ValidationError') {
+      const messages = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({
+        success: false,
+        message: messages[0] || 'Validation error',
+        errors: messages
+      });
+    }
+
+    // Handle duplicate key errors
+    if (error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: 'You have already reviewed this service'
+      });
+    }
+
     next(error);
   }
 };
 
 // @desc    Update review
-// @route   PUT /api/v1/reviews/:id
+// @route   PATCH /api/v1/reviews/:id
 // @access  Private
 const updateReview = async (req, res, next) => {
   try {
@@ -372,7 +442,7 @@ const deleteReview = async (req, res, next) => {
       }
     }
 
-    await review.remove();
+    await review.deleteOne();
 
     res.status(200).json({
       success: true,
@@ -384,7 +454,7 @@ const deleteReview = async (req, res, next) => {
 };
 
 // @desc    Mark review as helpful
-// @route   PUT /api/v1/reviews/:id/helpful
+// @route   POST /api/v1/reviews/:id/helpful
 // @access  Private
 const markReviewHelpful = async (req, res, next) => {
   try {
@@ -403,14 +473,16 @@ const markReviewHelpful = async (req, res, next) => {
       await review.unmarkHelpful(req.user.id);
       return res.status(200).json({
         success: true,
-        message: 'Review unmarked as helpful'
+        message: 'Review unmarked as helpful',
+        data: review
       });
     } else {
       // Mark as helpful
       await review.markHelpful(req.user.id);
       return res.status(200).json({
         success: true,
-        message: 'Review marked as helpful'
+        message: 'Review marked as helpful',
+        data: review
       });
     }
   } catch (error) {
@@ -419,7 +491,7 @@ const markReviewHelpful = async (req, res, next) => {
 };
 
 // @desc    Moderate review
-// @route   PUT /api/v1/reviews/:id/moderate
+// @route   PATCH /api/v1/reviews/:id/moderate
 // @access  Private/Admin/Moderator
 const moderateReview = async (req, res, next) => {
   try {
@@ -617,6 +689,7 @@ const getReviewStats = async (req, res, next) => {
   }
 };
 
+// ✅ EXPORT ALL FUNCTIONS
 module.exports = {
   getReviews,
   getReview,

@@ -156,7 +156,7 @@ const bookingValidations = {
 // Review validation rules
 const reviewValidations = {
   create: [
-    body('booking').isMongoId().withMessage('Invalid booking ID'),
+    // body('booking').isMongoId().withMessage('Invalid booking ID'),
     commonValidations.rating,
     body('comment').isLength({ min: 10, max: 1000 }).trim().withMessage('Comment must be between 10 and 1000 characters'),
     body('breakdown.quality').isFloat({ min: 1, max: 5 }).withMessage('Quality rating must be between 1 and 5'),

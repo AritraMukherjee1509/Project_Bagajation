@@ -1,3 +1,4 @@
+// backend/models/Review.js
 const mongoose = require('mongoose');
 
 const reviewSchema = new mongoose.Schema({
@@ -19,7 +20,7 @@ const reviewSchema = new mongoose.Schema({
   booking: {
     type: mongoose.Schema.ObjectId,
     ref: 'Booking',
-    required: [true, 'Review must be linked to a booking']
+    required: false, // ✅ OPTIONAL - not required
   },
   rating: {
     type: Number,
@@ -100,7 +101,7 @@ const reviewSchema = new mongoose.Schema({
   status: {
     type: String,
     enum: ['pending', 'approved', 'rejected', 'hidden'],
-    default: 'pending'
+    default: 'approved' // ✅ Auto-approve (change to 'pending' for moderation)
   },
   moderation: {
     moderatedBy: {
@@ -133,7 +134,7 @@ const reviewSchema = new mongoose.Schema({
   toObject: { virtuals: true }
 });
 
-// Indexes
+// ✅ Indexes - Ensure one review per user per service
 reviewSchema.index({ service: 1, user: 1 }, { unique: true });
 reviewSchema.index({ provider: 1, rating: -1 });
 reviewSchema.index({ service: 1, rating: -1 });
@@ -147,6 +148,7 @@ reviewSchema.virtual('reviewAge').get(function() {
   const diffTime = Math.abs(now - created);
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   
+  if (diffDays === 0) return 'Today';
   if (diffDays === 1) return '1 day ago';
   if (diffDays < 7) return `${diffDays} days ago`;
   if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
@@ -154,19 +156,25 @@ reviewSchema.virtual('reviewAge').get(function() {
   return `${Math.floor(diffDays / 365)} years ago`;
 });
 
-// Calculate overall rating from breakdown
-reviewSchema.pre('save', function(next) {
-  if (this.breakdown) {
-    const { quality, punctuality, behavior, pricing, cleanliness } = this.breakdown;
-    let total = quality + punctuality + behavior + pricing;
-    let count = 4;
+// ✅ Prevent duplicate reviews per service per user
+reviewSchema.pre('save', async function(next) {
+  if (this.isNew) {
+    const existingReview = await this.constructor.findOne({
+      service: this.service,
+      user: this.user,
+      _id: { $ne: this._id }
+    });
     
-    if (cleanliness) {
-      total += cleanliness;
-      count += 1;
+    if (existingReview) {
+      const error = new Error('You have already reviewed this service');
+      error.name = 'ValidationError';
+      return next(error);
     }
-    
-    this.rating = Math.round((total / count) * 10) / 10;
+
+    // Mark as verified if booking is provided
+    if (this.booking) {
+      this.verified = true;
+    }
   }
   next();
 });
@@ -179,35 +187,18 @@ reviewSchema.post('save', async function() {
     
     // Update service rating
     const service = await Service.findById(this.service);
-    if (service) {
+    if (service && typeof service.calculateAverageRating === 'function') {
       await service.calculateAverageRating();
     }
     
     // Update provider rating
     const provider = await Provider.findById(this.provider);
-    if (provider) {
+    if (provider && typeof provider.calculateRating === 'function') {
       await provider.calculateRating();
     }
   } catch (error) {
     console.error('Error updating ratings:', error);
   }
-});
-
-// Prevent duplicate reviews for same booking
-reviewSchema.pre('save', async function(next) {
-  if (this.isNew) {
-    const existingReview = await this.constructor.findOne({
-      booking: this.booking,
-      user: this.user
-    });
-    
-    if (existingReview) {
-      const error = new Error('You have already reviewed this booking');
-      error.name = 'ValidationError';
-      return next(error);
-    }
-  }
-  next();
 });
 
 // Method to mark review as helpful
@@ -229,4 +220,4 @@ reviewSchema.methods.unmarkHelpful = async function(userId) {
   }
 };
 
-module.exports = mongoose.model('Review', reviewSchema);
+module.exports = mongoose.models.Review || mongoose.model('Review', reviewSchema);

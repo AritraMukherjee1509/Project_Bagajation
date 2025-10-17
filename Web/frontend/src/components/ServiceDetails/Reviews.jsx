@@ -1,49 +1,82 @@
 // src/components/ServiceDetails/Reviews.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import s from '../../assets/css/components/ServiceDetails/Reviews.module.css';
-import { FiStar, FiThumbsUp, FiMessageCircle, FiFilter, FiUser } from 'react-icons/fi';
+import { FiStar, FiThumbsUp, FiFilter, FiUser } from 'react-icons/fi';
 import { reviewsAPI, apiUtils } from '../../config/api';
 import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import ReviewFormModal from './ReviewFormModal';
 
-export default function Reviews({ serviceId, reviews: initialReviews = [], onReviewsUpdate }) {
+export default function Reviews({ serviceId, providerId }) {
   const { user, isAuthenticated } = useAuth();
-  const [reviews, setReviews] = useState(initialReviews);
+  const navigate = useNavigate();
+  const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState('all');
   const [helpfulReviews, setHelpfulReviews] = useState(new Set());
   const [ratingBreakdown, setRatingBreakdown] = useState({});
   const [averageRating, setAverageRating] = useState(0);
   const [totalReviews, setTotalReviews] = useState(0);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+
+  // Prevent duplicate requests
+  const fetchedRef = useRef(false);
+  const abortControllerRef = useRef(null);
+  const lastServiceIdRef = useRef(null);
 
   useEffect(() => {
-    if (serviceId) {
-      fetchReviews();
-    }
-  }, [serviceId, filter]);
+    // Only fetch if serviceId exists and has changed
+    if (!serviceId || lastServiceIdRef.current === serviceId) return;
+    
+    // Prevent duplicate fetch in React Strict Mode
+    if (fetchedRef.current && lastServiceIdRef.current === serviceId) return;
 
+    lastServiceIdRef.current = serviceId;
+    fetchedRef.current = true;
+
+    fetchReviews();
+
+    // Cleanup
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, [serviceId]); // Only depend on serviceId
+
+  // Separate effect for calculating stats (runs when reviews change)
   useEffect(() => {
     calculateRatingStats();
   }, [reviews]);
 
   const fetchReviews = async () => {
+    // Cancel previous request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    abortControllerRef.current = new AbortController();
+
     try {
       setLoading(true);
+      
       const params = {
         service: serviceId,
-        limit: 50
+        status: 'approved',
+        limit: 100,
+        sort: '-createdAt'
       };
 
-      if (filter !== 'all') {
-        params.rating = parseInt(filter);
-      }
-
-      const response = await reviewsAPI.getReviews(params);
+      const response = await reviewsAPI.getReviews(params, {
+        signal: abortControllerRef.current.signal
+      });
+      
       const result = apiUtils.formatResponse(response);
       
       if (result.success) {
         setReviews(result.data);
         
-        // Update helpful reviews based on user's previous actions
+        // Update helpful reviews
         if (isAuthenticated && user) {
           const userHelpfulReviews = new Set();
           result.data.forEach(review => {
@@ -55,6 +88,11 @@ export default function Reviews({ serviceId, reviews: initialReviews = [], onRev
         }
       }
     } catch (error) {
+      // Ignore abort errors
+      if (error.name === 'AbortError' || error.name === 'CanceledError') {
+        console.log('Reviews request cancelled');
+        return;
+      }
       console.error('Failed to fetch reviews:', error);
     } finally {
       setLoading(false);
@@ -85,17 +123,19 @@ export default function Reviews({ serviceId, reviews: initialReviews = [], onRev
 
   const toggleHelpful = async (reviewId) => {
     if (!isAuthenticated) {
-      alert('Please login to mark reviews as helpful');
+      const returnUrl = encodeURIComponent(window.location.pathname);
+      navigate(`/login?return=${returnUrl}`);
       return;
     }
 
     try {
       await reviewsAPI.markReviewHelpful(reviewId);
       
-      // Update local state
+      const wasHelpful = helpfulReviews.has(reviewId);
+      
       setHelpfulReviews(prev => {
         const newSet = new Set(prev);
-        if (newSet.has(reviewId)) {
+        if (wasHelpful) {
           newSet.delete(reviewId);
         } else {
           newSet.add(reviewId);
@@ -103,15 +143,13 @@ export default function Reviews({ serviceId, reviews: initialReviews = [], onRev
         return newSet;
       });
 
-      // Update review's helpful count
       setReviews(prev => prev.map(review => {
         if (review._id === reviewId) {
-          const wasHelpful = helpfulReviews.has(reviewId);
           return {
             ...review,
             helpful: {
               ...review.helpful,
-              count: review.helpful.count + (wasHelpful ? -1 : 1)
+              count: (review.helpful?.count || 0) + (wasHelpful ? -1 : 1)
             }
           };
         }
@@ -121,6 +159,21 @@ export default function Reviews({ serviceId, reviews: initialReviews = [], onRev
     } catch (error) {
       console.error('Failed to toggle helpful:', error);
     }
+  };
+
+  const handleReviewSubmitted = (newReview) => {
+    setReviews(prev => [newReview, ...prev]);
+    setShowReviewModal(false);
+    fetchReviews(); // Refresh reviews
+  };
+
+  const handleWriteReviewClick = () => {
+    if (!isAuthenticated) {
+      const returnUrl = encodeURIComponent(window.location.pathname);
+      navigate(`/login?return=${returnUrl}`);
+      return;
+    }
+    setShowReviewModal(true);
   };
 
   const getReviewerAvatar = (reviewer) => {
@@ -136,6 +189,7 @@ export default function Reviews({ serviceId, reviews: initialReviews = [], onRev
     const diffTime = Math.abs(now - reviewDate);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
+    if (diffDays === 0) return 'Today';
     if (diffDays === 1) return '1 day ago';
     if (diffDays < 7) return `${diffDays} days ago`;
     if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
@@ -143,10 +197,15 @@ export default function Reviews({ serviceId, reviews: initialReviews = [], onRev
     return `${Math.floor(diffDays / 365)} years ago`;
   };
 
+  // CLIENT-SIDE filtering (no API call)
   const filteredReviews = filter === 'all' 
     ? reviews 
     : reviews.filter(review => Math.round(review.rating) === parseInt(filter));
 
+  // Don't render if no serviceId
+  if (!serviceId) {
+    return null;
+  }
   return (
     <section className={s.wrap}>
       <div className={s.header}>
@@ -157,13 +216,14 @@ export default function Reviews({ serviceId, reviews: initialReviews = [], onRev
             className={s.filter}
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
+            aria-label="Filter reviews by rating"
           >
-            <option value="all">All Reviews</option>
-            <option value="5">5 Stars</option>
-            <option value="4">4 Stars</option>
-            <option value="3">3 Stars</option>
-            <option value="2">2 Stars</option>
-            <option value="1">1 Star</option>
+            <option value="all">All Reviews ({totalReviews})</option>
+            <option value="5">5 Stars ({ratingBreakdown[5] || 0})</option>
+            <option value="4">4 Stars ({ratingBreakdown[4] || 0})</option>
+            <option value="3">3 Stars ({ratingBreakdown[3] || 0})</option>
+            <option value="2">2 Stars ({ratingBreakdown[2] || 0})</option>
+            <option value="1">1 Star ({ratingBreakdown[1] || 0})</option>
           </select>
         </div>
       </div>
@@ -173,8 +233,12 @@ export default function Reviews({ serviceId, reviews: initialReviews = [], onRev
           <div className={s.averageRating}>
             <span className={s.ratingNumber}>{averageRating.toFixed(1)}</span>
             <div className={s.ratingStars}>
-              {Array.from({ length: 5 }).map((_, i) => (
-                <FiStar key={i} className={i < Math.round(averageRating) ? s.star : s.starEmpty} />
+              {[1, 2, 3, 4, 5].map((i) => (
+                <FiStar 
+                  key={i} 
+                  className={i <= Math.round(averageRating) ? s.star : s.starEmpty} 
+                  fill={i <= Math.round(averageRating) ? '#fbbf24' : 'none'}
+                />
               ))}
             </div>
             <span className={s.totalReviews}>Based on {totalReviews} reviews</span>
@@ -205,7 +269,7 @@ export default function Reviews({ serviceId, reviews: initialReviews = [], onRev
         <div className={s.reviewsList}>
           {filteredReviews.length === 0 ? (
             <div className={s.noReviews}>
-              <p>No reviews found for this filter.</p>
+              <p>No reviews found{filter !== 'all' ? ' for this filter' : ''}.</p>
             </div>
           ) : (
             filteredReviews.map((review) => (
@@ -232,10 +296,11 @@ export default function Reviews({ serviceId, reviews: initialReviews = [], onRev
                   </div>
                   
                   <div className={s.reviewRating}>
-                    {Array.from({ length: 5 }).map((_, i) => (
+                    {[1, 2, 3, 4, 5].map((i) => (
                       <FiStar 
                         key={i} 
-                        className={i < Math.round(review.rating) ? s.starFilled : s.starEmpty} 
+                        className={i <= Math.round(review.rating) ? s.starFilled : s.starEmpty}
+                        fill={i <= Math.round(review.rating) ? '#fbbf24' : 'none'}
                       />
                     ))}
                   </div>
@@ -248,46 +313,69 @@ export default function Reviews({ serviceId, reviews: initialReviews = [], onRev
                 <p className={s.reviewText}>{review.comment}</p>
 
                 {/* Rating Breakdown */}
-                {review.breakdown && (
+                {review.breakdown && Object.keys(review.breakdown).length > 0 && (
                   <div className={s.breakdown}>
-                    <div className={s.breakdownItem}>
-                      <span>Quality:</span>
-                      <div className={s.breakdownStars}>
-                        {Array.from({ length: 5 }).map((_, i) => (
-                          <FiStar 
-                            key={i} 
-                            className={i < review.breakdown.quality ? s.starMini : s.starMiniEmpty} 
-                          />
-                        ))}
+                    {review.breakdown.quality && (
+                      <div className={s.breakdownItem}>
+                        <span>Quality:</span>
+                        <div className={s.breakdownStars}>
+                          {[1, 2, 3, 4, 5].map((i) => (
+                            <FiStar 
+                              key={i} 
+                              className={i <= review.breakdown.quality ? s.starMini : s.starMiniEmpty}
+                              fill={i <= review.breakdown.quality ? '#fbbf24' : 'none'}
+                            />
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                    <div className={s.breakdownItem}>
-                      <span>Punctuality:</span>
-                      <div className={s.breakdownStars}>
-                        {Array.from({ length: 5 }).map((_, i) => (
-                          <FiStar 
-                            key={i} 
-                            className={i < review.breakdown.punctuality ? s.starMini : s.starMiniEmpty} 
-                          />
-                        ))}
+                    )}
+                    {review.breakdown.punctuality && (
+                      <div className={s.breakdownItem}>
+                        <span>Punctuality:</span>
+                        <div className={s.breakdownStars}>
+                          {[1, 2, 3, 4, 5].map((i) => (
+                            <FiStar 
+                              key={i} 
+                              className={i <= review.breakdown.punctuality ? s.starMini : s.starMiniEmpty}
+                              fill={i <= review.breakdown.punctuality ? '#fbbf24' : 'none'}
+                            />
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                    <div className={s.breakdownItem}>
-                      <span>Behavior:</span>
-                      <div className={s.breakdownStars}>
-                        {Array.from({ length: 5 }).map((_, i) => (
-                          <FiStar 
-                            key={i} 
-                            className={i < review.breakdown.behavior ? s.starMini : s.starMiniEmpty} 
-                          />
-                        ))}
+                    )}
+                    {review.breakdown.behavior && (
+                      <div className={s.breakdownItem}>
+                        <span>Behavior:</span>
+                        <div className={s.breakdownStars}>
+                          {[1, 2, 3, 4, 5].map((i) => (
+                            <FiStar 
+                              key={i} 
+                              className={i <= review.breakdown.behavior ? s.starMini : s.starMiniEmpty}
+                              fill={i <= review.breakdown.behavior ? '#fbbf24' : 'none'}
+                            />
+                          ))}
+                        </div>
                       </div>
-                    </div>
+                    )}
+                    {review.breakdown.pricing && (
+                      <div className={s.breakdownItem}>
+                        <span>Pricing:</span>
+                        <div className={s.breakdownStars}>
+                          {[1, 2, 3, 4, 5].map((i) => (
+                            <FiStar 
+                              key={i} 
+                              className={i <= review.breakdown.pricing ? s.starMini : s.starMiniEmpty}
+                              fill={i <= review.breakdown.pricing ? '#fbbf24' : 'none'}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
-                {/* Pros and Cons */}
-                {(review.pros && review.pros.length > 0) || (review.cons && review.cons.length > 0) && (
+                {/* Pros and Cons - FIXED LOGIC */}
+                {((review.pros && review.pros.length > 0) || (review.cons && review.cons.length > 0)) && (
                   <div className={s.prosAndCons}>
                     {review.pros && review.pros.length > 0 && (
                       <div className={s.pros}>
@@ -327,7 +415,7 @@ export default function Reviews({ serviceId, reviews: initialReviews = [], onRev
                 )}
 
                 {/* Provider Response */}
-                {review.response && (
+                {review.response && review.response.message && (
                   <div className={s.providerResponse}>
                     <div className={s.responseHeader}>
                       <FiUser className={s.responseIcon} />
@@ -345,6 +433,8 @@ export default function Reviews({ serviceId, reviews: initialReviews = [], onRev
                     className={`${s.helpfulBtn} ${helpfulReviews.has(review._id) ? s.helpful : ''}`}
                     onClick={() => toggleHelpful(review._id)}
                     disabled={!isAuthenticated}
+                    aria-label={`Mark review as helpful (${review.helpful?.count || 0} people found this helpful)`}
+                    aria-pressed={helpfulReviews.has(review._id)}
                   >
                     <FiThumbsUp />
                     Helpful ({review.helpful?.count || 0})
@@ -369,18 +459,21 @@ export default function Reviews({ serviceId, reviews: initialReviews = [], onRev
         </p>
         <button 
           className={s.writeReviewBtn}
-          onClick={() => {
-            if (!isAuthenticated) {
-              alert('Please login to write a review');
-              return;
-            }
-            // Navigate to review form or open modal
-            window.location.href = `/review/${serviceId}`;
-          }}
+          onClick={handleWriteReviewClick}
         >
           Write Review
         </button>
       </div>
+
+      {/* Review Form Modal */}
+      {showReviewModal && (
+        <ReviewFormModal
+          serviceId={serviceId}
+          providerId={providerId}
+          onClose={() => setShowReviewModal(false)}
+          onSuccess={handleReviewSubmitted}
+        />
+      )}
     </section>
   );
 }

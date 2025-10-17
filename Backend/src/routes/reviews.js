@@ -36,6 +36,8 @@ router.post('/',
   createReview
 );
 
+router.get('/stats', protectAdmin, checkAdminPermission('reviews', 'read'), getReviewStats);
+
 // Update/delete review (owner or admin)
 router.put('/:id', 
   uploadConfigs.reviewImagesMemory,
@@ -56,6 +58,5 @@ router.post('/:id/response', addReviewResponse);
 
 // Admin/moderator only routes
 router.put('/:id/moderate', protectAdmin, checkAdminPermission('reviews', 'moderate'), moderateReview);
-router.get('/stats', protectAdmin, checkAdminPermission('reviews', 'read'), getReviewStats);
 
 module.exports = router;
