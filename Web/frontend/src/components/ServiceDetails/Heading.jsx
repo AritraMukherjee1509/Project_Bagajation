@@ -104,6 +104,24 @@ export default function Heading({ service }) {
     if (service?.images && service.images.length > 0) {
       return service.images[0].url;
     }
+
+    const fallbackImages = {
+      'AC Services': 'https://images.unsplash.com/photo-1599158150601-174f0c8f4b9d?q=80&w=1400&auto=format&fit=crop',
+      'Electrical': 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=1400&auto=format&fit=crop',
+      'Plumbing': 'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?q=80&w=1400&auto=format&fit=crop',
+      'Cleaning': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=1400&auto=format&fit=crop',
+      'Security': 'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?q=80&w=1400&auto=format&fit=crop',
+      'Maintenance': 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=1400&auto=format&fit=crop'
+    };
+
+    const cat = (service?.category || '').toString().trim();
+    if (cat) {
+      // exact key match (case-sensitive) or case-insensitive match
+      if (fallbackImages[cat]) return fallbackImages[cat];
+      const match = Object.keys(fallbackImages).find(k => k.toLowerCase() === cat.toLowerCase());
+      if (match) return fallbackImages[match];
+    }
+
     return 'https://images.unsplash.com/photo-1599158150601-174f0c8f4b9d?q=80&w=1400&auto=format&fit=crop';
   };
 

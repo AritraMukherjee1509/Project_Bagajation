@@ -142,7 +142,7 @@ export default function ServiceInfo({ service, onBookService }) {
       </div>
 
       <div className={s.booking}>
-        <div className={s.quantitySelector}>
+        {/* <div className={s.quantitySelector}>
           <label className={s.quantityLabel}>Quantity:</label>
           <div className={s.quantityControls}>
             <button 
@@ -162,7 +162,7 @@ export default function ServiceInfo({ service, onBookService }) {
               +
             </button>
           </div>
-        </div>
+        </div> */}
 
         <button 
           className={s.bookBtn}

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "../assets/css/includes/Navbar.module.css";
+import { useAuth } from '../context/AuthContext';
 
 const LINKS = [
   { href: "/about", label: "About Us" },
@@ -57,6 +59,9 @@ export default function Navbar({ theme, resolvedTheme, toggleTheme }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
   // Handle scroll effect
   useEffect(() => {
     const handleScroll = () => {
@@ -87,6 +92,18 @@ export default function Navbar({ theme, resolvedTheme, toggleTheme }) {
       document.body.style.overflow = "";
     };
   }, [menuOpen]);
+
+  const handleGetStarted = (e) => {
+    e.preventDefault();
+    setMenuOpen(false);
+
+    if (!isAuthenticated) {
+      const returnUrl = encodeURIComponent(window.location.pathname);
+      navigate(`/login?return=${returnUrl}`);
+    } else {
+      navigate("/listing");
+    }
+  };
 
   const getThemeLabel = () => {
     if (theme === "system") return "System theme";
@@ -152,23 +169,11 @@ export default function Navbar({ theme, resolvedTheme, toggleTheme }) {
             href="/listing"
             className={styles.cta}
             role="menuitem"
-            onClick={() => setMenuOpen(false)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                setMenuOpen(false);
-              }
-            }}>
+            onClick={handleGetStarted}
+            onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && handleGetStarted(e)}>
             Get Started
             <span className={styles.arrowCircle} aria-hidden="true">
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="3"
-                strokeLinecap="round"
-                strokeLinejoin="round">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M5 12h14" />
                 <path d="M13 5l7 7-7 7" />
               </svg>

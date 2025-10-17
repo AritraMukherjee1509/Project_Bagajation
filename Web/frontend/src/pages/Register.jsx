@@ -4,6 +4,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import s from '../assets/css/pages/Register.module.css';
 import { FiEye, FiEyeOff, FiMail, FiLock, FiUser, FiPhone, FiMapPin, FiArrowLeft } from 'react-icons/fi';
+import { authAPI, apiUtils } from '../config/api';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -152,7 +153,7 @@ const handleSubmit = async (e) => {
     
     if (result.success) {
       // Show success message and redirect to login
-      alert('Registration successful! Please check your email for verification.');
+      alert('Registration successful!.');
       navigate(`/login${location.search}`);
     } else {
       setErrors({ submit: result.message || 'Registration failed. Please try again.' });

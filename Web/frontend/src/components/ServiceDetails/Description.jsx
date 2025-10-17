@@ -102,7 +102,7 @@ export default function Description({ service }) {
   return (
     <section className={s.wrap}>
       {/* Service Overview */}
-      <div className={s.overview}>
+      {/* <div className={s.overview}>
         <div className={s.rating}>
           {Array.from({ length: 5 }).map((_, i) => (
             <FiStar 
@@ -140,7 +140,7 @@ export default function Description({ service }) {
             <FiShare2 /> Share
           </button>
         </div>
-      </div>
+      </div> */}
 
       {/* Service Description */}
       <div className={s.description}>
