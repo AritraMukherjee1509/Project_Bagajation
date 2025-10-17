@@ -41,10 +41,7 @@ export default function ServiceDetails() {
         // Fetch related data in parallel
         const [reviewsResponse, relatedResponse] = await Promise.all([
           reviewsAPI.getReviews({ service: id, limit: 10 }),
-          servicesAPI.getServicesByCategory(serviceData.category, { 
-            limit: 4,
-            exclude: id 
-          })
+          servicesAPI.getPopularServices()
         ]);
 
         // Set reviews

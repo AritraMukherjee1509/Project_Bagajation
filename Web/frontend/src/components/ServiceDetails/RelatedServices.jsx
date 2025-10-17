@@ -230,7 +230,7 @@ export default function RelatedServices({ services: initialServices = [], curren
                   )}
                 </div>
 
-                <div className={s.providerInfo}>
+                {/* <div className={s.providerInfo}>
                   <div className={s.provider}>
                     <div className={s.avatar}>
                       <img 
@@ -251,7 +251,7 @@ export default function RelatedServices({ services: initialServices = [], curren
                       </div>
                     </div>
                   </div>
-                </div>
+                </div> */}
               </div>
             </Link>
             

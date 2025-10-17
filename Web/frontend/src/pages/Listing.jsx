@@ -49,7 +49,7 @@ export default function Listing() {
         featuredResponse,
         providersResponse
       ] = await Promise.all([
-        servicesAPI.getServices({ limit: 50 }), // Get all services to extract categories
+        servicesAPI.getServices({ limit: 500 }), // Get all services to extract categories
         servicesAPI.getPopularServices(),
         servicesAPI.getFeaturedServices(),
         providersAPI.getTopProviders({ limit: 8 })

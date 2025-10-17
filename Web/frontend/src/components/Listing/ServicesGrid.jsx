@@ -196,17 +196,17 @@ export default function ServicesGrid({
                       style={{ backgroundImage: `url(${getServiceImage(service)})` }} 
                     />
                     
-                    {/* {service.provider?.verification?.status === 'verified' && (
+                    {service.provider?.verification?.status === 'verified' && (
                       <div className={s.verifiedBadge}>
                         <FiShield />
                         Verified
                       </div>
-                    )} */}
+                    )}
                     
-                    {/* <div className={`${s.availabilityBadge} ${service.availability?.isAvailable ? s.available : s.busy}`}>
+                    <div className={`${s.availabilityBadge} ${service.availability?.isAvailable ? s.available : s.busy}`}>
                       <FiClock />
                       {service.availability?.isAvailable ? 'Available' : 'Busy'}
-                    </div> */}
+                    </div>
                   </div>
 
                   <div className={s.body}>
@@ -268,7 +268,7 @@ export default function ServicesGrid({
                   </div>
                 </Link>
 
-                {/* <button 
+                <button 
                   className={`${s.favoriteBtn} ${favorites.has(service._id) ? s.favorited : ''}`}
                   onClick={(e) => {
                     e.preventDefault();
@@ -279,11 +279,7 @@ export default function ServicesGrid({
                   aria-label="Add to favorites"
                 >
                   <FiHeart />
-                </button> */}
-                <div className={`${s.availabilityBadge} ${service.availability?.isAvailable ? s.available : s.busy}`}>
-                      <FiClock />
-                      {service.availability?.isAvailable ? 'Available' : 'Busy'}
-                    </div>
+                </button>
               </div>
             </div>
           ))}
