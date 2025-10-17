@@ -502,9 +502,9 @@
 
 /* Back to Top Button */
 .backToTop {
-  position: absolute;
-  right: 0;
-  top: -20px;
+  position: fixed;
+  right: 50px;
+  bottom: 50px;
   width: clamp(44px, 7vw, 48px);
   height: clamp(44px, 7vw, 48px);
   border-radius: 50%;
@@ -604,7 +604,7 @@
 
 @media (max-width: 480px) {
   .cols {
-    grid-template-columns: 1fr;
+    /* grid-template-columns: 1fr; */
     gap: clamp(24px, 5vw, 32px);
   }
   

@@ -94,7 +94,7 @@ export default function Professional() {
                 <div>
                   <strong>24‑hour fast services available</strong>
                   <br />
-                  Contact us at <a href="tel:+918594849303" className={s.phoneLink}>(+91) 85948 49303</a>
+                  Contact us at <a href="tel:+916289795827" className={s.phoneLink}>(+91) 62897 95827</a>
                 </div>
               </div>
             </div>

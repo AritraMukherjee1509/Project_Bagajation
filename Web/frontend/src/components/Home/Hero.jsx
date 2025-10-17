@@ -28,7 +28,7 @@ export default function Hero() {
             </div>
             
             <h1 className={`h1 ${s.title}`}>
-              Need <span className={s.highlight}>shifting</span> or <span className={s.highlight}>repair</span> of your AC? 
+              Need <span className={s.highlight}>shifting</span> or <span className={s.highlight}>repair</span> of your Home products? 
               <br />We can help!
             </h1>
             
@@ -52,7 +52,7 @@ export default function Hero() {
             </div>
             
             <div className={s.ctaRow}>
-              <a className={`btn btn-primary ${s.primaryCta}`} href="tel:+918594849303">
+              <a className={`btn btn-primary ${s.primaryCta}`} href="tel:+916289795827">
                 <FiPhoneCall />
                 Call Us Now
                 <span className={s.ctaArrow}>

@@ -1,83 +1,93 @@
-import React, { useState } from 'react';
-import styles from '../assets/css/includes/Footer.module.css';
-import { 
-  FiYoutube, 
-  FiInstagram, 
-  FiFacebook, 
-  FiTwitter, 
-  FiMail, 
-  FiPhone, 
-  FiMapPin, 
+import React, { useState } from "react";
+import styles from "../assets/css/includes/Footer.module.css";
+import {
+  FiYoutube,
+  FiInstagram,
+  FiFacebook,
+  FiTwitter,
+  FiMail,
+  FiPhone,
+  FiMapPin,
   FiClock,
   FiArrowUp,
   FiCheck,
-  FiAlertCircle
-} from 'react-icons/fi';
+  FiAlertCircle,
+} from "react-icons/fi";
 
 export default function Footer() {
-  const [email, setEmail] = useState('');
-  const [subscriptionStatus, setSubscriptionStatus] = useState('idle'); // 'idle', 'loading', 'success', 'error'
+  const [email, setEmail] = useState("");
+  const [subscriptionStatus, setSubscriptionStatus] = useState("idle"); // 'idle', 'loading', 'success', 'error'
 
   const handleNewsletterSubmit = async (e) => {
     e.preventDefault();
     if (!email) return;
 
-    setSubscriptionStatus('loading');
-    
+    setSubscriptionStatus("loading");
+
     // Simulate API call
     setTimeout(() => {
-      if (email.includes('@')) {
-        setSubscriptionStatus('success');
-        setEmail('');
-        setTimeout(() => setSubscriptionStatus('idle'), 3000);
+      if (email.includes("@")) {
+        setSubscriptionStatus("success");
+        setEmail("");
+        setTimeout(() => setSubscriptionStatus("idle"), 3000);
       } else {
-        setSubscriptionStatus('error');
-        setTimeout(() => setSubscriptionStatus('idle'), 3000);
+        setSubscriptionStatus("error");
+        setTimeout(() => setSubscriptionStatus("idle"), 3000);
       }
     }, 1000);
   };
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const container = document.querySelector(".main-content");
+    if (container) {
+      container.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   const currentYear = new Date().getFullYear();
 
   const socialLinks = [
-    { icon: FiYoutube, href: '#', label: 'YouTube', color: '#FF0000' },
-    { icon: FiInstagram, href: '#', label: 'Instagram', color: '#E4405F' },
-    { icon: FiFacebook, href: '#', label: 'Facebook', color: '#1877F2' },
-    { icon: FiTwitter, href: '#', label: 'Twitter', color: '#1DA1F2' },
-    { icon: FiMail, href: 'mailto:hello@lg.com', label: 'Email', color: '#EA4335' },
+    { icon: FiYoutube, href: "#", label: "YouTube", color: "#FF0000" },
+    { icon: FiInstagram, href: "#", label: "Instagram", color: "#E4405F" },
+    { icon: FiFacebook, href: "#", label: "Facebook", color: "#1877F2" },
+    { icon: FiTwitter, href: "#", label: "Twitter", color: "#1DA1F2" },
+    {
+      icon: FiMail,
+      href: "mailto:hello@lg.com",
+      label: "Email",
+      color: "#EA4335",
+    },
   ];
 
   const companyLinks = [
-    { href: '/about', label: 'About Us' },
-    { href: '/listing', label: 'Our Services' },
-    { href: '/careers', label: 'Careers' },
-    { href: '/blog', label: 'Blog' },
-    { href: '/contact', label: 'Contact Us' },
+    { href: "/about", label: "About Us" },
+    { href: "/listing", label: "Our Services" },
+    { href: "/listing", label: "Careers" },
+    // { href: "/blog", label: "Blog" },
+    { href: "/contact", label: "Contact Us" },
   ];
 
   const legalLinks = [
-    { href: '/terms', label: 'Terms of Service' },
-    { href: '/privacy', label: 'Privacy Policy' },
-    { href: '/cookies', label: 'Cookie Policy' },
-    { href: '/licenses', label: 'Licenses' },
+    // { href: "/terms", label: "Terms of Service" },
+    // { href: "/privacy", label: "Privacy Policy" },
+    // { href: "/cookies", label: "Cookie Policy" },
+    // { href: "/licenses", label: "Licenses" },
   ];
 
   const supportLinks = [
-    { href: '/faq', label: 'FAQ' },
-    { href: '/help', label: 'Help Center' },
-    { href: '/status', label: 'Service Status' },
-    { href: '/community', label: 'Community' },
-    { href: '/warranty', label: 'Warranty' },
+    { href: "/faq", label: "FAQ" },
+    { href: "/contact", label: "Help Center" },
+    // { href: "/status", label: "Service Status" },
+    // { href: "/community", label: "Community" },
+    // { href: "/warranty", label: "Warranty" },
   ];
 
   return (
     <footer className={styles.wrapper} role="contentinfo">
       {/* Newsletter Section */}
-      <section className={styles.newsletter} aria-labelledby="newsletter-title">
+      {/* <section className={styles.newsletter} aria-labelledby="newsletter-title">
         <div className="container">
           <div className={styles.newsInner}>
             <div className={styles.newsContent}>
@@ -158,7 +168,7 @@ export default function Footer() {
             </form>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Main Footer Content */}
       <section className={styles.footerMain}>
@@ -167,43 +177,57 @@ export default function Footer() {
             {/* Brand Column */}
             <div className={styles.brandCol}>
               <div className={styles.brandRow}>
-                <span className={styles.logoBadge} aria-hidden="true">LG</span>
+                <span className={styles.logoBadge} aria-hidden="true">
+                  LG
+                </span>
                 <span className={styles.brandText}>LG Smart Services</span>
               </div>
-              
+
               <p className={styles.brandDescription}>
-                Your trusted partner for premium smart home services and repairs. 
-                We bring innovation and reliability to your doorstep.
+                Your trusted partner for premium smart home services and
+                repairs. We bring innovation and reliability to your doorstep.
               </p>
-              
+
               {/* Contact Info */}
               <div className={styles.contactInfo}>
-                <div className={styles.contactItem}>
-                  <FiPhone size={16} />
-                  <span>+1 (555) 123-4567</span>
-                </div>
-                <div className={styles.contactItem}>
+                <a
+                  href="https://wa.me/916289795827"
+                  target="_blank"
+                  rel="noopener noreferrer">
+                  <div className={styles.contactItem}>
+                    <FiPhone size={16} />
+                    <span>+91 62897 95827</span>
+                  </div>
+                </a>
+                <a
+                  href="https://maps.app.goo.gl/QuyFXZ2oEAXFrGPW8"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.contactItem}>
                   <FiMapPin size={16} />
-                  <span>123 Tech Street, Smart City, SC 12345</span>
-                </div>
+                  <span>
+                    721, Nabagram Jhil Rd, Nabagram, Panchpota, Rajpur Sonarpur,
+                    West Bengal 700152
+                  </span>
+                </a>
+
                 <div className={styles.contactItem}>
                   <FiClock size={16} />
                   <span>24/7 Emergency Service</span>
                 </div>
               </div>
-              
+
               {/* Social Links */}
               <div className={styles.socials}>
                 {socialLinks.map((social, index) => {
                   const IconComponent = social.icon;
                   return (
-                    <a 
+                    <a
                       key={index}
-                      href={social.href} 
+                      href={social.href}
                       className={styles.socialLink}
                       aria-label={`Follow us on ${social.label}`}
-                      style={{ '--social-color': social.color }}
-                    >
+                      style={{ "--social-color": social.color }}>
                       <IconComponent size={18} />
                     </a>
                   );
@@ -260,23 +284,33 @@ export default function Footer() {
               <p className={styles.copyright}>
                 © {currentYear} LG Smart Services. All rights reserved.
               </p>
-              
+
               <div className={styles.bottomLinks}>
-                <a href="/sitemap" className={styles.bottomLink}>Sitemap</a>
-                <a href="/accessibility" className={styles.bottomLink}>Accessibility</a>
-                <a href="/security" className={styles.bottomLink}>Security</a>
+                <a
+                  href="https://maps.app.goo.gl/QuyFXZ2oEAXFrGPW8"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.bottomLink}>
+                  Sitemap
+                </a>
+                {/* <a href="/accessibility" className={styles.bottomLink}>
+                  Accessibility
+                </a> */}
+                <a href="/security" className={styles.bottomLink}>
+                  Security
+                </a>
               </div>
             </div>
-            
+
             {/* Back to Top Button */}
-            <button 
+            {/* <button 
               className={styles.backToTop}
               onClick={scrollToTop}
               aria-label="Back to top"
               title="Back to top"
             >
               <FiArrowUp size={20} />
-            </button>
+            </button> */}
           </div>
         </div>
       </section>
