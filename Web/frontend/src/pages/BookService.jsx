@@ -202,7 +202,8 @@ export default function BookService() {
     const basePrice =
       service?.pricing?.discountPrice || service?.pricing?.basePrice || 0;
     const subtotal = basePrice * bookingData.quantity;
-    const taxes = subtotal * 0.18; // 18% GST
+    // const taxes = subtotal * 0.18; // 18% GST
+    const taxes = 0;
     return {
       subtotal,
       taxes,
@@ -867,10 +868,10 @@ const handleBooking = async () => {
                       <span>Service Cost ({bookingData.quantity}x)</span>
                       <span>{formatPrice(subtotal)}</span>
                     </div>
-                    <div className={s.priceRow}>
+                    {/* <div className={s.priceRow}>
                       <span>Taxes (18% GST)</span>
                       <span>{formatPrice(taxes)}</span>
-                    </div>
+                    </div> */}
                     <div className={`${s.priceRow} ${s.total}`}>
                       <strong>Total Amount</strong>
                       <strong>{formatPrice(total)}</strong>
