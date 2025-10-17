@@ -203,11 +203,11 @@ export default function Listing() {
       />
       <div className="listing-content">
         <div className="container">
-          <div className="listing-layout">
-            <FilterSidebar 
+          {/* <div className="listing-layout"> */}
+            {/* <FilterSidebar 
               filters={filters}
               onFilterChange={handleFilterChange}
-            />
+            /> */}
             <div className="services-content">
               <ServicesGrid 
                 title="All Services" 
@@ -231,7 +231,7 @@ export default function Listing() {
                 />
               )}
             </div>
-          </div>
+          {/* </div> */}
         </div>
       </div>
     </main>

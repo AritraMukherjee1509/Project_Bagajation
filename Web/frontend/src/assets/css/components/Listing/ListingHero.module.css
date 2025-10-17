@@ -78,7 +78,7 @@
 
 .searchGroup {
   display: grid;
-  grid-template-columns: 1fr 1fr auto;
+  grid-template-columns: 3fr 1fr auto;
   gap: clamp(8px, 1.5vw, 12px);
   background: var(--surface);
   border: 1px solid var(--border);
