@@ -688,7 +688,7 @@ const handleBooking = async () => {
                       )}
                     </div>
 
-                    <div className={s.formGroup}>
+                    {/* <div className={s.formGroup}>
                       <label>Quantity</label>
                       <div className={s.quantitySelector}>
                         <button
@@ -714,7 +714,7 @@ const handleBooking = async () => {
                           +
                         </button>
                       </div>
-                    </div>
+                    </div> */}
 
                     <div className={s.formGroup}>
                       <label>Additional Requirements</label>

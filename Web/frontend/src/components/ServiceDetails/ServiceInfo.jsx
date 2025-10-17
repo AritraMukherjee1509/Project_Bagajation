@@ -37,26 +37,13 @@ export default function ServiceInfo({ service, onBookService }) {
     return getCurrentPrice() * quantity;
   };
 
-  const handleBookNow = () => {
+  const handleBookService = () => {
     if (!isAuthenticated) {
-      // Redirect to login with return URL
       const returnUrl = encodeURIComponent(window.location.pathname);
       navigate(`/login?return=${returnUrl}`);
       return;
     }
-
-    if (onBookService) {
-      onBookService({
-        serviceId: service._id,
-        quantity,
-        totalAmount: getTotalPrice()
-      });
-    } else {
-      // Default booking behavior - navigate to booking page
-      navigate(`/book/${service._id}`, {
-        state: { service, quantity, totalAmount: getTotalPrice() }
-      });
-    }
+    navigate(`/book/${service._id}`, { state: { service } });
   };
 
   if (!service) {
@@ -166,7 +153,7 @@ export default function ServiceInfo({ service, onBookService }) {
 
         <button 
           className={s.bookBtn}
-          onClick={handleBookNow}
+          onClick={handleBookService}
           disabled={!service.availability?.isAvailable}
         >
           {service.availability?.isAvailable 
