@@ -159,8 +159,10 @@
 
 .availabilityBadge {
   position: absolute;
-  bottom: 12px;
-  left: 12px;
+  /* bottom: 12px;
+  left: 12px; */
+  top: 12px;
+  right: 12px;
   display: flex;
   align-items: center;
   gap: 4px;
