@@ -111,7 +111,7 @@ export default function AboutHero() {
                   <FiAward />
                 </div>
                 <div className={s.cardContent}>
-                  <div className={s.cardTitle}>Industry Leader</div>
+                  <div className={s.cardTitle}>Choice of Kolkata</div>
                   <div className={s.cardText}>Trusted by thousands</div>
                 </div>
               </div>

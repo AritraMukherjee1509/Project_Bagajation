@@ -112,7 +112,7 @@ export default function Mission() {
                 <h4 className={s.ctaTitle}>Ready to Experience the Difference?</h4>
                 <p className={s.ctaText}>Join thousands of satisfied customers</p>
               </div>
-              <a href="tel:+918594849303" className={`btn btn-primary ${s.ctaButton}`}>
+              <a href="tel:+916289795827" className={`btn btn-primary ${s.ctaButton}`}>
                 Get Started Today
               </a>
             </div>

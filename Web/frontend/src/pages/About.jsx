@@ -14,7 +14,7 @@ export default function About() {
       <Mission />
       <Vision />
       <Values />
-      <Team />
+      {/* <Team /> */}
     </main>
   );
 }
