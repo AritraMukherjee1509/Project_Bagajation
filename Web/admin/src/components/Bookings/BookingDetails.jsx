@@ -384,7 +384,6 @@ export default function BookingDetails({ booking, onClose, onUpdate }) {
             {/* Pricing Information */}
             <div className={styles.infoSection}>
               <h3 className={styles.sectionTitle}>
-                <FiDollarSign />
                 Pricing Details
               </h3>
               <div className={styles.pricingDetails}>
@@ -429,7 +428,7 @@ export default function BookingDetails({ booking, onClose, onUpdate }) {
                 <div className={`${styles.detailRow} ${styles.total}`}>
                   <span className={styles.detailLabel}>Total Amount:</span>
                   <span className={`${styles.detailValue} ${styles.amount}`}>
-                    <FiDollarSign />₹
+                  ₹
                     {(
                       booking.pricing?.totalAmount ||
                       booking.amount ||

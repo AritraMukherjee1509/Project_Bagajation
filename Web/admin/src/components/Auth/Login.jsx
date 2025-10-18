@@ -59,7 +59,7 @@ export default function Login() {
         <div className={styles.loginCard}>
           <div className={styles.loginHeader}>
             <div className={styles.loginLogo}>
-              <span className={styles.logoBadge}>LG</span>
+              <span className={styles.logoBadge}>UM</span>
               <span className={styles.logoText}>Admin Panel</span>
             </div>
             <h1 className={styles.loginTitle}>Welcome Back</h1>

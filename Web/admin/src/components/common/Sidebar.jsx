@@ -30,18 +30,18 @@ const menuItems = [
     label: 'Services',
     badge: null
   },
-  {
-    path: '/users',
-    icon: FiUsers,
-    label: 'Users',
-    badge: null
-  },
-  {
-    path: '/analytics',
-    icon: FiGrid,
-    label: 'Analytics',
-    badge: null
-  },
+  // {
+  //   path: '/users',
+  //   icon: FiUsers,
+  //   label: 'Users',
+  //   badge: null
+  // },
+  // {
+  //   path: '/analytics',
+  //   icon: FiGrid,
+  //   label: 'Analytics',
+  //   badge: null
+  // },
   // {
   //   path: '/settings',
   //   icon: FiSettings,
@@ -74,7 +74,7 @@ export default function Sidebar({ isOpen, setIsOpen, isMobile, onCollapse }) {
     <aside className={`${styles.adminSidebar} ${isCollapsed ? styles.collapsed : ''} ${isMobile && isOpen ? styles.open : ''}`}>
       <div className={styles.sidebarHeader}>
         <div className={styles.sidebarLogo}>
-          {!isCollapsed && <span className={styles.logoBadge}>LG</span>}
+          {!isCollapsed && <span className={styles.logoBadge}>UM</span>}
           {!isCollapsed && <span className={styles.logoText}>Admin</span>}
         </div>
         <button

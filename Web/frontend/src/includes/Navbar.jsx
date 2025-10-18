@@ -119,9 +119,9 @@ export default function Navbar({ theme, resolvedTheme, toggleTheme }) {
         {/* Brand */}
         <a className={styles.brand} href="/" aria-label="LG - Go to homepage">
           <span className={styles.logoBadge} aria-hidden="true">
-            LG
+            UM
           </span>
-          <span className={styles.brandText}>LG</span>
+          <span className={styles.brandText}>Urban Mytra</span>
         </a>
 
         {/* Mobile burger */}
