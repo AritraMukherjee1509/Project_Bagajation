@@ -24,6 +24,7 @@ const serviceSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please specify service category'],
     enum: [
+      // Existing
       'AC Services',
       'Electrical',
       'Plumbing',
@@ -32,7 +33,17 @@ const serviceSchema = new mongoose.Schema({
       'Maintenance',
       'Repair',
       'Installation',
-      'Other'
+      'Other',
+
+      // New categories you’re using
+      'Packers & Movers',
+      'Car Care',
+      'Interior',
+      'Electronics',
+      'Solar',
+      'Labour',
+      'Construction',
+      'Appliances',
     ]
   },
   subcategory: String,
@@ -47,7 +58,16 @@ const serviceSchema = new mongoose.Schema({
     },
     priceType: {
       type: String,
-      enum: ['fixed', 'hourly', 'per_item', 'custom'],
+      enum: [
+        // Existing
+        'fixed',
+        'hourly',
+        'per_item',
+        'custom',
+        // New for your seeds
+        'variable',
+        'daily'
+      ],
       default: 'fixed'
     },
     discountPrice: Number,
@@ -65,9 +85,18 @@ const serviceSchema = new mongoose.Schema({
     }
   },
   images: [{
-    public_id: String,
+    public_id: String,   // keep existing snake_case for Cloudinary
     url: String,
     alt: String
+    // If you later want credit info, add:
+    // credit: {
+    //   provider: String,
+    //   authorName: String,
+    //   authorUsername: String,
+    //   authorLink: String,
+    //   photoLink: String,
+    //   license: String
+    // }
   }],
   features: [String],
   inclusions: [String],
@@ -204,25 +233,20 @@ serviceSchema.methods.calculateAverageRating = async function() {
   const Review = mongoose.model('Review');
   
   const stats = await Review.aggregate([
-    {
-      $match: { service: this._id }
-    },
+    { $match: { service: this._id } },
     {
       $group: {
         _id: '$service',
         averageRating: { $avg: '$rating' },
         totalReviews: { $sum: 1 },
-        ratingDistribution: {
-          $push: '$rating'
-        }
+        ratingDistribution: { $push: '$rating' }
       }
     }
   ]);
 
   if (stats.length > 0) {
     const { averageRating, totalReviews, ratingDistribution } = stats[0];
-    
-    // Calculate rating distribution
+
     const distribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
     ratingDistribution.forEach(rating => {
       distribution[rating] = (distribution[rating] || 0) + 1;

@@ -119,17 +119,30 @@ export default function ServicesGrid({
   };
 
   const getServiceImage = (service) => {
+    console.log('Service Images:', service.images);
+
     if (service.images && service.images.length > 0) {
       return service.images[0].url;
     }
     // Fallback image based on category
     const fallbackImages = {
-      'AC Services': 'https://images.unsplash.com/photo-1599158150601-174f0c8f4b9d?q=80&w=1400&auto=format&fit=crop',
+      'AC Services': 'https://unsplash.com/photos/rear-view-of-a-man-cleaning-air-conditioning-system-HsNtqUNWOqk',
       'Electrical': 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=1400&auto=format&fit=crop',
       'Plumbing': 'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?q=80&w=1400&auto=format&fit=crop',
       'Cleaning': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=1400&auto=format&fit=crop',
       'Security': 'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?q=80&w=1400&auto=format&fit=crop',
-      'Maintenance': 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=1400&auto=format&fit=crop'
+      'Maintenance': 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=1400&auto=format&fit=crop',
+      // Additional categories from your list
+  'Shifting': 'https://images.unsplash.com/photo-1556662423-f2736b8c87de?q=80&w=1400&auto=format&fit=crop', // Moved boxes/truck image
+  'Car Wash': 'https://images.unsplash.com/photo-1620067691866-96b42b662363?q=80&w=1400&auto=format&fit=crop', // Cleaner, direct car wash
+  'House Wash': 'https://images.unsplash.com/photo-1581579188871-45ea61f2a0c6?q=80&w=1400&auto=format&fit=crop', // Retaining your excellent pressure washing image
+  'House Interior': 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1400&auto=format&fit=crop', // Retaining your great interior room image
+  'Electronics': 'https://images.unsplash.com/photo-1598460599187-21a473f309a4?q=80&w=1400&auto=format&fit=crop', // Updated to a diverse electronics setup
+  'Second Hand Electronics': 'https://images.unsplash.com/photo-1619565576725-7df8025219e9?q=80&w=1400&auto=format&fit=crop', // Good image representing used/older items
+  'Solar': 'https://images.unsplash.com/photo-1509395176047-4a66953fd231?q=80&w=1400&auto=format&fit=crop', // Retaining your solar panels image
+  'Labour Lifting': 'https://images.unsplash.com/photo-1549477017-d7756f773954?q=80&w=1400&auto=format&fit=crop', // Updated to a focused shot of lifting/carrying
+  'Scaffolding': 'https://images.unsplash.com/photo-1593590514050-6136d85600b8?q=80&w=1400&auto=format&fit=crop', // Clearer focus on construction scaffolding
+  'Water Purifier': 'https://images.unsplash.com/photo-1534066060086-538421d09794?q=80&w=1400&auto=format&fit=crop' // Updated to a clear image of a water filter system
     };
     return fallbackImages[service.category] || fallbackImages['AC Services'];
   };

@@ -36,7 +36,7 @@ export default function ListingHero({ onSearch, stats = {} }) {
               and find the perfect match for your home needs.
             </p>
 
-            {/* <form className={s.searchForm} onSubmit={handleSearch}>
+            <form className={s.searchForm} onSubmit={handleSearch}>
               <div className={s.searchGroup}>
                 <div className={s.searchField}>
                   <FiSearch className={s.searchIcon} />
@@ -64,7 +64,7 @@ export default function ListingHero({ onSearch, stats = {} }) {
                   Search Services
                 </button>
               </div>
-            </form> */}
+            </form>
 
             <div className={s.quickStats}>
               <div className={s.stat}>

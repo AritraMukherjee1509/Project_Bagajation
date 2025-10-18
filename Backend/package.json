@@ -12,6 +12,7 @@
     "setup-env": "node scripts/setup-env.js",
     "reset-db": "node scripts/resetDatabase.js",
     "docs": "node scripts/generateDocs.js",
+    "seed:new-services": "node scripts/seed-new-services.js",
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
     "postinstall": "node scripts/setup-uploads.js"
