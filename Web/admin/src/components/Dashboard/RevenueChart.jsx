@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { FiTrendingUp, FiCalendar, FiRefreshCw } from 'react-icons/fi';
+import React, { useState } from 'react';
+import { FiTrendingUp, FiRefreshCw } from 'react-icons/fi';
 import styles from '../../styles/Dashboard/RevenueChart.module.css';
 
 export default function RevenueChart({ data, loading, onRefresh }) {
   const [timeRange, setTimeRange] = useState('7d');
-  
+
   const defaultChartData = {
     '7d': {
       labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
@@ -22,14 +22,19 @@ export default function RevenueChart({ data, loading, onRefresh }) {
 
   const chartData = data || defaultChartData;
   const currentData = chartData[timeRange] || defaultChartData[timeRange];
-  const maxValue = Math.max(...currentData.data, 1); // Prevent division by zero
-  const totalRevenue = currentData.data.reduce((sum, value) => sum + value, 0);
   
+  // ✅ Add safety checks
+  const safeData = currentData.data || [0, 0, 0, 0, 0, 0, 0];
+  const safeLabels = currentData.labels || ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  
+  const maxValue = Math.max(...safeData, 1);
+  const totalRevenue = safeData.reduce((sum, value) => sum + (Number(value) || 0), 0);
+
   // Calculate growth percentage
   const calculateGrowth = () => {
-        if (!currentData.data || currentData.data.length < 2) return 0;
-    const current = currentData.data[currentData.data.length - 1];
-    const previous = currentData.data[currentData.data.length - 2];
+    if (!safeData || safeData.length < 2) return 0;
+    const current = Number(safeData[safeData.length - 1]) || 0;
+    const previous = Number(safeData[safeData.length - 2]) || 0;
     if (previous === 0) return current > 0 ? 100 : 0;
     return ((current - previous) / previous * 100).toFixed(1);
   };
@@ -58,7 +63,7 @@ export default function RevenueChart({ data, loading, onRefresh }) {
             )}
           </div>
         </div>
-        
+
         <div className={styles.chartControls}>
           <select 
             value={timeRange} 
@@ -81,28 +86,35 @@ export default function RevenueChart({ data, loading, onRefresh }) {
       <div className={styles.chartContainer}>
         {loading ? (
           <div className={styles.chartSkeleton}>
-            {Array.from({ length: 7 }).map((_, index) => (
+            {Array.from({ length: safeLabels.length }).map((_, index) => (
               <div key={index} className={styles.skeletonBar}></div>
             ))}
           </div>
         ) : (
           <div className={styles.chartBars}>
-            {currentData.data.map((value, index) => (
-              <div key={index} className={styles.chartBarWrapper}>
-                <div 
-                  className={styles.chartBar}
-                  style={{ 
-                    height: `${(value / maxValue) * 100}%`,
-                    '--delay': `${index * 0.1}s`
-                  }}
-                >
-                  <div className={styles.barTooltip}>
-                    ₹{value.toLocaleString()}
+            {safeData.map((value, index) => {
+              // ✅ Calculate height percent INSIDE the map function
+              const numValue = Number(value) || 0;
+              const heightPercent = maxValue > 0 ? (numValue / maxValue) * 100 : 0;
+              const displayHeight = Math.max(heightPercent, 1); // Min 1% for visibility
+              
+              return (
+                <div key={index} className={styles.chartBarWrapper}>
+                  <div 
+                    className={styles.chartBar}
+                    style={{ 
+                      height: `${displayHeight}%`,
+                      '--delay': `${index * 0.1}s`
+                    }}
+                  >
+                    <div className={styles.barTooltip}>
+                      ₹{numValue.toLocaleString()}
+                    </div>
                   </div>
+                  <span className={styles.chartLabel}>{safeLabels[index]}</span>
                 </div>
-                <span className={styles.chartLabel}>{currentData.labels[index]}</span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

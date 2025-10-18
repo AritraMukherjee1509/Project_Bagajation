@@ -22,6 +22,66 @@ export default function Dashboard() {
     loadDashboardData();
   }, []);
 
+  // ✅ Helper function to normalize revenue data format
+  const normalizeRevenueData = (apiResponse, range = '7d') => {
+    const defaultData = {
+      '7d': {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        data: [0, 0, 0, 0, 0, 0, 0]
+      },
+      '30d': {
+        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+        data: [0, 0, 0, 0]
+      },
+      '90d': {
+        labels: ['Month 1', 'Month 2', 'Month 3'],
+        data: [0, 0, 0]
+      }
+    };
+
+    if (!apiResponse) {
+      console.warn(`No data for ${range}, using defaults`);
+      return defaultData;
+    }
+
+    // Log the actual structure
+    console.log(`📊 Normalizing ${range} revenue data:`, JSON.stringify(apiResponse, null, 2));
+
+    // If API already returns keyed format { '7d': {...}, '30d': {...}, '90d': {...} }
+    if (apiResponse['7d'] || apiResponse['30d'] || apiResponse['90d']) {
+      return {
+        '7d': apiResponse['7d'] || defaultData['7d'],
+        '30d': apiResponse['30d'] || defaultData['30d'],
+        '90d': apiResponse['90d'] || defaultData['90d']
+      };
+    }
+
+    // If API returns single range format { labels: [...], data: [...] }
+    if (apiResponse.labels && apiResponse.data) {
+      return {
+        ...defaultData,
+        [range]: {
+          labels: apiResponse.labels,
+          data: apiResponse.data.map(v => Number(v) || 0)
+        }
+      };
+    }
+
+    // If API returns nested { data: { labels: [...], data: [...] } }
+    if (apiResponse.data && apiResponse.data.labels && apiResponse.data.data) {
+      return {
+        ...defaultData,
+        [range]: {
+          labels: apiResponse.data.labels,
+          data: apiResponse.data.data.map(v => Number(v) || 0)
+        }
+      };
+    }
+
+    console.warn(`Unknown revenue data format for ${range}:`, apiResponse);
+    return defaultData;
+  };
+
   const loadDashboardData = async (showRefreshing = false) => {
     try {
       if (showRefreshing) {
@@ -31,60 +91,85 @@ export default function Dashboard() {
       }
       setError(null);
 
+      console.log('🔄 Loading dashboard data...');
+
       // Load all dashboard data in parallel
       const [
         dashboardResponse,
         analyticsResponse,
-        revenueResponse,
+        revenue7d,
+        revenue30d,
+        revenue90d,
         serviceResponse
       ] = await Promise.allSettled([
         dashboardAPI.getStats(),
-        analyticsAPI.getDashboard(),
+        analyticsAPI.getDashboard().catch(err => {
+          console.warn('⚠️ Analytics API not available:', err.message);
+          return { success: false, error: 'Analytics not available' };
+        }),
         dashboardAPI.getRevenueChart('7d'),
+        dashboardAPI.getRevenueChart('30d'),
+        dashboardAPI.getRevenueChart('90d'),
         dashboardAPI.getServiceChart()
       ]);
 
-      // Handle dashboard stats
-      if (dashboardResponse.status === 'fulfilled' && dashboardResponse.value.success) {
+      // ✅ Handle dashboard stats
+      if (dashboardResponse.status === 'fulfilled' && dashboardResponse.value?.success) {
+        console.log('✅ Dashboard stats loaded:', dashboardResponse.value.data);
         setDashboardData(dashboardResponse.value.data);
       } else {
-        console.error('Dashboard stats failed:', dashboardResponse.reason);
+        console.error('❌ Dashboard stats failed:', dashboardResponse.reason);
       }
 
-      // Handle analytics data
-      if (analyticsResponse.status === 'fulfilled' && analyticsResponse.value.success) {
+      // ✅ Handle analytics data (optional - don't fail if unavailable)
+      if (analyticsResponse.status === 'fulfilled' && analyticsResponse.value?.success) {
+        console.log('✅ Analytics loaded:', analyticsResponse.value.data);
         setAnalyticsData(analyticsResponse.value.data);
       } else {
-        console.error('Analytics failed:', analyticsResponse.reason);
+        console.warn('⚠️ Analytics not available (this is optional)');
+        // Analytics is optional, don't set error
       }
 
-      // Handle revenue data
-      if (revenueResponse.status === 'fulfilled' && revenueResponse.value.success) {
-        setRevenueData(revenueResponse.value.data);
+      // ✅ Handle revenue data - fetch all ranges and combine
+      const revenueDataCombined = {
+        '7d': { labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], data: [0,0,0,0,0,0,0] },
+        '30d': { labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'], data: [0,0,0,0] },
+        '90d': { labels: ['Month 1', 'Month 2', 'Month 3'], data: [0,0,0] }
+      };
+
+      if (revenue7d.status === 'fulfilled' && revenue7d.value?.success) {
+        console.log('✅ 7d Revenue loaded');
+        const normalized = normalizeRevenueData(revenue7d.value.data, '7d');
+        revenueDataCombined['7d'] = normalized['7d'];
       } else {
-        console.error('Revenue data failed:', revenueResponse.reason);
-        // Set default revenue data structure
-        setRevenueData({
-          '7d': {
-            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-            data: [0, 0, 0, 0, 0, 0, 0]
-          },
-          '30d': {
-            labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-            data: [0, 0, 0, 0]
-          },
-          '90d': {
-            labels: ['Month 1', 'Month 2', 'Month 3'],
-            data: [0, 0, 0]
-          }
-        });
+        console.error('❌ 7d Revenue failed:', revenue7d.reason);
       }
 
-      // Handle service chart data
-      if (serviceResponse.status === 'fulfilled' && serviceResponse.value.success) {
+      if (revenue30d.status === 'fulfilled' && revenue30d.value?.success) {
+        console.log('✅ 30d Revenue loaded');
+        const normalized = normalizeRevenueData(revenue30d.value.data, '30d');
+        revenueDataCombined['30d'] = normalized['30d'];
+      } else {
+        console.error('❌ 30d Revenue failed:', revenue30d.reason);
+      }
+
+      if (revenue90d.status === 'fulfilled' && revenue90d.value?.success) {
+        console.log('✅ 90d Revenue loaded');
+        const normalized = normalizeRevenueData(revenue90d.value.data, '90d');
+        revenueDataCombined['90d'] = normalized['90d'];
+      } else {
+        console.error('❌ 90d Revenue failed:', revenue90d.reason);
+      }
+
+      console.log('📊 Final Combined Revenue Data:', JSON.stringify(revenueDataCombined, null, 2));
+      setRevenueData(revenueDataCombined);
+
+      // ✅ Handle service chart data
+      if (serviceResponse.status === 'fulfilled' && serviceResponse.value?.success) {
+        console.log('✅ Service chart loaded:', serviceResponse.value.data);
         setServiceData(serviceResponse.value.data);
       } else {
-        console.error('Service chart failed:', serviceResponse.reason);
+        console.error('❌ Service chart failed:', serviceResponse.reason);
         // Set default service data
         setServiceData([
           { name: 'AC Services', value: 0, color: '#3b82f6', count: 0 },
@@ -95,8 +180,10 @@ export default function Dashboard() {
         ]);
       }
 
+      console.log('✅ Dashboard data loading complete');
+
     } catch (error) {
-      console.error('Dashboard data loading failed:', error);
+      console.error('❌ Dashboard data loading failed:', error);
       setError(error.message);
     } finally {
       setLoading(false);
@@ -105,42 +192,69 @@ export default function Dashboard() {
   };
 
   const handleRefresh = () => {
+    console.log('🔄 Manual refresh triggered');
     loadDashboardData(true);
   };
 
   const handleRefreshRevenue = async () => {
+    console.log('🔄 Refreshing revenue data...');
     try {
-      const response = await dashboardAPI.getRevenueChart('7d');
-      if (response.success) {
-        setRevenueData(response.data);
+      const [rev7, rev30, rev90] = await Promise.allSettled([
+        dashboardAPI.getRevenueChart('7d'),
+        dashboardAPI.getRevenueChart('30d'),
+        dashboardAPI.getRevenueChart('90d')
+      ]);
+
+      const updated = { ...revenueData };
+
+      if (rev7.status === 'fulfilled' && rev7.value?.success) {
+        const normalized = normalizeRevenueData(rev7.value.data, '7d');
+        updated['7d'] = normalized['7d'];
       }
+
+      if (rev30.status === 'fulfilled' && rev30.value?.success) {
+        const normalized = normalizeRevenueData(rev30.value.data, '30d');
+        updated['30d'] = normalized['30d'];
+      }
+
+      if (rev90.status === 'fulfilled' && rev90.value?.success) {
+        const normalized = normalizeRevenueData(rev90.value.data, '90d');
+        updated['90d'] = normalized['90d'];
+      }
+
+      console.log('✅ Revenue data refreshed');
+      setRevenueData(updated);
     } catch (error) {
-      console.error('Failed to refresh revenue data:', error);
+      console.error('❌ Failed to refresh revenue data:', error);
     }
   };
 
   const handleRefreshServices = async () => {
+    console.log('🔄 Refreshing service data...');
     try {
       const response = await dashboardAPI.getServiceChart();
       if (response.success) {
+        console.log('✅ Service data refreshed');
         setServiceData(response.data);
       }
     } catch (error) {
-      console.error('Failed to refresh service data:', error);
+      console.error('❌ Failed to refresh service data:', error);
     }
   };
 
   const handleRefreshBookings = async () => {
+    console.log('🔄 Refreshing bookings...');
     try {
       const response = await dashboardAPI.getRecentBookings(10);
       if (response.success) {
+        console.log('✅ Bookings refreshed');
         setDashboardData(prev => ({
           ...prev,
           recentBookings: response.data
         }));
       }
     } catch (error) {
-      console.error('Failed to refresh bookings:', error);
+      console.error('❌ Failed to refresh bookings:', error);
     }
   };
 
@@ -149,30 +263,6 @@ export default function Dashboard() {
       navigate('/bookings', { state: { selectedBooking: booking } });
     } else {
       navigate('/bookings');
-    }
-  };
-
-  const handleExportDashboard = async () => {
-    try {
-      const response = await reportsAPI.generateReport('dashboard', {
-        includeCharts: true,
-        period: '30d'
-      });
-      
-      if (response.success) {
-        // Handle file download
-        const blob = new Blob([response.data], { type: 'application/pdf' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `dashboard-report-${Date.now()}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }
-    } catch (error) {
-      console.error('Failed to export dashboard:', error);
     }
   };
 
@@ -193,7 +283,8 @@ export default function Dashboard() {
     return (
       <div className={styles.dashboardPage}>
         <div className={styles.errorContainer}>
-          <p>Error loading dashboard: {error}</p>
+          <h2>⚠️ Error Loading Dashboard</h2>
+          <p>{error}</p>
           <button className="btn btn-primary" onClick={handleRefresh}>
             <FiRefreshCw />
             Retry
@@ -213,13 +304,6 @@ export default function Dashboard() {
           </p>
         </div>
         <div className="header-actions">
-          <button 
-            className="btn btn-outline" 
-            onClick={() => navigate('/settings')}
-          >
-            <FiSettings />
-            Settings
-          </button>
           <button 
             className="btn btn-outline" 
             onClick={handleRefresh}
