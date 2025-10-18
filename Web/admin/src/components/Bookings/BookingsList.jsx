@@ -1,36 +1,36 @@
-import React, { useState } from 'react';
-import { 
-  FiEye, 
-  FiEdit, 
-  FiPhone, 
+import React, { useState } from "react";
+import {
+  FiEye,
+  FiEdit,
+  FiPhone,
   FiMapPin,
   FiClock,
   FiUser,
   FiMoreVertical,
   FiRefreshCw,
   FiDownload,
-  FiMessageCircle
-} from 'react-icons/fi';
-import styles from '../../styles/Bookings/BookingsList.module.css';
+  FiMessageCircle,
+} from "react-icons/fi";
+import styles from "../../styles/Bookings/BookingsList.module.css";
 
 const statusConfig = {
-  pending: { color: 'orange', label: 'Pending' },
-  confirmed: { color: 'blue', label: 'Confirmed' },
-  'in-progress': { color: 'purple', label: 'In Progress' },
-  completed: { color: 'green', label: 'Completed' },
-  cancelled: { color: 'red', label: 'Cancelled' }
+  pending: { color: "orange", label: "Pending" },
+  confirmed: { color: "blue", label: "Confirmed" },
+  "in-progress": { color: "purple", label: "In Progress" },
+  completed: { color: "green", label: "Completed" },
+  cancelled: { color: "red", label: "Cancelled" },
 };
 
-export default function BookingsList({ 
-  bookings = [], 
-  loading, 
+export default function BookingsList({
+  bookings = [],
+  loading,
   error,
   pagination = {},
   onPageChange,
   onRefresh,
   onViewDetails,
   onUpdateStatus,
-  onExport
+  onExport,
 }) {
   const [selectedBookings, setSelectedBookings] = useState(new Set());
   const [actionMenuOpen, setActionMenuOpen] = useState(null);
@@ -49,7 +49,7 @@ export default function BookingsList({
     if (selectedBookings.size === bookings.length) {
       setSelectedBookings(new Set());
     } else {
-      setSelectedBookings(new Set(bookings.map(b => b._id)));
+      setSelectedBookings(new Set(bookings.map((b) => b._id)));
     }
   };
 
@@ -62,7 +62,7 @@ export default function BookingsList({
       await onUpdateStatus(booking._id, { status: newStatus });
       setActionMenuOpen(null);
     } catch (error) {
-      console.error('Failed to update status:', error);
+      console.error("Failed to update status:", error);
     }
   };
 
@@ -70,7 +70,9 @@ export default function BookingsList({
     if (selectedBookings.size === 0) {
       onExport();
     } else {
-      const selectedBookingData = bookings.filter(b => selectedBookings.has(b._id));
+      const selectedBookingData = bookings.filter((b) =>
+        selectedBookings.has(b._id)
+      );
       onExport(selectedBookingData);
     }
   };
@@ -85,21 +87,28 @@ export default function BookingsList({
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleDateString('en-IN', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+    if (!dateString) return "N/A";
+    return new Date(dateString).toLocaleDateString("en-IN", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
   const formatTime = (timeString) => {
-    if (!timeString) return 'N/A';
-    if (timeString.includes(':')) return timeString;
-    return new Date(timeString).toLocaleTimeString('en-IN', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
+    if (!timeString) return "N/A";
+    const isOnlyTime = /^[0-9]{1,2}:[0-9]{2}(\s?[APMapm]{2})?$/.test(
+      timeString
+    );
+    if (isOnlyTime) return timeString;
+
+    const date = new Date(timeString);
+    if (isNaN(date)) return "Invalid Date";
+
+    return date.toLocaleTimeString("en-IN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
     });
   };
 
@@ -140,23 +149,25 @@ export default function BookingsList({
               <span className={styles.selectedCount}>
                 {selectedBookings.size} selected
               </span>
-              <button className={styles.bulkActionBtn} onClick={handleBulkExport}>
+              <button
+                className={styles.bulkActionBtn}
+                onClick={handleBulkExport}>
                 <FiDownload />
                 Export Selected
               </button>
             </div>
           )}
         </div>
-        
+
         <div className={styles.listControls}>
           <button className="btn btn-outline" onClick={onRefresh}>
             <FiRefreshCw />
             Refresh
           </button>
-          <button className="btn btn-outline" onClick={handleBulkExport}>
+          {/* <button className="btn btn-outline" onClick={handleBulkExport}>
             <FiDownload />
             Export All
-          </button>
+          </button> */}
         </div>
       </div>
 
@@ -165,14 +176,16 @@ export default function BookingsList({
           <div className={`${styles.headerCell} ${styles.checkbox}`}>
             <input
               type="checkbox"
-              checked={selectedBookings.size === bookings.length && bookings.length > 0}
+              checked={
+                selectedBookings.size === bookings.length && bookings.length > 0
+              }
               onChange={handleSelectAll}
             />
           </div>
           <div className={styles.headerCell}>Booking ID</div>
           <div className={styles.headerCell}>Customer</div>
           <div className={styles.headerCell}>Service</div>
-          <div className={styles.headerCell}>Provider</div>
+          {/* <div className={styles.headerCell}>Provider</div> */}
           <div className={styles.headerCell}>Date & Time</div>
           <div className={styles.headerCell}>Amount</div>
           <div className={styles.headerCell}>Status</div>
@@ -183,8 +196,10 @@ export default function BookingsList({
           {bookings.length === 0 ? (
             <div className={styles.emptyState}>
               <p>No bookings found</p>
-              <p className={styles.emptySubtitle}>Try adjusting your filters or refresh the page</p>
-                          </div>
+              <p className={styles.emptySubtitle}>
+                Try adjusting your filters or refresh the page
+              </p>
+            </div>
           ) : (
             bookings.map((booking) => (
               <div key={booking._id} className={styles.tableRow}>
@@ -195,25 +210,27 @@ export default function BookingsList({
                     onChange={() => handleSelectBooking(booking._id)}
                   />
                 </div>
-                
+
                 <div className={styles.tableCell}>
                   <span className={styles.bookingId}>
-                    {booking.bookingId || booking._id?.substring(0, 8) || 'N/A'}
+                    {booking.bookingId || booking._id?.substring(0, 8) || "N/A"}
                   </span>
                 </div>
-                
+
                 <div className={styles.tableCell}>
                   <div className={styles.customerInfo}>
                     <div className={styles.customerAvatar}>
-                      {booking.user?.name?.charAt(0) || 'U'}
+                      {booking.user?.name?.charAt(0) || "U"}
                     </div>
                     <div className={styles.customerDetails}>
                       <div className={styles.customerName}>
-                        {booking.user?.name || 'Unknown User'}
+                        {booking.user?.name || "Unknown User"}
                       </div>
                       <div className={styles.customerContact}>
                         <FiPhone size={12} />
-                        {booking.user?.phone || booking.contactInfo?.phone || 'No phone'}
+                        {booking.user?.phone ||
+                          booking.contactInfo?.phone ||
+                          "No phone"}
                       </div>
                     </div>
                   </div>
@@ -222,19 +239,19 @@ export default function BookingsList({
                 <div className={styles.tableCell}>
                   <div className={styles.serviceInfo}>
                     <div className={styles.serviceName}>
-                      {booking.service?.name || 'Service not found'}
+                      {booking.service?.name || "Service not found"}
                     </div>
-                    <div className={styles.serviceLocation}>
+                    {/* <div className={styles.serviceLocation}>
                       <FiMapPin size={12} />
                       {booking.address ? 
                         `${booking.address.city}, ${booking.address.state}` :
                         booking.location || 'Location not specified'
                       }
-                    </div>
+                    </div> */}
                   </div>
                 </div>
 
-                <div className={styles.tableCell}>
+                {/* <div className={styles.tableCell}>
                   <div className={styles.providerInfo}>
                     <div className={styles.providerAvatar}>
                       {booking.provider?.name?.charAt(0) || 'P'}
@@ -243,7 +260,7 @@ export default function BookingsList({
                       {booking.provider?.name || 'Not assigned'}
                     </span>
                   </div>
-                </div>
+                </div> */}
 
                 <div className={styles.tableCell}>
                   <div className={styles.datetimeInfo}>
@@ -252,14 +269,23 @@ export default function BookingsList({
                     </div>
                     <div className={styles.bookingTime}>
                       <FiClock size={12} />
-                      {formatTime(booking.scheduledTime || booking.scheduledDate)}
+                      {formatTime(
+                        booking.scheduledTime ||
+                          booking.scheduledDate ||
+                          booking.createdAt
+                      )}
                     </div>
                   </div>
                 </div>
 
                 <div className={styles.tableCell}>
                   <span className={styles.bookingAmount}>
-                    ₹{(booking.pricing?.totalAmount || booking.amount || 0).toLocaleString()}
+                    ₹
+                    {(
+                      booking.pricing?.totalAmount ||
+                      booking.amount ||
+                      0
+                    ).toLocaleString()}
                   </span>
                 </div>
 
@@ -269,72 +295,76 @@ export default function BookingsList({
 
                 <div className={styles.tableCell}>
                   <div className={styles.actionButtons}>
-                    <button 
-                      className={`${styles.actionBtn} ${styles.view}`} 
+                    <button
+                      className={`${styles.actionBtn} ${styles.view}`}
                       title="View Details"
-                      onClick={() => onViewDetails(booking)}
-                    >
+                      onClick={() => onViewDetails(booking)}>
                       <FiEye />
                     </button>
-                    
+
                     {booking.messages?.length > 0 && (
-                      <button 
-                        className={`${styles.actionBtn} ${styles.message}`} 
-                        title="View Messages"
-                      >
+                      <button
+                        className={`${styles.actionBtn} ${styles.message}`}
+                        title="View Messages">
                         <FiMessageCircle />
                       </button>
                     )}
-                    
+
                     <div className={styles.actionMenu}>
-                      <button 
+                      <button
                         className={`${styles.actionBtn} ${styles.more}`}
                         title="More Options"
-                        onClick={() => setActionMenuOpen(
-                          actionMenuOpen === booking._id ? null : booking._id
-                        )}
-                      >
+                        onClick={() =>
+                          setActionMenuOpen(
+                            actionMenuOpen === booking._id ? null : booking._id
+                          )
+                        }>
                         <FiMoreVertical />
                       </button>
-                      
+
                       {actionMenuOpen === booking._id && (
                         <div className={styles.actionDropdown}>
-                          {booking.status === 'pending' && (
-                            <button 
-                              onClick={() => handleStatusUpdate(booking, 'confirmed')}
-                              className={styles.dropdownItem}
-                            >
+                          {booking.status === "pending" && (
+                            <button
+                              onClick={() =>
+                                handleStatusUpdate(booking, "confirmed")
+                              }
+                              className={styles.dropdownItem}>
                               Confirm Booking
                             </button>
                           )}
-                          {booking.status === 'confirmed' && (
-                            <button 
-                              onClick={() => handleStatusUpdate(booking, 'in-progress')}
-                              className={styles.dropdownItem}
-                            >
+                          {booking.status === "confirmed" && (
+                            <button
+                              onClick={() =>
+                                handleStatusUpdate(booking, "in-progress")
+                              }
+                              className={styles.dropdownItem}>
                               Start Service
                             </button>
                           )}
-                          {booking.status === 'in-progress' && (
-                            <button 
-                              onClick={() => handleStatusUpdate(booking, 'completed')}
-                              className={styles.dropdownItem}
-                            >
+                          {booking.status === "in-progress" && (
+                            <button
+                              onClick={() =>
+                                handleStatusUpdate(booking, "completed")
+                              }
+                              className={styles.dropdownItem}>
                               Complete Service
                             </button>
                           )}
-                          {['pending', 'confirmed'].includes(booking.status) && (
-                            <button 
-                              onClick={() => handleStatusUpdate(booking, 'cancelled')}
-                              className={`${styles.dropdownItem} ${styles.danger}`}
-                            >
+                          {["pending", "confirmed"].includes(
+                            booking.status
+                          ) && (
+                            <button
+                              onClick={() =>
+                                handleStatusUpdate(booking, "cancelled")
+                              }
+                              className={`${styles.dropdownItem} ${styles.danger}`}>
                               Cancel Booking
                             </button>
                           )}
-                          <button 
+                          <button
                             onClick={() => onViewDetails(booking)}
-                            className={styles.dropdownItem}
-                          >
+                            className={styles.dropdownItem}>
                             View Full Details
                           </button>
                         </div>
@@ -352,38 +382,40 @@ export default function BookingsList({
       {pagination.pages > 1 && (
         <div className={styles.tablePagination}>
           <div className={styles.paginationInfo}>
-            Showing {((pagination.page - 1) * 10) + 1}-{Math.min(pagination.page * 10, pagination.total)} of {pagination.total} bookings
+            Showing {(pagination.page - 1) * 10 + 1}-
+            {Math.min(pagination.page * 10, pagination.total)} of{" "}
+            {pagination.total} bookings
           </div>
           <div className={styles.paginationControls}>
-            <button 
-              className={styles.paginationBtn} 
+            <button
+              className={styles.paginationBtn}
               disabled={!pagination.hasPrev}
-              onClick={() => handlePageClick(pagination.page - 1)}
-            >
+              onClick={() => handlePageClick(pagination.page - 1)}>
               Previous
             </button>
-            
+
             {Array.from({ length: Math.min(5, pagination.pages) }, (_, i) => {
-              const pageNum = pagination.page <= 3 ? i + 1 : pagination.page - 2 + i;
+              const pageNum =
+                pagination.page <= 3 ? i + 1 : pagination.page - 2 + i;
               if (pageNum <= pagination.pages) {
                 return (
                   <button
                     key={pageNum}
-                    className={`${styles.paginationBtn} ${pageNum === pagination.page ? styles.active : ''}`}
-                    onClick={() => handlePageClick(pageNum)}
-                  >
+                    className={`${styles.paginationBtn} ${
+                      pageNum === pagination.page ? styles.active : ""
+                    }`}
+                    onClick={() => handlePageClick(pageNum)}>
                     {pageNum}
                   </button>
                 );
               }
               return null;
             })}
-            
-            <button 
-              className={styles.paginationBtn} 
+
+            <button
+              className={styles.paginationBtn}
               disabled={!pagination.hasNext}
-              onClick={() => handlePageClick(pagination.page + 1)}
-            >
+              onClick={() => handlePageClick(pagination.page + 1)}>
               Next
             </button>
           </div>

@@ -42,12 +42,12 @@ const menuItems = [
     label: 'Analytics',
     badge: null
   },
-  {
-    path: '/settings',
-    icon: FiSettings,
-    label: 'Settings',
-    badge: null
-  }
+  // {
+  //   path: '/settings',
+  //   icon: FiSettings,
+  //   label: 'Settings',
+  //   badge: null
+  // }
 ];
 
 export default function Sidebar({ isOpen, setIsOpen, isMobile, onCollapse }) {

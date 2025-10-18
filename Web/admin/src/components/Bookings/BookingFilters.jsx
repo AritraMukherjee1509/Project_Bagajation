@@ -301,7 +301,7 @@ export default function BookingFilters({ filters, setFilters, loading }) {
         </div>
 
         {/* Provider Filter */}
-        <div className={styles.filterGroup}>
+        {/* <div className={styles.filterGroup}>
           <label className={styles.filterLabel}>Provider</label>
           <select
             value={filters.provider || 'all'}
@@ -319,7 +319,7 @@ export default function BookingFilters({ filters, setFilters, loading }) {
           {filtersLoading && (
             <FiRefreshCw className={styles.filterLoading} />
           )}
-        </div>
+        </div> */}
 
         {/* Amount Range Filter */}
         <div className={styles.filterGroup}>

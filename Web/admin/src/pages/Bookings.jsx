@@ -248,14 +248,14 @@ export default function Bookings() {
             <FiRefreshCw className={loading ? 'animate-spin' : ''} />
             Refresh
           </button>
-          <button 
+          {/* <button 
             className="btn btn-outline" 
             onClick={() => handleExport()}
             disabled={loading || authLoading}
           >
             <FiDownload />
             Export All
-          </button>
+          </button> */}
         </div>
       </div>
 
