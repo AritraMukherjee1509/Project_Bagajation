@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../Auth/AuthProvider';
 import { 
   FiBell, 
@@ -15,6 +16,7 @@ export default function Header({ toggleSidebar, isMobile }) {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const notifications = [
     {
@@ -104,13 +106,13 @@ export default function Header({ toggleSidebar, isMobile }) {
                 </div>
               </div>
               <div className={styles.dropdownMenu}>
-                <button className={styles.dropdownItem}>
+                <button className={styles.dropdownItem} onClick={() => navigate('/bookings')}>
                   <FiUser />
-                  Profile Settings
+                  Bookings
                 </button>
-                <button className={styles.dropdownItem}>
+                <button className={styles.dropdownItem} onClick={() => navigate('/services')}>
                   <FiSettings />
-                  Account Settings
+                  Services
                 </button>
                 <hr className={styles.dropdownDivider} />
                 <button className={`${styles.dropdownItem} ${styles.logout}`} onClick={logout}>
