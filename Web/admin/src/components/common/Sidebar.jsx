@@ -30,18 +30,18 @@ const menuItems = [
     label: 'Services',
     badge: null
   },
-  // {
-  //   path: '/users',
-  //   icon: FiUsers,
-  //   label: 'Users',
-  //   badge: null
-  // },
-  // {
-  //   path: '/analytics',
-  //   icon: FiGrid,
-  //   label: 'Analytics',
-  //   badge: null
-  // },
+  {
+    path: '/users',
+    icon: FiUsers,
+    label: 'Users',
+    badge: null
+  },
+  {
+    path: '/analytics',
+    icon: FiGrid,
+    label: 'Analytics',
+    badge: null
+  },
   // {
   //   path: '/settings',
   //   icon: FiSettings,
