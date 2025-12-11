@@ -184,14 +184,14 @@ export default function ServicesGrid({
             <h3 className="h3">{title}</h3>
             <p className={s.subtitle}>Discover top-rated professionals in your area</p>
           </div>
-          {!showPagination && (
+          {/* {!showPagination && (
             <Link className={s.seeAll} to="/services">
               See All
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M5 12h14M13 5l7 7-7 7"/>
               </svg>
             </Link>
-          )}
+          )} */}
         </div>
         
         <div className={`${s.grid} ${isVisible ? s.visible : ''}`}>
