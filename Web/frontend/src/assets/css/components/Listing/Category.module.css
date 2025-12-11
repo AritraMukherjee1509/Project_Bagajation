@@ -219,6 +219,10 @@
   transform: scale(1.1);
 }
 
+.categoryCard:hover .categoryIcon {
+  transform: scale(1.1) rotate(5deg);
+}
+
 /* Animations */
 @keyframes slideInUp {
   from {
