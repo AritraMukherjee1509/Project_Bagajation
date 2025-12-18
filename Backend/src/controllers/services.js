@@ -11,7 +11,8 @@ const mongoose = require('mongoose');
 // @access  Public
 const getServices = async (req, res, next) => {
   try {
-    // Start with base query for active services
+    console.log('🔍 getServices called with query:', req.query);
+    
     let query = { status: 'active' };
 
     // Search functionality
@@ -21,20 +22,26 @@ const getServices = async (req, res, next) => {
         { name: searchRegex },
         { description: searchRegex },
         { category: searchRegex },
+        { subcategory: searchRegex },
         { tags: { $in: [searchRegex] } }
       ];
     }
 
-    // Category filter - only apply if not "all"
+    // Category filter
     if (req.query.category && req.query.category !== 'all') {
       query.category = req.query.category;
+      console.log('📁 Filtering by category:', query.category);
     }
 
-    // Status filter - only apply if not "all" and if admin
-    if (req.query.status && req.query.status !== 'all') {
-      // Only admins can filter by status other than active
-      if (req.admin) {
-        query.status = req.query.status;
+    // Subcategory filter - SPECIAL HANDLING FOR "All Types"
+    if (req.query.subcategory && req.query.subcategory !== 'all') {
+      if (req.query.subcategory === 'All Types') {
+        // For "All Types", just filter by category (already set above)
+        console.log('📂 Showing all services in category (All Types selected)');
+      } else {
+        // For specific subcategory, filter exactly
+        query.subcategory = req.query.subcategory;
+        console.log('📂 Filtering by subcategory:', query.subcategory);
       }
     }
 
@@ -82,18 +89,12 @@ const getServices = async (req, res, next) => {
       query['availability.isAvailable'] = true;
     }
 
+    console.log('🔎 Final MongoDB query:', JSON.stringify(query, null, 2));
+
     // Sort
     let sortBy = req.query.sortBy || 'createdAt';
     let sortOrder = req.query.order === 'asc' ? 1 : -1;
     
-    // Handle legacy sort parameter
-    if (req.query.sort) {
-      sortBy = req.query.sort;
-      sortOrder = sortBy.startsWith('-') ? -1 : 1;
-      sortBy = sortBy.replace(/^-/, '');
-    }
-
-    // Custom sort options
     if (sortBy === 'price-low') {
       sortBy = 'pricing.basePrice';
       sortOrder = 1;
@@ -118,6 +119,7 @@ const getServices = async (req, res, next) => {
 
     // Get total count
     const total = await Service.countDocuments(query);
+    console.log('📊 Total matching documents:', total);
 
     // Execute query with population
     const services = await Service.find(query)
@@ -128,7 +130,12 @@ const getServices = async (req, res, next) => {
       .sort(sortObject)
       .skip(skip)
       .limit(limit)
-      .lean(); // Use lean for better performance
+      .lean();
+
+    console.log('📦 Services found:', services.length);
+    if (services.length > 0) {
+      console.log('📄 Sample service subcategories:', services.slice(0, 3).map(s => s.subcategory));
+    }
 
     // Calculate pagination
     const totalPages = Math.ceil(total / limit);
@@ -152,7 +159,7 @@ const getServices = async (req, res, next) => {
       data: services
     });
   } catch (error) {
-    console.error('Get services error:', error);
+    console.error('💥 Get services error:', error);
     next(error);
   }
 };

@@ -23,28 +23,28 @@ const serviceSchema = new mongoose.Schema({
   category: {
     type: String,
     required: [true, 'Please specify service category'],
-    enum: [
-      // Existing
-      'AC Services',
-      'Electrical',
-      'Plumbing',
-      'Cleaning',
-      'Security',
-      'Maintenance',
-      'Repair',
-      'Installation',
-      'Other',
+    // enum: [
+    //   // Existing
+    //   'AC Services',
+    //   'Electrical',
+    //   'Plumbing',
+    //   'Cleaning',
+    //   'Security',
+    //   'Maintenance',
+    //   'Repair',
+    //   'Installation',
+    //   'Other',
 
-      // New categories you’re using
-      'Packers & Movers',
-      'Car Care',
-      'Interior',
-      'Electronics',
-      'Solar',
-      'Labour',
-      'Construction',
-      'Appliances',
-    ]
+    //   // New categories you’re using
+    //   'Packers & Movers',
+    //   'Car Care',
+    //   'Interior',
+    //   'Electronics',
+    //   'Solar',
+    //   'Labour',
+    //   'Construction',
+    //   'Appliances',
+    // ]
   },
   subcategory: String,
   pricing: {

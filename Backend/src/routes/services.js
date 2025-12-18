@@ -1,3 +1,4 @@
+// src/routes/services.js
 const express = require('express');
 const {
   getServices,
@@ -19,13 +20,31 @@ const { uploadConfigs, handleUploadError, cleanupFiles } = require('../middlewar
 
 const router = express.Router();
 
-// Public routes
-router.get('/', queryValidations.pagination, queryValidations.search, getServices);
-router.get('/search', queryValidations.search, searchServices);
+// Public routes - UPDATED with proper validation
+router.get('/', 
+  queryValidations.pagination, 
+  queryValidations.search, 
+  getServices
+);
+
+router.get('/search', 
+  queryValidations.search, 
+  queryValidations.pagination,
+  searchServices
+);
+
 router.get('/featured', getFeaturedServices);
 router.get('/popular', getPopularServices);
-router.get('/category/:category', getServicesByCategory);
-router.get('/:id', optionalAuth, getService);
+
+router.get('/category/:category', 
+  queryValidations.pagination,
+  getServicesByCategory
+);
+
+router.get('/:id', 
+  optionalAuth, 
+  getService
+);
 
 // Protected routes
 router.post('/', 

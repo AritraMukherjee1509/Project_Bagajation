@@ -1,6 +1,6 @@
 // src/components/Listing/ServicesGrid.jsx
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import s from '../../assets/css/components/Listing/ServicesGrid.module.css';
 import { 
   FiStar, 
@@ -22,11 +22,22 @@ export default function ServicesGrid({
   onPageChange = null,
   showPagination = false
 }) {
+  const navigate = useNavigate();
   const [favorites, setFavorites] = useState(new Set());
   const [isVisible, setIsVisible] = useState(false);
   const [updatingFavorites, setUpdatingFavorites] = useState(new Set());
   const sectionRef = useRef(null);
   const { user, isAuthenticated } = useAuth();
+
+  // Debug log to check if services are received
+  useEffect(() => {
+    console.log('ServicesGrid received:', { 
+      servicesCount: services?.length, 
+      loading, 
+      title,
+      services: services?.slice(0, 2) // Log first 2 services
+    });
+  }, [services, loading]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -65,22 +76,24 @@ export default function ServicesGrid({
     }
   };
 
-  const toggleFavorite = async (serviceId) => {
+  const toggleFavorite = async (e, serviceId) => {
+    e.preventDefault();
+    e.stopPropagation();
+
     if (!isAuthenticated) {
-      // Show login prompt or redirect
       alert('Please login to add favorites');
+      navigate('/login');
       return;
     }
 
     if (updatingFavorites.has(serviceId)) {
-      return; // Prevent multiple requests
+      return;
     }
 
     try {
       setUpdatingFavorites(prev => new Set([...prev, serviceId]));
       
       if (favorites.has(serviceId)) {
-        // Remove from favorites
         await usersAPI.removeFromFavorites(user._id, serviceId);
         setFavorites(prev => {
           const newFavorites = new Set(prev);
@@ -88,7 +101,6 @@ export default function ServicesGrid({
           return newFavorites;
         });
       } else {
-        // Add to favorites
         await usersAPI.addToFavorites(user._id, serviceId);
         setFavorites(prev => new Set([...prev, serviceId]));
       }
@@ -105,6 +117,11 @@ export default function ServicesGrid({
     }
   };
 
+  const handleServiceClick = (serviceId) => {
+    console.log('Navigating to service:', serviceId);
+    navigate(`/service/${serviceId}`);
+  };
+
   const formatPrice = (price) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -119,40 +136,37 @@ export default function ServicesGrid({
   };
 
   const getServiceImage = (service) => {
-    console.log('Service Images:', service.images);
-
-    if (service.images && service.images.length > 0) {
-      return service.images[0].url;
+    if (service.images && Array.isArray(service.images) && service.images.length > 0) {
+      if (service.images[0]?.url) {
+        return service.images[0].url;
+      }
+      if (typeof service.images[0] === 'string') {
+        return service.images[0];
+      }
     }
-    // Fallback image based on category
+
+    if (service.image) {
+      return typeof service.image === 'string' ? service.image : service.image.url;
+    }
+
     const fallbackImages = {
-      'AC Services': 'https://unsplash.com/photos/rear-view-of-a-man-cleaning-air-conditioning-system-HsNtqUNWOqk',
+      'AC Services': 'https://images.unsplash.com/photo-1631545967298-c7368e12e0b4?q=80&w=1400&auto=format&fit=crop',
       'Electrical': 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=1400&auto=format&fit=crop',
-      'Plumbing': 'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?q=80&w=1400&auto=format&fit=crop',
-      'Cleaning': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=1400&auto=format&fit=crop',
-      'Security': 'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?q=80&w=1400&auto=format&fit=crop',
-      'Maintenance': 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=1400&auto=format&fit=crop',
-      // Additional categories from your list
-  'Shifting': 'https://images.unsplash.com/photo-1556662423-f2736b8c87de?q=80&w=1400&auto=format&fit=crop', // Moved boxes/truck image
-  'Car Wash': 'https://images.unsplash.com/photo-1620067691866-96b42b662363?q=80&w=1400&auto=format&fit=crop', // Cleaner, direct car wash
-  'House Wash': 'https://images.unsplash.com/photo-1581579188871-45ea61f2a0c6?q=80&w=1400&auto=format&fit=crop', // Retaining your excellent pressure washing image
-  'House Interior': 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1400&auto=format&fit=crop', // Retaining your great interior room image
-  'Electronics': 'https://images.unsplash.com/photo-1598460599187-21a473f309a4?q=80&w=1400&auto=format&fit=crop', // Updated to a diverse electronics setup
-  'Second Hand Electronics': 'https://images.unsplash.com/photo-1619565576725-7df8025219e9?q=80&w=1400&auto=format&fit=crop', // Good image representing used/older items
-  'Solar': 'https://images.unsplash.com/photo-1509395176047-4a66953fd231?q=80&w=1400&auto=format&fit=crop', // Retaining your solar panels image
-  'Labour Lifting': 'https://images.unsplash.com/photo-1549477017-d7756f773954?q=80&w=1400&auto=format&fit=crop', // Updated to a focused shot of lifting/carrying
-  'Scaffolding': 'https://images.unsplash.com/photo-1593590514050-6136d85600b8?q=80&w=1400&auto=format&fit=crop', // Clearer focus on construction scaffolding
-  'Water Purifier': 'https://images.unsplash.com/photo-1534066060086-538421d09794?q=80&w=1400&auto=format&fit=crop' // Updated to a clear image of a water filter system
+      'Appliances': 'https://images.unsplash.com/photo-1556911220-bff31c812dba?q=80&w=1400&auto=format&fit=crop',
+      'Electronics': 'https://images.unsplash.com/photo-1598460599187-21a473f309a4?q=80&w=1400&auto=format&fit=crop',
+      'Solar': 'https://images.unsplash.com/photo-1509391366360-2e959784a276?q=80&w=1400&auto=format&fit=crop',
     };
+
     return fallbackImages[service.category] || fallbackImages['AC Services'];
   };
 
   if (loading) {
     return (
-      <section ref={sectionRef} className="section">
-        <div className="container">
+      <section ref={sectionRef} className={s.section || 'section'}>
+        <div className={s.container || 'container'}>
           <div className={s.loading}>
-            <div className={s.spinner}>Loading services...</div>
+            <div className={s.spinner}></div>
+            <p>Loading services...</p>
           </div>
         </div>
       </section>
@@ -161,15 +175,19 @@ export default function ServicesGrid({
 
   if (!services || services.length === 0) {
     return (
-      <section ref={sectionRef} className="section">
-        <div className="container">
+      <section ref={sectionRef} className={s.section || 'section'}>
+        <div className={s.container || 'container'}>
           <div className={`${s.head} ${isVisible ? s.visible : ''}`}>
             <div className={s.titleSection}>
               <h3 className="h3">{title}</h3>
             </div>
           </div>
           <div className={s.noServices}>
-            <p>No services found matching your criteria.</p>
+            <div className={s.emptyState}>
+              <FiMapPin size={48} />
+              <h4>No services found</h4>
+              <p>Try adjusting your search or filters to find what you're looking for.</p>
+            </div>
           </div>
         </div>
       </section>
@@ -177,36 +195,41 @@ export default function ServicesGrid({
   }
 
   return (
-    <section ref={sectionRef} className="section">
-      <div className="container">
+    <section ref={sectionRef} className={s.section || 'section'}>
+      <div className={s.container || 'container'}>
         <div className={`${s.head} ${isVisible ? s.visible : ''}`}>
           <div className={s.titleSection}>
             <h3 className="h3">{title}</h3>
-            <p className={s.subtitle}>Discover top-rated professionals in your area</p>
+            <p className={s.subtitle}>
+              {services.length} service{services.length !== 1 ? 's' : ''} available
+            </p>
           </div>
-          {/* {!showPagination && (
-            <Link className={s.seeAll} to="/services">
-              See All
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M5 12h14M13 5l7 7-7 7"/>
-              </svg>
-            </Link>
-          )} */}
         </div>
         
         <div className={`${s.grid} ${isVisible ? s.visible : ''}`}>
-          {services.map((service, index) => (
-            <div 
-              key={service._id} 
-              className={s.cardWrapper}
-              style={{ '--delay': `${index * 0.1}s` }}
-            >
-              <div className={s.card}>
-                <Link to={`/service/${service._id}`} className={s.cardLink}>
+          {services.map((service, index) => {
+            if (!service || !service._id) {
+              console.warn('Invalid service object:', service);
+              return null;
+            }
+
+            return (
+              <div 
+                key={service._id} 
+                className={s.cardWrapper}
+                style={{ '--delay': `${index * 0.1}s` }}
+              >
+                <div 
+                  className={s.card}
+                  onClick={() => handleServiceClick(service._id)}
+                  style={{ cursor: 'pointer' }}
+                >
                   <div className={s.imageContainer}>
                     <div 
                       className={s.photo} 
                       style={{ backgroundImage: `url(${getServiceImage(service)})` }} 
+                      role="img"
+                      aria-label={service.name}
                     />
                     
                     {service.provider?.verification?.status === 'verified' && (
@@ -216,10 +239,25 @@ export default function ServicesGrid({
                       </div>
                     )}
                     
+                    {service.featured && (
+                      <div className={s.featuredBadge}>
+                        Featured
+                      </div>
+                    )}
+                    
                     <div className={`${s.availabilityBadge} ${service.availability?.isAvailable ? s.available : s.busy}`}>
                       <FiClock />
                       {service.availability?.isAvailable ? 'Available' : 'Busy'}
                     </div>
+
+                    <button 
+                      className={`${s.favoriteBtn} ${favorites.has(service._id) ? s.favorited : ''}`}
+                      onClick={(e) => toggleFavorite(e, service._id)}
+                      disabled={updatingFavorites.has(service._id)}
+                      aria-label={favorites.has(service._id) ? 'Remove from favorites' : 'Add to favorites'}
+                    >
+                      <FiHeart />
+                    </button>
                   </div>
 
                   <div className={s.body}>
@@ -233,8 +271,12 @@ export default function ServicesGrid({
                             />
                           ))}
                         </div>
-                        <span className={s.ratingText}>{service.ratings?.averageRating?.toFixed(1) || '0.0'}</span>
-                        <span className={s.reviewCount}>({service.ratings?.totalReviews || 0} reviews)</span>
+                        <span className={s.ratingText}>
+                          {service.ratings?.averageRating?.toFixed(1) || '0.0'}
+                        </span>
+                        <span className={s.reviewCount}>
+                          ({service.ratings?.totalReviews || 0})
+                        </span>
                       </div>
                       
                       <div className={s.location}>
@@ -245,9 +287,13 @@ export default function ServicesGrid({
 
                     <h4 className={s.title}>{service.name}</h4>
                     
+                    {service.shortDescription && (
+                      <p className={s.description}>{service.shortDescription}</p>
+                    )}
+                    
                     <div className={s.pricing}>
                       <span className={s.price}>
-                        {formatPrice(service.pricing?.discountPrice || service.pricing?.basePrice)}
+                        {formatPrice(service.pricing?.discountPrice || service.pricing?.basePrice || 0)}
                       </span>
                       {service.pricing?.discountPrice && (
                         <>
@@ -261,45 +307,35 @@ export default function ServicesGrid({
                       )}
                     </div>
 
-                    {/* <div className={s.providerInfo}>
-                      <div className={s.provider}>
-                        <div className={s.avatar}>
-                          {service.provider?.avatar?.url ? (
-                            <img src={service.provider.avatar.url} alt={service.provider.name} />
-                          ) : (
-                            service.provider?.name?.charAt(0) || 'P'
-                          )}
-                        </div>
-                        <div className={s.providerDetails}>
-                          <div className={s.name}>{service.provider?.name || 'Provider'}</div>
-                          <div className={s.experience}>
-                            {service.provider?.experience?.years || 0}+ years experience
+                    {service.provider && (
+                      <div className={s.providerInfo}>
+                        <div className={s.provider}>
+                          <div className={s.avatar}>
+                            {service.provider.avatar?.url ? (
+                              <img src={service.provider.avatar.url} alt={service.provider.name} />
+                            ) : (
+                              <span>{service.provider.name?.charAt(0) || 'P'}</span>
+                            )}
+                          </div>
+                          <div className={s.providerDetails}>
+                            <div className={s.name}>{service.provider.name || 'Service Provider'}</div>
+                            {service.provider.experience?.years && (
+                              <div className={s.experience}>
+                                {service.provider.experience.years}+ years exp.
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
-                    </div> */}
+                    )}
                   </div>
-                </Link>
-
-                <button 
-                  className={`${s.favoriteBtn} ${favorites.has(service._id) ? s.favorited : ''}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    toggleFavorite(service._id);
-                  }}
-                  disabled={updatingFavorites.has(service._id)}
-                  aria-label="Add to favorites"
-                >
-                  <FiHeart />
-                </button>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
-        {/* Pagination */}
-        {showPagination && pagination && onPageChange && (
+        {showPagination && pagination && onPageChange && pagination.total > pagination.limit && (
           <div className={s.pagination}>
             <button 
               className={s.pageBtn}
@@ -311,17 +347,45 @@ export default function ServicesGrid({
             </button>
             
             <div className={s.pageNumbers}>
-              {Array.from({ length: Math.ceil(pagination.total / pagination.limit) }, (_, i) => i + 1)
-                .slice(Math.max(0, pagination.page - 3), Math.min(Math.ceil(pagination.total / pagination.limit), pagination.page + 2))
-                .map(pageNum => (
-                  <button
-                    key={pageNum}
-                    className={`${s.pageNumber} ${pageNum === pagination.page ? s.active : ''}`}
-                    onClick={() => onPageChange(pageNum)}
-                  >
-                    {pageNum}
-                  </button>
-                ))}
+              {(() => {
+                const totalPages = Math.ceil(pagination.total / pagination.limit);
+                const currentPage = pagination.page;
+                const pages = [];
+                
+                if (currentPage > 3) {
+                  pages.push(1);
+                  if (currentPage > 4) {
+                    pages.push('...');
+                  }
+                }
+                
+                for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) {
+                  pages.push(i);
+                }
+                
+                if (currentPage < totalPages - 2) {
+                  if (currentPage < totalPages - 3) {
+                    pages.push('...');
+                  }
+                  pages.push(totalPages);
+                }
+                
+                return pages.map((pageNum, idx) => {
+                  if (pageNum === '...') {
+                    return <span key={`ellipsis-${idx}`} className={s.ellipsis}>...</span>;
+                  }
+                  
+                  return (
+                    <button
+                      key={pageNum}
+                      className={`${s.pageNumber} ${pageNum === currentPage ? s.active : ''}`}
+                      onClick={() => onPageChange(pageNum)}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                });
+              })()}
             </div>
             
             <button 

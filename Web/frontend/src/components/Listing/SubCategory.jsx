@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import s from '../../assets/css/components/Listing/SubCategory.module.css';
 import { FiChevronLeft, FiChevronRight, FiArrowLeft } from 'react-icons/fi';
 
+// src/components/Listing/SubCategory.jsx - Add debug logging
 export default function SubCategory({
   category,
   subCategories = {},
@@ -14,6 +15,16 @@ export default function SubCategory({
   const [isVisible, setIsVisible] = useState(false);
   const scrollContainerRef = useRef(null);
   const sectionRef = useRef(null);
+
+  // Debug logging
+  useEffect(() => {
+    console.log('SubCategory rendered:', {
+      category,
+      subCategoriesCount: Object.keys(subCategories).length,
+      subCategories: Object.keys(subCategories),
+      selectedSubCategory
+    });
+  }, [category, subCategories, selectedSubCategory]);
 
   useEffect(() => {
     setIsVisible(true);
@@ -36,11 +47,12 @@ export default function SubCategory({
   };
 
   const handleSubCategoryClick = (subCatName) => {
+    console.log('SubCategory clicked:', subCatName);
     const newActive = activeSubCategory === subCatName ? null : subCatName;
     setActiveSubCategory(newActive);
 
     if (onSubCategorySelect) {
-      onSubCategorySelect(newActive);
+      onSubCategorySelect(subCatName); // Always pass the clicked subcategory
     }
   };
 
@@ -49,6 +61,8 @@ export default function SubCategory({
     ...data,
     count: data?.services?.length || 0
   }));
+
+  console.log('Subcategory array:', subCategoryArray);
 
   return (
     <section ref={sectionRef} className={`section ${s.wrap}`}>
@@ -60,64 +74,71 @@ export default function SubCategory({
           </button>
           <div className={s.titleGroup}>
             <h2 className={s.title}>{category}</h2>
-            <p className={s.subtitle}>Select a type to view available services</p>
+            <p className={s.subtitle}>
+              Select a type to view available services ({subCategoryArray.length} type{subCategoryArray.length !== 1 ? 's' : ''})
+            </p>
           </div>
         </div>
 
-        <div className={`${s.subCategoryContainer} ${isVisible ? s.visible : ''}`}>
-          <button
-            type="button"
-            className={s.scrollBtn}
-            onClick={scrollLeft}
-            aria-label="Scroll left"
-          >
-            <FiChevronLeft />
-          </button>
+        {subCategoryArray.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+            No subcategories available for {category}
+          </div>
+        ) : (
+          <div className={`${s.subCategoryContainer} ${isVisible ? s.visible : ''}`}>
+            <button
+              type="button"
+              className={s.scrollBtn}
+              onClick={scrollLeft}
+              aria-label="Scroll left"
+            >
+              <FiChevronLeft />
+            </button>
 
-          <div className={s.subCategoriesWrapper} ref={scrollContainerRef}>
-            <div className={s.subCategories}>
-              {subCategoryArray.map((subCat, index) => {
-                const IconComponent = subCat.icon;
-                return (
-                  <button
-                    key={subCat.name + index}
-                    type="button"
-                    className={`${s.subCategoryCard} ${activeSubCategory === subCat.name ? s.active : ''}`}
-                    onClick={() => handleSubCategoryClick(subCat.name)}
-                    style={{ '--delay': `${index * 0.1}s` }}
-                    aria-pressed={activeSubCategory === subCat.name}
-                  >
-                    <div className={s.subCategoryIcon}>
-                      {IconComponent ? (
-                        <IconComponent />
-                      ) : (
-                        // small inline fallback so UI won't break if icon missing
-                        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden>
-                          <circle cx="12" cy="12" r="9" fill="currentColor" />
-                        </svg>
-                      )}
-                    </div>
-                    <div className={s.subCategoryContent}>
-                      <h3 className={s.subCategoryName}>{subCat.name}</h3>
-                      <span className={s.subCategoryCount}>
-                        {subCat.count} service{subCat.count !== 1 ? 's' : ''}
-                      </span>
-                    </div>
-                  </button>
-                );
-              })}
+            <div className={s.subCategoriesWrapper} ref={scrollContainerRef}>
+              <div className={s.subCategories}>
+                {subCategoryArray.map((subCat, index) => {
+                  const IconComponent = subCat.icon;
+                  return (
+                    <button
+                      key={subCat.name}
+                      type="button"
+                      className={`${s.subCategoryCard} ${activeSubCategory === subCat.name ? s.active : ''}`}
+                      onClick={() => handleSubCategoryClick(subCat.name)}
+                      style={{ '--delay': `${index * 0.1}s` }}
+                      aria-pressed={activeSubCategory === subCat.name}
+                    >
+                      <div className={s.subCategoryIcon}>
+                        {IconComponent ? (
+                          <IconComponent />
+                        ) : (
+                          <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+                            <circle cx="12" cy="12" r="9" fill="currentColor" />
+                          </svg>
+                        )}
+                      </div>
+                      <div className={s.subCategoryContent}>
+                        <h3 className={s.subCategoryName}>{subCat.name}</h3>
+                        <span className={s.subCategoryCount}>
+                          {subCat.count} service{subCat.count !== 1 ? 's' : ''}
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
 
-          <button
-            type="button"
-            className={s.scrollBtn}
-            onClick={scrollRight}
-            aria-label="Scroll right"
-          >
-            <FiChevronRight />
-          </button>
-        </div>
+            <button
+              type="button"
+              className={s.scrollBtn}
+              onClick={scrollRight}
+              aria-label="Scroll right"
+            >
+              <FiChevronRight />
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );
