@@ -294,6 +294,12 @@
   transition: all 0.3s ease;
 }
 
+.brandLogo {
+  height: clamp(72px, 12vw, 84px);
+  width: auto;
+  display: block;
+}
+
 .brandText {
   font-weight: 800;
   font-size: clamp(18px, 3vw, 22px);

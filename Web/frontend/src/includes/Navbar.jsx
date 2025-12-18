@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "../assets/css/includes/Navbar.module.css";
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from "../context/AuthContext";
 
 const LINKS = [
   { href: "/about", label: "About Us" },
@@ -117,11 +117,15 @@ export default function Navbar({ theme, resolvedTheme, toggleTheme }) {
         role="navigation"
         aria-label="Main navigation">
         {/* Brand */}
-        <a className={styles.brand} href="/" aria-label="LG - Go to homepage">
-          <span className={styles.logoBadge} aria-hidden="true">
-            UM
-          </span>
-          <span className={styles.brandText}>Urban Mytra</span>
+        <a
+          className={styles.brand}
+          href="/"
+          aria-label="Urban Mytra - Go to homepage">
+          <img
+            src={resolvedTheme === "dark" ? "/DarkLogo.png" : "/LightLogo.png"}
+            alt="Urban Mytra"
+            className={styles.brandLogo}
+          />
         </a>
 
         {/* Mobile burger */}
@@ -170,10 +174,20 @@ export default function Navbar({ theme, resolvedTheme, toggleTheme }) {
             className={styles.cta}
             role="menuitem"
             onClick={handleGetStarted}
-            onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && handleGetStarted(e)}>
+            onKeyDown={(e) =>
+              (e.key === "Enter" || e.key === " ") && handleGetStarted(e)
+            }>
             Get Started
             <span className={styles.arrowCircle} aria-hidden="true">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round">
                 <path d="M5 12h14" />
                 <path d="M13 5l7 7-7 7" />
               </svg>

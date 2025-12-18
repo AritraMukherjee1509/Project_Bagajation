@@ -177,10 +177,15 @@ export default function Footer() {
             {/* Brand Column */}
             <div className={styles.brandCol}>
               <div className={styles.brandRow}>
-                <span className={styles.logoBadge} aria-hidden="true">
-                  LG
-                </span>
-                <span className={styles.brandText}>LG Smart Services</span>
+                <img
+                  src={
+                    document.documentElement.classList.contains("dark")
+                      ? "/DarkLogo.png"
+                      : "/LightLogo.png"
+                  }
+                  alt="Urban Mytra"
+                  className={styles.brandLogo}
+                />
               </div>
 
               <p className={styles.brandDescription}>
