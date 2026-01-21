@@ -9,6 +9,7 @@ const mongoose = require('mongoose');
 // @route   GET /api/v1/reviews
 // @access  Public
 const getReviews = async (req, res, next) => {
+  console.log('Get Reviews - Query Params:', req.query);
   try {
     let query = {};
 
@@ -96,6 +97,7 @@ const getReviews = async (req, res, next) => {
       data: reviews
     });
   } catch (error) {
+    console.log('Get reviews error:', error);
     next(error);
   }
 };

@@ -16,6 +16,7 @@ import {
   FiCheckCircle,
   FiAlertCircle,
 } from "react-icons/fi";
+import QRImage from '../assets/images/QR.jpg';
 
 export default function BookService() {
   const { serviceId } = useParams();
@@ -201,7 +202,9 @@ export default function BookService() {
   const calculateTotal = () => {
     const basePrice =
       service?.pricing?.discountPrice || service?.pricing?.basePrice || 0;
-    const subtotal = basePrice * bookingData.quantity;
+    const visitCharge = 300;
+    const subtotal = (basePrice * bookingData.quantity) + visitCharge;
+    const subtotalWithVisit = subtotal + visitCharge;
     // const taxes = subtotal * 0.18; // 18% GST
     const taxes = 0;
     return {
@@ -213,90 +216,93 @@ export default function BookService() {
 
   // src/pages/BookService.jsx - Update the handleBooking function
 
-const handleBooking = async () => {
-  if (!validateStep(3)) return;
-  
-  try {
-    setBookingLoading(true);
-    setErrors({});
-    
-    const { subtotal, taxes, total } = calculateTotal();
-    
-    // Create a properly formatted booking payload
-    const bookingPayload = {
-      service: serviceId,
-      customerInfo: {
-        name: bookingData.customerInfo.name,
-        email: bookingData.customerInfo.email,
-        phone: bookingData.customerInfo.phone,
-        alternatePhone: bookingData.customerInfo.alternatePhone || ''
-      },
-      serviceAddress: {
-        street: bookingData.serviceAddress.street,
-        city: bookingData.serviceAddress.city,
-        state: bookingData.serviceAddress.state,
-        zipCode: bookingData.serviceAddress.zipCode,
-        landmark: bookingData.serviceAddress.landmark || '',
-        instructions: bookingData.serviceAddress.instructions || ''
-      },
-      scheduling: {
-        preferredDate: bookingData.scheduling.preferredDate,
-        preferredTimeSlot: bookingData.scheduling.preferredTimeSlot,
-      },
-      requirements: {
-        specialInstructions: bookingData.requirements.specialInstructions || '',
-        materials: []
-      },
-      pricing: {
-        baseAmount: service.pricing?.basePrice || 0,
-        additionalCharges: [],
-        discount: 0,
-        taxes: {
-          total: taxes
-        },
-        totalAmount: total
-      },
-      payment: {
-        method: bookingData.payment.method || 'cash'
-      }
-    };
-    
-    console.log('Sending booking data:', bookingPayload);
-    
+  const handleBooking = async () => {
+    if (!validateStep(3)) return;
+
     try {
-      const response = await bookingsAPI.createBooking(bookingPayload);
-      const result = apiUtils.formatResponse(response);
-      
-      if (result.success) {
-        // Navigate to booking confirmation
-        navigate(`/booking-confirmation/${result.data._id}`, {
-          state: { booking: result.data }
-        });
-      } else {
-        setErrors({ submit: result.message || 'Booking failed. Please try again.' });
+      setBookingLoading(true);
+      setErrors({});
+
+      const { subtotal, taxes, total } = calculateTotal();
+
+      // Create a properly formatted booking payload
+      const bookingPayload = {
+        service: serviceId,
+        customerInfo: {
+          name: bookingData.customerInfo.name,
+          email: bookingData.customerInfo.email,
+          phone: bookingData.customerInfo.phone,
+          alternatePhone: bookingData.customerInfo.alternatePhone || "",
+        },
+        serviceAddress: {
+          street: bookingData.serviceAddress.street,
+          city: bookingData.serviceAddress.city,
+          state: bookingData.serviceAddress.state,
+          zipCode: bookingData.serviceAddress.zipCode,
+          landmark: bookingData.serviceAddress.landmark || "",
+          instructions: bookingData.serviceAddress.instructions || "",
+        },
+        scheduling: {
+          preferredDate: bookingData.scheduling.preferredDate,
+          preferredTimeSlot: bookingData.scheduling.preferredTimeSlot,
+        },
+        requirements: {
+          specialInstructions:
+            bookingData.requirements.specialInstructions || "",
+          materials: [],
+        },
+        pricing: {
+          baseAmount: service.pricing?.basePrice || 0,
+          additionalCharges: [],
+          discount: 0,
+          taxes: {
+            total: taxes,
+          },
+          totalAmount: total,
+        },
+        payment: {
+          method: bookingData.payment.method || "cash",
+        },
+      };
+
+      console.log("Sending booking data:", bookingPayload);
+
+      try {
+        const response = await bookingsAPI.createBooking(bookingPayload);
+        const result = apiUtils.formatResponse(response);
+
+        if (result.success) {
+          // Navigate to booking confirmation
+          navigate(`/booking-confirmation/${result.data._id}`, {
+            state: { booking: result.data },
+          });
+        } else {
+          setErrors({
+            submit: result.message || "Booking failed. Please try again.",
+          });
+        }
+      } catch (error) {
+        console.error("Booking failed:", error);
+
+        let errorMessage = "Booking failed. Please try again.";
+
+        if (error.response?.data?.error) {
+          errorMessage = error.response.data.error;
+        } else if (error.response?.data?.message) {
+          errorMessage = error.response.data.message;
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+
+        setErrors({ submit: errorMessage });
       }
     } catch (error) {
-      console.error('Booking failed:', error);
-      
-      let errorMessage = 'Booking failed. Please try again.';
-      
-      if (error.response?.data?.error) {
-        errorMessage = error.response.data.error;
-      } else if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      } else if (error.message) {
-        errorMessage = error.message;
-      }
-      
-      setErrors({ submit: errorMessage });
+      console.error("Booking preparation failed:", error);
+      setErrors({ submit: "An unexpected error occurred. Please try again." });
+    } finally {
+      setBookingLoading(false);
     }
-  } catch (error) {
-    console.error('Booking preparation failed:', error);
-    setErrors({ submit: 'An unexpected error occurred. Please try again.' });
-  } finally {
-    setBookingLoading(false);
-  }
-};
+  };
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat("en-IN", {
@@ -363,7 +369,8 @@ const handleBooking = async () => {
                 <p>{service.provider?.name}</p>
                 <div className={s.servicePrice}>
                   {formatPrice(
-                    service.pricing?.discountPrice || service.pricing?.basePrice
+                    service.pricing?.discountPrice ||
+                      service.pricing?.basePrice,
                   )}
                   {service.pricing?.discountPrice && (
                     <span className={s.originalPrice}>
@@ -385,7 +392,9 @@ const handleBooking = async () => {
                     step >= stepNum ? s.active : ""
                   } ${step > stepNum ? s.completed : ""}`}>
                   <div className={s.stepNumber}>
-                    {step > stepNum ? <FiCheckCircle /> : stepNum}
+                    {step > stepNum ?
+                      <FiCheckCircle />
+                    : stepNum}
                   </div>
                   <span className={s.stepLabel}>
                     {stepNum === 1 && "Contact Info"}
@@ -414,7 +423,7 @@ const handleBooking = async () => {
                           handleInputChange(
                             "customerInfo",
                             "name",
-                            e.target.value
+                            e.target.value,
                           )
                         }
                         className={errors["customerInfo.name"] ? s.error : ""}
@@ -436,7 +445,7 @@ const handleBooking = async () => {
                             handleInputChange(
                               "customerInfo",
                               "email",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           className={
@@ -459,7 +468,7 @@ const handleBooking = async () => {
                             handleInputChange(
                               "customerInfo",
                               "phone",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           className={
@@ -483,7 +492,7 @@ const handleBooking = async () => {
                           handleInputChange(
                             "customerInfo",
                             "alternatePhone",
-                            e.target.value
+                            e.target.value,
                           )
                         }
                       />
@@ -507,7 +516,7 @@ const handleBooking = async () => {
                           handleInputChange(
                             "serviceAddress",
                             "street",
-                            e.target.value
+                            e.target.value,
                           )
                         }
                         className={
@@ -532,7 +541,7 @@ const handleBooking = async () => {
                             handleInputChange(
                               "serviceAddress",
                               "city",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           className={
@@ -555,7 +564,7 @@ const handleBooking = async () => {
                             handleInputChange(
                               "serviceAddress",
                               "state",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           className={
@@ -578,7 +587,7 @@ const handleBooking = async () => {
                             handleInputChange(
                               "serviceAddress",
                               "zipCode",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           className={
@@ -602,7 +611,7 @@ const handleBooking = async () => {
                           handleInputChange(
                             "serviceAddress",
                             "landmark",
-                            e.target.value
+                            e.target.value,
                           )
                         }
                         placeholder="Nearby landmark for easy location"
@@ -617,7 +626,7 @@ const handleBooking = async () => {
                           handleInputChange(
                             "serviceAddress",
                             "instructions",
-                            e.target.value
+                            e.target.value,
                           )
                         }
                         placeholder="Any special instructions for the service provider"
@@ -643,7 +652,7 @@ const handleBooking = async () => {
                           handleInputChange(
                             "scheduling",
                             "preferredDate",
-                            e.target.value
+                            e.target.value,
                           )
                         }
                         className={
@@ -666,15 +675,18 @@ const handleBooking = async () => {
                             key={slot}
                             type="button"
                             className={`${s.timeSlot} ${
-                              bookingData.scheduling.preferredTimeSlot === slot
-                                ? s.selected
-                                : ""
+                              (
+                                bookingData.scheduling.preferredTimeSlot ===
+                                slot
+                              ) ?
+                                s.selected
+                              : ""
                             }`}
                             onClick={() =>
                               handleInputChange(
                                 "scheduling",
                                 "preferredTimeSlot",
-                                slot
+                                slot,
                               )
                             }>
                             <FiClock />
@@ -725,7 +737,7 @@ const handleBooking = async () => {
                           handleInputChange(
                             "requirements",
                             "specialInstructions",
-                            e.target.value
+                            e.target.value,
                           )
                         }
                         placeholder="Any special requirements or instructions for the service"
@@ -794,7 +806,7 @@ const handleBooking = async () => {
                       <p>
                         <strong>Date:</strong>{" "}
                         {new Date(
-                          bookingData.scheduling.preferredDate
+                          bookingData.scheduling.preferredDate,
                         ).toLocaleDateString()}
                       </p>
                       <p>
@@ -820,13 +832,13 @@ const handleBooking = async () => {
                             handleInputChange(
                               "payment",
                               "method",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                         />
                         <span>Cash on Service</span>
                       </label>
-                      <label className={s.paymentOption}>
+                      {/* <label className={s.paymentOption}>
                         <input
                           type="radio"
                           name="paymentMethod"
@@ -841,7 +853,7 @@ const handleBooking = async () => {
                           }
                         />
                         <span>Credit/Debit Card</span>
-                      </label>
+                      </label> */}
                       <label className={s.paymentOption}>
                         <input
                           type="radio"
@@ -852,12 +864,22 @@ const handleBooking = async () => {
                             handleInputChange(
                               "payment",
                               "method",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                         />
                         <span>UPI</span>
                       </label>
+                      {bookingData.payment.method === "upi" && (
+                        <div className={s.qrCodeContainer}>
+                          <img
+                            src={QRImage}
+                            alt="UPI QR Code"
+                            className={s.qrCode}
+                          />
+                          <p>Scan to pay via UPI</p>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -867,6 +889,10 @@ const handleBooking = async () => {
                     <div className={s.priceRow}>
                       <span>Service Cost ({bookingData.quantity}x)</span>
                       <span>{formatPrice(subtotal)}</span>
+                    </div>
+                    <div className={s.priceRow}>
+                      <span>Visit Charge</span>
+                      <span>{formatPrice(300)}</span>
                     </div>
                     {/* <div className={s.priceRow}>
                       <span>Taxes (18% GST)</span>
@@ -899,23 +925,22 @@ const handleBooking = async () => {
                 </button>
               )}
 
-              {step < 4 ? (
+              {step < 4 ?
                 <button
                   className={s.nextBtn}
                   onClick={handleNext}
                   disabled={bookingLoading}>
                   Next
                 </button>
-              ) : (
-                <button
+              : <button
                   className={s.bookBtn}
                   onClick={handleBooking}
                   disabled={bookingLoading}>
-                  {bookingLoading
-                    ? "Booking..."
-                    : `Confirm Booking - ${formatPrice(total)}`}
+                  {bookingLoading ?
+                    "Booking..."
+                  : `Confirm Booking - ${formatPrice(total)}`}
                 </button>
-              )}
+              }
             </div>
           </div>
         </div>

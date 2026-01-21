@@ -10,6 +10,7 @@ import {
   FiTrendingUp,
   FiPlay
 } from 'react-icons/fi';
+import ChoiceOfKolkata from '../../assets/images/Choice of Kolkata.png';
 
 const features = [
   {
@@ -100,11 +101,11 @@ export default function AboutHero() {
 
           <div className={s.visual}>
             <div className={s.imageContainer}>
-              <div className={s.mainImage} />
-              <div className={s.playButton}>
-                <button className={s.playBtn} aria-label="Play company video">
-                  <FiPlay />
-                </button>
+              <div className={s.mainImage}>
+                <img 
+                  src={ChoiceOfKolkata}
+                  alt="Choice of Kolkata"
+                />
               </div>
               <div className={s.floatingCard}>
                 <div className={s.cardIcon}>

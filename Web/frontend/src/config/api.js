@@ -175,7 +175,7 @@ export const servicesAPI = {
 
 export const bookingsAPI = {
   // Get all bookings (filtered by user role)
-  getBookings: (params = {}) => api.get('/bookings', { params }),
+  getAllBookings: (params = {}) => api.get('/bookings', { params }),
   
   // Get single booking
   getBooking: (id) => api.get(`/bookings/${id}`),

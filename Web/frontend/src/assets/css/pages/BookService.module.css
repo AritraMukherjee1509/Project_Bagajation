@@ -423,6 +423,18 @@
   margin: 0;
 }
 
+.qrCodeContainer {
+  margin-top: 16px;
+  text-align: center;
+}
+
+.qrCode {
+  margin: 0 auto;
+  height: 150px;
+  width: auto;
+  object-fit: contain;
+}
+
 .priceBreakdown {
   background: var(--surface-2);
   border-radius: 12px;

@@ -387,10 +387,10 @@ const queryValidations = {
       .trim()
       .notEmpty()
       .withMessage('Subcategory cannot be empty if provided'),
-    query('status')
-      .optional()
-      .isIn(['active', 'inactive', 'draft', 'suspended'])
-      .withMessage('Status must be one of: active, inactive, draft, suspended'),
+    // query('status')
+    //   .optional()
+    //   .isIn(['active', 'inactive', 'draft', 'suspended'])
+    //   .withMessage('Status must be one of: active, inactive, draft, suspended'),
     query('minPrice')
       .optional()
       .isFloat({ min: 0 })

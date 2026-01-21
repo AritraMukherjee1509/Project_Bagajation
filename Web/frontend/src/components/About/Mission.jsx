@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import s from '../../assets/css/components/About/MissionVision.module.css';
 import { FiTarget, FiHeart, FiShield, FiTrendingUp } from 'react-icons/fi';
+import OurMission from '../../assets/images/Our Mission.png';
 
 const missionPoints = [
   {
@@ -55,7 +56,7 @@ export default function Mission() {
               <div 
                 className={s.image} 
                 style={{ 
-                  backgroundImage: "url('https://images.unsplash.com/photo-1581578401680-985f2d1b0a7e?q=80&w=1200&auto=format&fit=crop')" 
+                  backgroundImage: `url(${OurMission})` 
                 }} 
               />
               <div className={s.overlay}>

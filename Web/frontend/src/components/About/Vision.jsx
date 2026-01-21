@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import s from '../../assets/css/components/About/MissionVision.module.css';
 import { FiEye, FiGlobe, FiStar, FiZap, FiUsers } from 'react-icons/fi';
+import OurVision from '../../assets/images/Our Vision.png';
 
 const visionPoints = [
   {
@@ -90,7 +91,7 @@ export default function Vision() {
                 "We believe every home deserves expert care, and every customer 
                 deserves transparency, reliability, and excellence."
               </blockquote>
-              <cite className={s.quoteAuthor}>— LG Smart Services Team</cite>
+              <cite className={s.quoteAuthor}>— Urban Mytra Team</cite>
             </div>
           </div>
 
@@ -99,7 +100,7 @@ export default function Vision() {
               <div 
                 className={s.image} 
                 style={{ 
-                  backgroundImage: "url('https://images.unsplash.com/photo-1573883431205-98b9fe7eeecf?q=80&w=1200&auto=format&fit=crop')" 
+                  backgroundImage: `url(${OurVision})` 
                 }} 
               />
               <div className={s.overlay}>

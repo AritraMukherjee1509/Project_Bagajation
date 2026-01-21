@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import s from '../../assets/css/components/Home/Professional.module.css';
 import { FiCheck, FiPlay, FiAward, FiUsers, FiClock } from 'react-icons/fi';
+import CertifiedProfessionals from '../../assets/images/Certified Professionals.png';
 
 const bullets = [
   { text: 'Repair and Installation', icon: <FiCheck /> },
@@ -102,11 +103,11 @@ export default function Professional() {
 
           <div className={s.right}>
             <div className={s.imageContainer}>
-              <div className={s.image} />
-              <div className={s.playButton}>
-                <button className={s.playBtn} aria-label="Play video">
-                  <FiPlay />
-                </button>
+              <div className={s.image} > 
+                <img 
+                  src={CertifiedProfessionals}
+                  alt="Certified Professionals"
+                />
               </div>
               <div className={s.floatingCard}>
                 <div className={s.cardIcon}>

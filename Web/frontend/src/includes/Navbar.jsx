@@ -8,6 +8,7 @@ const LINKS = [
   { href: "/listing", label: "Services" },
   { href: "/faq", label: "FAQ" },
   { href: "/contact", label: "Contact" },
+  { href: "/bookings", label: "Bookings" },
 ];
 
 const ThemeIcon = ({ theme, resolvedTheme }) => {

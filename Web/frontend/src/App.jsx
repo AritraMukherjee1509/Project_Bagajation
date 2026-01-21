@@ -26,7 +26,7 @@ import BookingConfirmation from "./pages/BookingConfirmation";
 
 /* User Dashboard Pages */
 // import UserDashboard from "./pages/UserDashboard";
-// import UserBookings from "./pages/UserBookings";
+import UserBookings from "./pages/Bookings";
 // import UserProfile from "./pages/UserProfile";
 // import UserFavorites from "./pages/UserFavorites";
 
@@ -80,6 +80,12 @@ function AppContent() {
               </ProtectedRoute>
             } />
 
+            <Route path="/bookings" element={
+              <ProtectedRoute>
+                <UserBookings />
+              </ProtectedRoute>
+            } />
+
             {/* User Dashboard Routes - Protected */}
             {/* <Route path="/dashboard" element={
               <ProtectedRoute>
@@ -91,11 +97,7 @@ function AppContent() {
                 <UserProfile />
               </ProtectedRoute>
             } />
-            <Route path="/bookings" element={
-              <ProtectedRoute>
-                <UserBookings />
-              </ProtectedRoute>
-            } />
+          
             <Route path="/favorites" element={
               <ProtectedRoute>
                 <UserFavorites />
