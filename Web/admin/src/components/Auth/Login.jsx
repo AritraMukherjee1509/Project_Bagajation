@@ -130,14 +130,6 @@ export default function Login() {
               )}
             </button>
           </form>
-
-          <div className={styles.loginFooter}>
-            <p className={styles.demoCredentials}>
-              <strong>Demo Credentials:</strong><br />
-              Email: admin@bagajatin.com<br />
-              Password: admin123456
-            </p>
-          </div>
         </div>
       </div>
     </div>
