@@ -7,7 +7,9 @@ export default defineConfig({
     host: true,
     port: 5173, // Render will override this with $PORT
     allowedHosts: [
-      'project-bagajation.onrender.com'
+      'project-bagajation.onrender.com',
+      'www.urbanmytra.in',
+      'urbanmytra.in'
     ]
   }
 })

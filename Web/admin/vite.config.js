@@ -8,7 +8,10 @@ export default defineConfig({
     host: true,
     port: 5174, // Render overrides with $PORT
     allowedHosts: [
-      'project-bagajation-admin.onrender.com'
+      'project-bagajation-admin.onrender.com',
+      'www.admin.urbanmytra.in',
+      'admin.urbanmytra.in',
+      'urbanmytra.in'
     ]
   }
 })
